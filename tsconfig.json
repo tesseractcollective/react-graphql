@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": ["dom", "dom.iterable", "esnext", "ES2020"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "typeRoots": ["src/types/**", "types/"],
+    "baseUrl": "./src",
+    "paths": {
+      "hooks": ["hooks"],
+      "support": ["support"],
+      "components": ["components"]
+    },
+    "jsx": "react-jsx"
+  },
+  "include": ["src", "./src/**/*.{ts|tsx|js|jsx}"]
+}
