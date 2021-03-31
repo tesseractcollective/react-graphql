@@ -1,3 +1,4 @@
+import { filter } from 'lodash';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { UseQueryResponse, useQuery, UseQueryArgs } from 'urql';
 import { usePagination } from './useInfiniteQueryMany.utils';
@@ -8,7 +9,7 @@ interface IUseInfiniteQueryMany {
   initialVariables?: IJsonObject;
 }
 
-export default function useInfiniteQueryMany<TData extends IJsonObject, TVariables extends IJsonObject>(
+export default function useInfiniteQueryMany<TData extends IJsonMapOfArraysObject, TVariables extends IJsonObject>(
   props: IUseInfiniteQueryMany,
 ) {
   const { sharedConfig, middleware, initialVariables } = props;
@@ -16,6 +17,7 @@ export default function useInfiniteQueryMany<TData extends IJsonObject, TVariabl
   const [meta, setMeta] = useState<{
     firstQueryCompleted: boolean;
     localError: string;
+    queryError?: string;
     detectedPks: Map<any, any>;
   }>({ firstQueryCompleted: false, localError: '', detectedPks: new Map() });
   const [itemsMap, setItemsMap] = useState<Map<any, TData>>(new Map());
@@ -46,12 +48,13 @@ export default function useInfiniteQueryMany<TData extends IJsonObject, TVariabl
     return _queryCfg;
   }, [sharedConfig, middleware, objectVariables]);
 
-  const [resp, reExecuteQuery] = useQuery<T>({
+  const [resp, reExecuteQuery] = useQuery<TData>({
     query: queryCfg?.query,
     variables: objectVariables,
   });
 
   useEffect(() => {
+    //How to reset to page 0
     reExecuteQuery();
   }, [queryCfg]);
 
@@ -70,12 +73,17 @@ export default function useInfiniteQueryMany<TData extends IJsonObject, TVariabl
         let newDetectedPks;
         //detectPK
         if (!detectedPks.get(key)) {
-          //Move to utility function and check for registered regex
-          const itemKeys: any = items[0];
-          const pks = itemKeys.filter((ik) => ['id', 'user_id'].indexOf(ik) >= 0);
-          if (pks.length === 1) {
-            newDetectedPks = new Map(detectedPks);
-            newDetectedPks.set(key, pks[0]);
+          if (sharedConfig.primaryKey) {
+            //TODO Use this
+          } else {
+            //Move to utility function and check for registered regex
+            const item: any = items[0];
+            const validPks = ['id', 'user_id'];
+            const pks = filter(item.filter((val: any, key: string) => validPks.indexOf(key) >= 0));
+            if (pks.length === 1) {
+              newDetectedPks = new Map(detectedPks);
+              newDetectedPks.set(key, pks[0]);
+            }
           }
         }
 
@@ -92,7 +100,7 @@ export default function useInfiniteQueryMany<TData extends IJsonObject, TVariabl
         }
 
         const newItems = new Map(itemsMap);
-        items.forEach((itm: TData) => newItems.set(itm[pk], itm));
+        items.forEach((itm: any) => newItems.set(itm[pk], itm));
         setItemsMap(itemsMap);
         setMeta({
           detectedPks: newDetectedPks ?? meta.detectedPks,

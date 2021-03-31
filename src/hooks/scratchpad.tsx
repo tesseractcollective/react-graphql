@@ -1,48 +1,46 @@
-import React, { useState, useEffect, Children } from 'react';
+// import React, { useState, useEffect, Children } from 'react';
 
-//Types
-const HASURA_CTX = {
-  Groups: 'Groups',
-};
+// //Types
+// const HASURA_CTX = {
+//   Groups: 'Groups',
+// };
 
-export inter
+// export inter
 
-//Consuming Component
-const ctx = useHasuraContext<Groups>('Groups');
+// //Consuming Component
+// const ctx = useHasuraContext<Groups>('Groups');
 
-const groups = ctx.useManyQuery({
-  where,
-  order,
-  limit,
-})`
-  name
-  body
-  groups {
-    hello
-  }
-`;
+// const groups = ctx.useManyQuery({
+//   where,
+//   order,
+//   limit,
+// })`
+//   name
+//   body
+//   groups {
+//     hello
+//   }
+// `;
 
-ctx.useDelete(groups[0]);
-groups.addNew({...});
-ctx.createNew({...});
+// ctx.useDelete(groups[0]);
+// groups.addNew({...});
+// ctx.createNew({...});
 
+// //Create Post
+// //Create UserGroups
 
-//Create Post
-//Create UserGroups
+// //Me
+// export default function useHasuraContext<T extends string = string>() {
+//   useEffect(() => {
+//     const res: T.core = getData();
+//     res;
 
+//     //insert
+//     const inputVars: T.insert_input = {} as T;
+//   }, []);
 
-//Me
-export default function useHasuraContext<T extends string = string>() {
-  useEffect(() => {
-    const res: T.core = getData();
-    res;
-
-    //insert
-    const inputVars: T.insert_input = {} as T;
-  }, []);
-
-  return {
-    /*
+//   return {
+/*
       useList
         * [core]
         * [pagination]
@@ -60,8 +58,8 @@ export default function useHasuraContext<T extends string = string>() {
         abc
       
     */
-  };
-}
+//   };
+// }
 
 // core
 // core_aggregate
@@ -72,91 +70,89 @@ export default function useHasuraContext<T extends string = string>() {
 // insert_core_one
 // update_core
 
-<Single data={data} />
+// <Single data={data} />
 
-core
--> If limit 1 then return single data
--> Else return PaginatedList | List
+// core
+// -> If limit 1 then return single data
+// -> Else return PaginatedList | List
 
-core_aggregate
--> Text | Function
+// core_aggregate
+// -> Text | Function
 
-core_by_pk
--> SingleItem  | Function
-delete_core
--> Button | Function
-delete_core_by_pk
--> Button | Function
-insert_core
--> Button | Function
-insert_core_one
--> Form + Submit Button | Function
-update_core
--> Form + Submit Button | Function
+// core_by_pk
+// -> SingleItem  | Function
+// delete_core
+// -> Button | Function
+// delete_core_by_pk
+// -> Button | Function
+// insert_core
+// -> Button | Function
+// insert_core_one
+// -> Form + Submit Button | Function
+// update_core
+// -> Form + Submit Button | Function
 
+// //THESE ARE THE 4 CORE SCENARIOS
+// SingleItem (single item)
+// Button | Function (delete)
+// PaginatedList (many)
+// Form (insert & updates)
 
-//THESE ARE THE 4 CORE SCENARIOS
-SingleItem (single item)
-Button | Function (delete)
-PaginatedList (many)
-Form (insert & updates)
+// interface HasuraContext {
+//   typename: string;
+//   primaryKey: string[];
+//   primaryKeyRequiredOnCreate?: boolean;
+//   overrides?: {
+//     operationNames?: {
+//       query_many?: string,
+//       query_aggregate?: string,
+//       query_by_pk?: string,
+//       delete_by_pk?: string,
+//       insert?: string,
+//       insert_core_one?: string,
+//       update_core?: string,
+//     }
+//   }
+//   fieldFragments: {
+//     [key: string]: string
+//   }
+// }
 
-interface HasuraContext {
-  typename: string;
-  primaryKey: string[];
-  primaryKeyRequiredOnCreate?: boolean;
-  overrides?: {
-    operationNames?: {
-      query_many?: string,
-      query_aggregate?: string,
-      query_by_pk?: string,
-      delete_by_pk?: string,
-      insert?: string,
-      insert_core_one?: string,
-      update_core?: string,
-    }
-  }
-  fieldFragments: {
-    [key: string]: string
-  }
-}
+// interface RootHasuraContext {
+//   [key: string]: HasuraContext
+// }
 
-interface RootHasuraContext {
-  [key: string]: HasuraContext
-}
+// const AllGroupsDocument = `query {
+//   groups(where: { city: { _eq : 'Denver' } }) {
+//     ${fieldsFragment}
+//   }
+// }`
 
-const AllGroupsDocument = `query {
-  groups(where: { city: { _eq : 'Denver' } }) {
-    ${fieldsFragment}
-  }
-}`
-
-export const Context: RootHasuraContext = {
-  groups: {
-    typename: 'groups',
-    primaryKey: ['id'],
-    // overrides: {
-    //   operationNames: {
-    //     query_many: string,
-    //     query_aggregate: string,
-    //     query_by_pk: groupsPk,
-    //     delete_by_pk: string,
-    //     insert: string,
-    //     insert_core_one: string,
-    //     update_core: string,
-    //   }
-    // },
-    fieldFragments: {
-      allGroups: `...`,
-    }
-  },
-  posts: {
-    typename: 'posts',
-    primaryKey: ['id'],
-    fieldFragments: {},
-  }
-}
-
+// export const Context: RootHasuraContext = {
+//   groups: {
+//     typename: 'groups',
+//     primaryKey: ['id'],
+//     // overrides: {
+//     //   operationNames: {
+//     //     query_many: string,
+//     //     query_aggregate: string,
+//     //     query_by_pk: groupsPk,
+//     //     delete_by_pk: string,
+//     //     insert: string,
+//     //     insert_core_one: string,
+//     //     update_core: string,
+//     //   }
+//     // },
+//     fieldFragments: {
+//       allGroups: `...`,
+//     }
+//   },
+//   posts: {
+//     typename: 'posts',
+//     primaryKey: ['id'],
+//     fieldFragments: {},
+//   }
+// }
 
 // mutation MyMutation {
 //   insert_threads(objects: {})
@@ -172,3 +168,4 @@ export const Context: RootHasuraContext = {
 //   threads
 //   threads_aggregate
 // }
+export {};

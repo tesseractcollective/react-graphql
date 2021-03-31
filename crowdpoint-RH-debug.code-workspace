@@ -1,0 +1,30 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../tetraplex"
+		}
+	],
+	"settings": {
+		"workbench.colorCustomizations": {
+			"activityBar.activeBackground": "#afb1aa",
+			"activityBar.activeBorder": "#30748f",
+			"activityBar.background": "#afb1aa",
+			"activityBar.foreground": "#15202b",
+			"activityBar.inactiveForeground": "#15202b99",
+			"activityBarBadge.background": "#30748f",
+			"activityBarBadge.foreground": "#e7e7e7",
+			"statusBar.background": "#96998f",
+			"statusBar.foreground": "#15202b",
+			"statusBarItem.hoverBackground": "#7d8075",
+			"titleBar.activeBackground": "#96998f",
+			"titleBar.activeForeground": "#15202b",
+			"titleBar.inactiveBackground": "#96998f99",
+			"titleBar.inactiveForeground": "#15202b99"
+		},
+		"peacock.color": "#96998f",
+		"typescript.tsdk": "tetraplex/node_modules/typescript/lib"
+	}
+}

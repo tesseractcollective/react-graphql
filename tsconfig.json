@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "esnext",
+    "target": "ES5",
     "lib": ["dom", "dom.iterable", "esnext", "ES2020"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -9,19 +9,19 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "esnext",
+    "module": "ESNext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "typeRoots": ["src/types/**", "types/"],
+    "typeRoots": ["src/types/**", "types/", "node_modules/@types"],
     "baseUrl": "./src",
     "paths": {
       "hooks": ["hooks"],
       "support": ["support"],
       "components": ["components"]
     },
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "outDir": "dist"
   },
-  "include": ["src", "./src/**/*.{ts|tsx|js|jsx}"]
+  "include": ["src", "./src/**/*.{ts|tsx|js|jsx}", "__tests__/useInfiniteQueryMany.test.tsx"]
 }

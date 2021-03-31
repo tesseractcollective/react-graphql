@@ -23,6 +23,7 @@
     "urql": "^2.0.1",
     "web-vitals": "^1.0.1"
   },
+  "main": "dist",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

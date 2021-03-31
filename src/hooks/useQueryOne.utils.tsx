@@ -1,42 +1,17 @@
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { getFieldFragmentInfo } from '../support/HasuraConfigUtils';
+import { UseQueryResponse, useQuery, UseQueryArgs } from 'urql';
+import { usePagination } from './useInfiniteQueryMany.utils';
 import { print } from 'graphql';
 import gql from 'graphql-tag';
-import React, { useState } from 'react';
-import { map } from 'lodash';
 
-const defaultPageSize = 50;
-
-export function usePagination(pageSize?: number) {
-  if (!pageSize) pageSize = defaultPageSize;
-  const limit = pageSize;
-  const [offset, setOffset] = useState(0);
-
-  const loadNextPage = () => {
-    setOffset(offset + limit);
-  };
-
-  const refresh = () => {
-    setOffset(0);
-  };
-
-  const middleware = (state: QueryPreMiddlewareState, config: HasuraDataConfig): QueryPostMiddlewareState => {
-    let newState = { ...state } as QueryPostMiddlewareState;
-    if (offset) {
-      newState.variables.offset = offset;
-    }
-    newState.variables.limit = limit;
-    newState.query = '';
-    newState.operationName = '';
-
-    return newState;
-  };
-
-  return { refresh, loadNextPage, middleware };
+interface IUseQueryOne {
+  sharedConfig: HasuraDataConfig;
+  middleware: QueryMiddleware[];
+  initialVariables?: IJsonObject;
 }
 
-const querySupportedVariables = { where: true, orderBy: true, limit: true, offset: true };
-
-export function createInfiniteQueryMany(
+export function createQueryOne<TData extends IJsonObject, TVariables extends IJsonObject>(
   state: QueryPreMiddlewareState,
   config: HasuraDataConfig,
 ): QueryPostMiddlewareState {
@@ -77,3 +52,9 @@ export function createInfiniteQueryMany(
 
   return { query, operationName, variables: state.variables ?? {}, pkColumns };
 }
+
+// document: DocumentNode,
+// where?: {[key: string]: any},
+// orderBy?: {[key: string]: any},
+// primaryKey: string = defaultPrimaryKey,
+// pageSize: number = defaultPageSize,

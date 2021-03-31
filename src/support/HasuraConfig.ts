@@ -1,9 +1,4 @@
-import HasuraConfigsMapType from './HasuraConfigsMapType';
-import {
-  GroupFieldsFragmentDoc,
-  PostFieldsFragmentDoc,
-  UserGroupFieldsFragmentDoc,
-} from './generated/graphql';
+import { GroupFieldsFragmentDoc, PostFieldsFragmentDoc, UserGroupFieldsFragmentDoc } from './generated/graphql';
 
 const HasuraConfig: HasuraConfigsMapType = {
   groups: {
