@@ -1,12 +1,14 @@
 import { getFieldFragmentInfo } from '../support/HasuraConfigUtils';
 import { print } from 'graphql';
 import gql from 'graphql-tag';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { map } from 'lodash';
+import { QueryPostMiddlewareState, QueryPreMiddlewareState } from 'types/hookMiddleware';
+import { HasuraDataConfig } from 'types/hasuraConfig';
 
 const defaultPageSize = 50;
 
-export function usePagination(pageSize?: number) {
+export function usePagination(pageSize: number) {
   if (!pageSize) pageSize = defaultPageSize;
   const limit = pageSize;
   const [offset, setOffset] = useState(0);
@@ -19,17 +21,21 @@ export function usePagination(pageSize?: number) {
     setOffset(0);
   };
 
-  const middleware = (state: QueryPreMiddlewareState, config: HasuraDataConfig): QueryPostMiddlewareState => {
-    let newState = { ...state } as QueryPostMiddlewareState;
-    if (offset) {
-      newState.variables.offset = offset;
-    }
-    newState.variables.limit = limit;
-    newState.query = '';
-    newState.operationName = '';
+  const middleware = useCallback(
+    (state: QueryPreMiddlewareState, config: HasuraDataConfig): QueryPostMiddlewareState => {
+      let newState = { ...state } as QueryPostMiddlewareState;
+      if (offset) {
+        newState.variables.offset = offset;
+      }
+      if (limit) {
+        newState.variables.limit = limit;
+      }
+      newState.operationName = '';
 
-    return newState;
-  };
+      return newState;
+    },
+    [offset, limit],
+  );
 
   return { refresh, loadNextPage, middleware };
 }
@@ -47,28 +53,36 @@ export function createInfiniteQueryMany(
 
   const variables = state.variables;
 
-  const variablesStr = [
+  const variablesStrInner = [
     variables['where'] ? `$where: ${name}_bool_exp` : null,
     variables['orderBy'] ? `$orderBy: ${name}_order_by!` : null,
+    variables['limit'] ? `$limit: Int` : null,
+    variables['offset'] ? `$offset: Int` : null,
   ]
     .filter((x) => !!x)
     .join(', ');
+  const variablesStr = variablesStrInner ? `(${variablesStrInner})` : '';
+  console.log('variablesStr', variablesStr);
 
   const operationStr = [
     variables['where'] ? `where: $where` : null,
     variables['orderBy'] ? `order_by: $orderBy` : null,
-    variables['limit'] ? `limit: ${variables.limit}` : null,
-    variables['offset'] ? `offset: ${variables.offset}` : null,
+    variables['limit'] ? `limit: $limit` : null,
+    variables['offset'] ? `offset: $offset` : null,
   ]
     .filter((x) => !!x)
     .join(', ');
 
-  const query = gql`query ${name}Query(${variablesStr}) {
-      ${name}(${operationStr}) {
-        ...${fragmentName}
-      }
+  const queryStr = `query ${name}Query${variablesStr} {
+    ${name}(${operationStr}) {
+      ...${fragmentName}
     }
-    ${print(fragment)}`;
+  }
+  ${print(fragment)}`;
+
+  // console.log('queryStr', queryStr);
+
+  const query = gql(queryStr);
 
   const pkColumns: { [key: string]: any } = {};
   for (const key of config.primaryKey) {

@@ -4,6 +4,8 @@ import { UseQueryResponse, useQuery, UseQueryArgs } from 'urql';
 import { usePagination } from './useInfiniteQueryMany.utils';
 import { print } from 'graphql';
 import gql from 'graphql-tag';
+import { QueryMiddleware, QueryPostMiddlewareState, QueryPreMiddlewareState } from 'types/hookMiddleware';
+import { HasuraDataConfig } from 'types/hasuraConfig';
 
 interface IUseQueryOne {
   sharedConfig: HasuraDataConfig;

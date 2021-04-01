@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { HasuraDataConfig } from 'types/hasuraConfig';
+import { QueryMiddleware, QueryPostMiddlewareState, QueryPreMiddlewareState } from 'types/hookMiddleware';
 import { UseQueryResponse, useQuery, UseQueryArgs } from 'urql';
 import { usePagination } from './useInfiniteQueryMany.utils';
 

@@ -1,3 +1,6 @@
+import { OperationContext } from "@urql/core";
+import { HasuraDataConfig } from "types/hasuraConfig";
+
 interface UseMutatorProps<T> {
   config: HasuraDataConfig;
   initialVariables?: { [key: string]: any };

@@ -1,7 +1,8 @@
-import { filter } from 'lodash';
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { UseQueryResponse, useQuery, UseQueryArgs } from 'urql';
-import { usePagination } from './useInfiniteQueryMany.utils';
+import { useEffect, useMemo, useState } from 'react';
+import { HasuraDataConfig } from 'types/hasuraConfig';
+import { QueryMiddleware, QueryPostMiddlewareState, QueryPreMiddlewareState } from 'types/hookMiddleware';
+import { findDefaultPks } from './findDefaultPks';
+import { useUrqlQuery } from './useUrqlQuery';
 
 interface IUseInfiniteQueryMany {
   sharedConfig: HasuraDataConfig;
@@ -21,6 +22,7 @@ export default function useInfiniteQueryMany<TData extends IJsonMapOfArraysObjec
     detectedPks: Map<any, any>;
   }>({ firstQueryCompleted: false, localError: '', detectedPks: new Map() });
   const [itemsMap, setItemsMap] = useState<Map<any, TData>>(new Map());
+  const [needsReQuery, setNeedsReQuery] = useState<boolean>();
   const [objectVariables, setObjectVariables] = useState<{ [key: string]: any }>(initialVariables ?? {});
 
   //Guards
@@ -28,7 +30,11 @@ export default function useInfiniteQueryMany<TData extends IJsonMapOfArraysObjec
     throw new Error('sharedConfig and at least one middleware required');
   }
 
-  //Setup the initial query Config so it's for sure ready before we get to urql
+  const reInitObjectVariables = (newVars: IJsonObject) => {
+    setObjectVariables(newVars);
+  };
+
+  // Setup the initial query Config so it's for sure ready before we get to urql
   const queryCfg: QueryPostMiddlewareState = useMemo(() => {
     const _tmp = middleware.reduce(
       (val, next: QueryMiddleware) => {
@@ -44,23 +50,24 @@ export default function useInfiniteQueryMany<TData extends IJsonMapOfArraysObjec
     );
 
     const _queryCfg = _tmp as QueryPostMiddlewareState;
-
     return _queryCfg;
   }, [sharedConfig, middleware, objectVariables]);
 
-  const [resp, reExecuteQuery] = useQuery<TData>({
-    query: queryCfg?.query,
-    variables: objectVariables,
-  });
+  const [resp, reExecuteQuery] = useUrqlQuery<TData>(queryCfg, objectVariables);
 
   useEffect(() => {
     //How to reset to page 0
-    reExecuteQuery();
-  }, [queryCfg]);
+    if (needsReQuery) {
+      console.log('reExecuteQuery - 80', queryCfg, objectVariables);
+      setNeedsReQuery(false);
+      reExecuteQuery();
+    }
+  }, [needsReQuery]);
 
   //Parse response
   useEffect(() => {
     if (resp.data) {
+      console.log('resp.data', resp.data);
       const data: IJsonMapOfArraysObject = resp.data;
       const keys = Object.keys(data);
       if (keys.length === 1) {
@@ -71,23 +78,20 @@ export default function useInfiniteQueryMany<TData extends IJsonMapOfArraysObjec
 
         const { detectedPks } = meta;
         let newDetectedPks;
+        let pk: string = detectedPks?.get(key);
         //detectPK
         if (!detectedPks.get(key)) {
           if (sharedConfig.primaryKey) {
             //TODO Use this
+            newDetectedPks = new Map();
+            newDetectedPks.set(key, sharedConfig.primaryKey);
+            pk = sharedConfig.primaryKey?.[0];
           } else {
             //Move to utility function and check for registered regex
-            const item: any = items[0];
-            const validPks = ['id', 'user_id'];
-            const pks = filter(item.filter((val: any, key: string) => validPks.indexOf(key) >= 0));
-            if (pks.length === 1) {
-              newDetectedPks = new Map(detectedPks);
-              newDetectedPks.set(key, pks[0]);
-            }
+            newDetectedPks = findDefaultPks(items, newDetectedPks, detectedPks, key);
           }
         }
 
-        const pk: string = detectedPks.get(key);
         let localError;
         if (!pk) {
           localError = 'Could not autodetect PK, please register pk patterns';
@@ -101,7 +105,7 @@ export default function useInfiniteQueryMany<TData extends IJsonMapOfArraysObjec
 
         const newItems = new Map(itemsMap);
         items.forEach((itm: any) => newItems.set(itm[pk], itm));
-        setItemsMap(itemsMap);
+        setItemsMap(newItems);
         setMeta({
           detectedPks: newDetectedPks ?? meta.detectedPks,
           firstQueryCompleted: true,
@@ -128,16 +132,21 @@ export default function useInfiniteQueryMany<TData extends IJsonMapOfArraysObjec
     return [];
   }, [itemsMap]);
 
+  const reload = () => {
+    setItemsMap(new Map());
+    setNeedsReQuery(true);
+  };
+  const requeryKeepInfinite = () => {
+    setNeedsReQuery(true);
+  };
+
   return {
     results,
     localError: meta.localError,
     setObjectVariables,
     objectVariables,
+    reload,
+    requeryKeepInfinite,
+    reInitObjectVariables,
   };
 }
-
-// document: DocumentNode,
-// where?: {[key: string]: any},
-// orderBy?: {[key: string]: any},
-// primaryKey: string = defaultPrimaryKey,
-// pageSize: number = defaultPageSize,

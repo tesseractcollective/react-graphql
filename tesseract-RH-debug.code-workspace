@@ -1,10 +1,10 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"path": "../../crowdpoint/crowdpoint-admin"
 		},
 		{
-			"path": "../../tetraplex"
+			"path": ".."
 		}
 	],
 	"settings": {
@@ -24,7 +24,6 @@
 			"titleBar.inactiveBackground": "#96998f99",
 			"titleBar.inactiveForeground": "#15202b99"
 		},
-		"peacock.color": "#96998f",
-		"typescript.tsdk": "tetraplex/node_modules/typescript/lib"
+		"peacock.color": "#96998f"
 	}
 }

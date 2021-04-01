@@ -1,1 +1,1 @@
-# tetraplex
+# hasura-react

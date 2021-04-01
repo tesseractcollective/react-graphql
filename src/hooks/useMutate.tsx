@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { HasuraDataConfig } from 'types/hasuraConfig';
+import { MutationMiddleware, MutationPostMiddlewareState, MutationPreMiddlewareState } from 'types/hookMiddleware';
 import { OperationContext, useMutation } from 'urql';
 
 interface IUseMutateProps {
@@ -11,6 +13,8 @@ export default function useMutate<T extends IJsonObject>(props: IUseMutateProps)
   const { sharedConfig, middleware, initialVariables } = props;
   //MutationConfig is what we internally refer to the middlewareState as
   const [objectVariables, setObjectVariables] = useState<{ [key: string]: any }>(initialVariables ?? {});
+  const [needsExecuteMutation, setNeedsExecuteMutation] = useState<boolean>();
+  const [executeContext, setExecuteContext] = useState<Partial<OperationContext> | null>();
 
   //Guards
   if (!sharedConfig || !middleware?.length) {
@@ -38,10 +42,21 @@ export default function useMutate<T extends IJsonObject>(props: IUseMutateProps)
     return _mutationCfg;
   }, [sharedConfig, middleware, objectVariables]);
 
+  console.log('mutationCfg:MutationPostMiddlewareState -> _mutationCfg', mutationCfg);
   //The mutation
   const [mutationResult, executeMutation] = useMutation(mutationCfg?.mutation);
-  const data = mutationResult.data?.[mutationCfg.operationName];
-  const resultItem = data.data?.[mutationCfg.operationName];
+  const data = mutationResult.data;
+  const resultItem = data?.[mutationCfg.operationName];
+
+  useEffect(() => {
+    if (needsExecuteMutation) {
+      setNeedsExecuteMutation(false);
+      executeMutation(mutationCfg.variables);
+    } else if (executeContext) {
+      setExecuteContext(null);
+      executeMutation(mutationCfg.variables, executeContext);
+    }
+  }, [needsExecuteMutation, executeContext, executeMutation, mutationCfg.variables]);
 
   //Handling variables
   const setVariable = (key: string, value: any) => {
@@ -74,7 +89,11 @@ export default function useMutate<T extends IJsonObject>(props: IUseMutateProps)
         //If variables were passed in then save the new combined variables
         setObjectVariables(variables);
       }
-      executeMutation(variables, context);
+      if (context) {
+        setExecuteContext(context);
+      } else {
+        setNeedsExecuteMutation(true);
+      }
     },
     setVariable,
     setVariables,

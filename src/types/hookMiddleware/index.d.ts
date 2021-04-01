@@ -1,3 +1,6 @@
+import { DocumentNode } from "graphql";
+import { HasuraDataConfig } from "types/hasuraConfig";
+
 interface QueryMiddleware {
   (state: QueryPreMiddlewareState, config: HasuraDataConfig): QueryPostMiddlewareState;
 }

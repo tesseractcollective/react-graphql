@@ -1,4 +1,5 @@
 import useReactHasura from 'hooks/useReactHasura';
+import { HasuraDataConfig } from 'types/hasuraConfig';
 
 export interface PaginationListProps<T> {
   config: HasuraDataConfig;

@@ -1,3 +1,5 @@
+import { DocumentNode } from "graphql";
+
 interface HasuraConfigsMapType {
   [key: string]: HasuraDataConfig;
 }
@@ -7,6 +9,7 @@ interface HasuraDataConfig {
   typename: string;
   primaryKey: string[];
   primaryKeyRequiredOnCreate?: boolean;
+  instanceId?: string;
   fieldFragment: DocumentNode;
   overrides?: {
     operationNames?: {

@@ -8,30 +8,33 @@ import useInfiniteQueryMany from './useInfiniteQueryMany';
 import { createInfiniteQueryMany, usePagination } from './useInfiniteQueryMany.utils';
 import useQueryOne from './useQueryOne';
 import { createQueryOne } from './useQueryOne.utils';
+import { MutationMiddleware, QueryMiddleware } from 'types/hookMiddleware';
+import { HasuraDataConfig } from 'types/hasuraConfig';
 
 export default function useReactHasura(config: HasuraDataConfig) {
   return {
-    useInsert: (props: { initialVariables?: IJsonObject; middleware: MutationMiddleware[] }) =>
+    useInsert: (props: { initialVariables?: IJsonObject; middleware?: MutationMiddleware[] }) =>
       useMutate({
         sharedConfig: config,
         middleware: props.middleware || [createInsertMutation],
         initialVariables: props.initialVariables,
       }),
-    useDelete: (props: { initialVariables?: IJsonObject; middleware: MutationMiddleware[] }) =>
+    useDelete: (props: { initialVariables?: IJsonObject; middleware?: MutationMiddleware[] }) =>
       useMutate({
         sharedConfig: config,
         middleware: props.middleware || [createDeleteMutation],
         initialVariables: props.initialVariables,
       }),
-    useUpdate: (props: { initialVariables?: IJsonObject; middleware: MutationMiddleware[] }) =>
+    useUpdate: (props: { initialVariables?: IJsonObject; middleware?: MutationMiddleware[] }) =>
       useMutate({
         sharedConfig: config,
         middleware: props.middleware || [createUpdateMutation],
         initialVariables: props.initialVariables,
       }),
-    useInfiniteQueryMany: (props: { initialVariables?: IJsonObject; middleware?: QueryMiddleware[] }) => {
+    useInfiniteQueryMany: (props: { initialVariables?: IJsonObject; 
+      pageSize?: number; middleware?: QueryMiddleware[] }) => {
       const { refresh, loadNextPage, middleware: paginationMiddleware } = usePagination(
-        props?.initialVariables?.pageSize as number,
+        props?.pageSize as number,
       );
 
       const [middlewares, setMiddlewares] = useState(
@@ -45,7 +48,7 @@ export default function useReactHasura(config: HasuraDataConfig) {
       });
 
       useEffect(() => {
-        if (!props.middleware && paginationMiddleware) {
+        if (!props.middleware && paginationMiddleware && paginationMiddleware !== middlewares?.[0]) {
           setMiddlewares([paginationMiddleware, createInfiniteQueryMany]);
         }
       }, [props.middleware, paginationMiddleware]);
