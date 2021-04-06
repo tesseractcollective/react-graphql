@@ -3,6 +3,6 @@
 
   "compilerOptions": {
     "jsx": "react-native",
-    "outDir": "../community-app/app/hasura-react"
+    "outDir": "../community-app/app/react-graphql"
   }
 }
