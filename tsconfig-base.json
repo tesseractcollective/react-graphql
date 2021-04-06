@@ -3,7 +3,7 @@
     "target": "ES5",
     "lib": ["dom", "dom.iterable", "esnext", "ES2020"],
     "allowJs": true,
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
@@ -15,17 +15,16 @@
     "isolatedModules": true,
     "declaration": true,
     "declarationMap": true,
-    "typeRoots": ["src/types/**", "types/", "node_modules/@types"],
+    "typeRoots": ["src/types/**", "types/**/*.d.ts", "node_modules/@types"],
     "baseUrl": "./src",
     "paths": {
       "hooks": ["hooks"],
       "support": ["support"],
       "components": ["components"]
     },
-    "jsx": "react-jsx",
-    "outDir": "dist",
     "sourceMap": true,
     "inlineSources": true
   },
-  "include": ["src", "./src/**/*.{ts|tsx|js|jsx}", "src/__tests__/**/*.{ts|tsx|js|jsx}"]
+  "include": ["src", "./src/**/*.{ts|tsx|js|jsx}", "src/__tests__/**/*.{ts|tsx|js|jsx}"],
+  "exclude": ["node_modules"]
 }

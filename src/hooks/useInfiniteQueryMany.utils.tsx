@@ -55,7 +55,7 @@ export function createInfiniteQueryMany(
 
   const variablesStrInner = [
     variables['where'] ? `$where: ${name}_bool_exp` : null,
-    variables['orderBy'] ? `$orderBy: ${name}_order_by!` : null,
+    variables['orderBy'] ? `$orderBy: [${name}_order_by!]` : null,
     variables['limit'] ? `$limit: Int` : null,
     variables['offset'] ? `$offset: Int` : null,
   ]

@@ -1,5 +1,8 @@
+import React from 'react';
 import useReactHasura from 'hooks/useReactHasura';
 import { HasuraDataConfig } from 'types/hasuraConfig';
+import { Divider,Text } from 'react-native-elements';
+import { bs } from '../support/styling/buildStyles';
 
 export interface PaginationListProps<T> {
   config: HasuraDataConfig;
@@ -24,7 +27,11 @@ export default function PaginatedList<T extends { [key: string]: any }>(props: P
   //Error is Todo
   //Fetching is Todo
 
-  return <div>PaginatedList</div>;
+  return (
+    <Divider style={bs(`w-99p b-1 b-blue-300 h-50`)}>
+      <Text>PaginatedList</Text>
+    </Divider>
+  );
 
   // return (
   //   <>

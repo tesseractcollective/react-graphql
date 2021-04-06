@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig-base.json",
+
+  "compilerOptions": {
+    "jsx": "react-native",
+    "outDir": "../community-app/app/hasura-react"
+  }
+}

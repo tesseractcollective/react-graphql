@@ -55,6 +55,8 @@ export default function useInfiniteQueryMany<TData extends IJsonMapOfArraysObjec
 
   const [resp, reExecuteQuery] = useUrqlQuery<TData>(queryCfg, objectVariables);
 
+  resp.
+
   useEffect(() => {
     //How to reset to page 0
     if (needsReQuery) {
@@ -141,6 +143,7 @@ export default function useInfiniteQueryMany<TData extends IJsonMapOfArraysObjec
   };
 
   return {
+    resp,
     results,
     localError: meta.localError,
     setObjectVariables,
