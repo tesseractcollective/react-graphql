@@ -1,36 +1,21 @@
-import { DocumentNode } from "graphql";
-import { HasuraDataConfig } from "types/hasuraConfig";
+import {DocumentNode} from 'graphql';
+import {HasuraDataConfig} from 'types/hasuraConfig';
 
-interface QueryMiddleware {
-  (state: QueryPreMiddlewareState, config: HasuraDataConfig): QueryPostMiddlewareState;
+export interface QueryMiddleware {
+  (
+    state: QueryPreMiddlewareState,
+    config: HasuraDataConfig,
+  ): QueryPostMiddlewareState;
 }
 
-interface QueryPreMiddlewareState {
-  query?: DocumentNode | string;
+export interface QueryPreMiddlewareState {
+  document?: DocumentNode;
   variables: IJsonObject;
   operationName?: string;
-  pkColumns?: { [key: string]: string };
-}
-interface QueryPostMiddlewareState {
-  query: DocumentNode;
-  variables: IJsonObject;
-  operationName: string;
-  pkColumns: { [key: string]: string };
 }
 
-interface MutationMiddleware {
-  (state: MutationPreMiddlewareState, config: HasuraDataConfig): MutationPostMiddlewareState;
-}
-
-interface MutationPreMiddlewareState {
-  mutation?: DocumentNode;
-  variables?: IJsonObject;
-  operationName?: string;
-  pkColumns?: { [key: string]: string };
-}
-interface MutationPostMiddlewareState {
-  mutation: DocumentNode;
+export interface QueryPostMiddlewareState {
+  document: DocumentNode;
   variables: IJsonObject;
   operationName: string;
-  pkColumns: { [key: string]: string };
 }

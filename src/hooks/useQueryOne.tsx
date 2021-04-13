@@ -1,77 +1,101 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { HasuraDataConfig } from 'types/hasuraConfig';
-import { QueryMiddleware, QueryPostMiddlewareState, QueryPreMiddlewareState } from 'types/hookMiddleware';
-import { UseQueryResponse, useQuery, UseQueryArgs } from 'urql';
-import { usePagination } from './useInfiniteQueryMany.utils';
+import {useState, useEffect} from 'react';
+import {HasuraDataConfig} from 'react-graphql/types/hasuraConfig';
+import {QueryMiddleware} from 'react-graphql/types/hookMiddleware';
+import {OperationContext, useQuery} from 'urql';
+import {stateFromQueryMiddleware} from 'react-graphql/support/middlewareHelpers';
+import {keyExtractor} from 'react-graphql/support/HasuraConfigUtils';
+import {useAtom} from 'jotai';
+import {IMutationEvent, mutationEventAtom} from './mutationEventAtom';
 
 interface IUseQueryOne {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
-  initialVariables?: IJsonObject;
+  variables: IJsonObject;
 }
 
-export default function useQueryOne<TData extends IJsonObject, TVariables extends IJsonObject>(props: IUseQueryOne) {
-  const { sharedConfig, middleware, initialVariables } = props;
+export default function useQueryOne<
+  TData extends IJsonObject,
+  TVariables extends IJsonObject
+>(props: IUseQueryOne) {
+  const {sharedConfig, middleware, variables} = props;
 
-  const [meta, setMeta] = useState<{
-    firstQueryCompleted: boolean;
-    localError: string;
-    detectedPks: Map<any, any>;
-  }>({ firstQueryCompleted: false, localError: '', detectedPks: new Map() });
   const [item, setItem] = useState<TData>();
-  const [objectVariables, setObjectVariables] = useState<{ [key: string]: any }>(initialVariables ?? {});
+  const [key, setKey] = useState<string>();
+  const [objectVariables, setObjectVariables] = useState<{[key: string]: any}>(
+    variables,
+  );
+
+  const [mutationEvent] = useAtom<IMutationEvent>(mutationEventAtom);
 
   //Guards
   if (!sharedConfig || !middleware?.length) {
     throw new Error('sharedConfig and at least one middleware required');
   }
 
-  //Setup the initial query Config so it's for sure ready before we get to urql
-  const queryCfg: QueryPostMiddlewareState = useMemo(() => {
-    const _tmp = middleware.reduce(
-      (val, next: QueryMiddleware) => {
-        const mState: QueryPostMiddlewareState = next(val, sharedConfig);
-        let newState = {};
-        if (val) Object.assign(newState, val);
-        Object.assign(newState, mState);
-        return newState as QueryPostMiddlewareState;
-      },
-      {
-        variables: objectVariables,
-      } as QueryPreMiddlewareState,
-    );
-
-    const _queryCfg = _tmp as QueryPostMiddlewareState;
-
-    return _queryCfg;
-  }, [sharedConfig, middleware, objectVariables]);
+  const [queryCfg, setQueryCfg] = useState(computeConfig);
 
   const [resp, reExecuteQuery] = useQuery<TData>({
-    query: queryCfg?.query,
-    variables: objectVariables,
+    query: queryCfg?.document,
+    variables: queryCfg.variables,
   });
+
+  useEffect(() => {
+    if (item) {
+      setKey(keyExtractor(sharedConfig, item));
+    }
+  }, [item]);
+
+  useEffect(() => {
+    if (
+      mutationEvent.listKey == sharedConfig.typename &&
+      mutationEvent.key === key &&
+      mutationEvent.type !== 'init'
+    ) {
+      if (mutationEvent.type === 'delete') {
+        setItem(undefined);
+      } else {
+        setItem(mutationEvent.payload as TData);
+      }
+    }
+  }, [mutationEvent]);
 
   useEffect(() => {
     reExecuteQuery();
   }, [queryCfg]);
 
+  useEffect(() => {
+    const newState = computeConfig();
+    console.log(
+      'useQueryOne -> useEffect -> computeConfig -> newState',
+      newState,
+    );
+    setQueryCfg(newState);
+  }, [objectVariables]);
+
   //Parse response
   useEffect(() => {
     if (resp.data) {
-      setItem(resp.data);
+      console.log('⛱️ resp.data', resp.data);
+      setItem(resp.data[queryCfg.operationName]);
     }
   }, [resp.data]);
 
   return {
     item,
-    localError: meta.localError,
-    setObjectVariables,
-    objectVariables,
+    localError: undefined,
+    fetching: resp.fetching,
+    error: resp.error,
+    stale: resp.stale,
+    refresh: reExecuteQuery,
+    setVariables: setObjectVariables,
+    variables: objectVariables,
   };
-}
 
-// document: DocumentNode,
-// where?: {[key: string]: any},
-// orderBy?: {[key: string]: any},
-// primaryKey: string = defaultPrimaryKey,
-// pageSize: number = defaultPageSize,
+  function computeConfig() {
+    return stateFromQueryMiddleware(
+      {variables: objectVariables},
+      middleware,
+      sharedConfig,
+    );
+  }
+}
