@@ -1,9 +1,9 @@
-import {HasuraDataConfig} from 'react-graphql/support/HasuraConfigType';
+import {HasuraDataConfig} from '../support/HasuraConfigType';
 import {
   QueryMiddleware,
   QueryPostMiddlewareState,
   QueryPreMiddlewareState,
-} from 'react-graphql/types/hookMiddleware';
+} from '../types/hookMiddleware';
 
 export function stateFromQueryMiddleware(
   preState: QueryPreMiddlewareState,

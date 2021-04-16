@@ -8,16 +8,17 @@ import {
   QueryPreMiddlewareState,
 } from '../types/hookMiddleware';
 import {HasuraDataConfig} from '../types/hasuraConfig';
+import { JsonObject } from 'type-fest';
 
 interface IUseQueryOne {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
-  initialVariables?: IJsonObject;
+  initialVariables?: JsonObject;
 }
 
 export function createQueryOne<
-  TData extends IJsonObject,
-  TVariables extends IJsonObject
+  TData extends JsonObject,
+  TVariables extends JsonObject
 >(
   state: QueryPreMiddlewareState,
   config: HasuraDataConfig,

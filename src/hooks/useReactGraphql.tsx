@@ -11,11 +11,12 @@ import {createQueryOne} from './useQueryOne.utils';
 import {QueryMiddleware} from '../types/hookMiddleware';
 import {HasuraDataConfig} from '../types/hasuraConfig';
 import { OperationContext } from '@urql/core';
+import { JsonObject } from 'type-fest';
 
 export default function useReactGraphql(config: HasuraDataConfig) {
   return {
     useInsert: (props?: {
-      initialVariables?: IJsonObject;
+      initialVariables?: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
       firstOrLast?: 'insert-first' | 'insert-last';
@@ -29,7 +30,7 @@ export default function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useDelete: (props: {
-      variables: IJsonObject;
+      variables: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
     }) =>
@@ -42,7 +43,7 @@ export default function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useUpdate: (props?: {
-      initialVariables?: IJsonObject;
+      initialVariables?: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
     }) =>
@@ -70,7 +71,7 @@ export default function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useQueryOne: (props: {
-      variables: IJsonObject;
+      variables: JsonObject;
       middleware?: QueryMiddleware[];
     }) =>
       useQueryOne({

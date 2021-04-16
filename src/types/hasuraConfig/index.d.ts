@@ -1,6 +1,6 @@
 import { DocumentNode } from "graphql";
-
 interface HasuraConfigsMapType {
+
   [key: string]: HasuraDataConfig;
 }
 

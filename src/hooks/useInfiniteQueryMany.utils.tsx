@@ -7,7 +7,7 @@ import {
 } from '../types/hookMiddleware';
 import {HasuraDataConfig} from '../types/hasuraConfig';
 import {getFieldFragmentInfo} from '../support/HasuraConfigUtils';
-import {isDefined} from 'react-graphql/support/javaScriptHelpers';
+import {isDefined} from '../support/javaScriptHelpers';
 
 export function createInfiniteQueryMany(
   state: QueryPreMiddlewareState,

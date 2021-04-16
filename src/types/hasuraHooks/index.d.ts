@@ -1,5 +1,5 @@
 import { OperationContext } from "@urql/core";
-import { HasuraDataConfig } from "types/hasuraConfig";
+import { HasuraDataConfig } from "../types/hasuraConfig";
 
 interface UseMutatorProps<T> {
   config: HasuraDataConfig;

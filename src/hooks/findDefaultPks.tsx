@@ -1,7 +1,8 @@
 import {filter} from 'lodash';
+import { JsonArray } from 'type-fest';
 
 export function findDefaultPks(
-  items: IJsonArray,
+  items: JsonArray,
   newDetectedPks: Map<string, string[]> | undefined,
   detectedPks: Map<string, string[]>,
   key: string,

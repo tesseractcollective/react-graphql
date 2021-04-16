@@ -1,6 +1,6 @@
 import React from 'react';
 import {Button, ButtonProps} from 'react-native-elements';
-import {MutateState} from 'react-graphql/hooks/useMutate';
+import {MutateState} from '../../hooks/useMutate';
 
 export interface MutatorButtonProps {
   state: MutateState;

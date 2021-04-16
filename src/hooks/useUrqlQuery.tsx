@@ -1,7 +1,8 @@
-import { QueryPostMiddlewareState } from 'react-graphql/types/hookMiddleware';
+import { JsonArray } from 'type-fest';
 import { useQuery, UseQueryResponse } from 'urql';
+import { QueryPostMiddlewareState } from '../types/hookMiddleware';
 
-export function useUrqlQuery<TData extends IJsonMapOfArraysObject>(
+export function useUrqlQuery<TData = any, Variables = object>(
   queryCfg: QueryPostMiddlewareState,
   objectVariables?: { [key: string]: any },
 ): UseQueryResponse {

@@ -1,12 +1,12 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import HasuraConfig from './TestHasuraConfig';
-import useReactHasura from '../hooks/useReactGraphql';
+import useReactGraphql from '../hooks/useReactGraphql';
 // jest.mock('../hooks/useUrqlQuery');
 
 describe('useInfiniteQueryMany', () => {
   it('runs with no setup and returns an empty array', () => {
     // const { result } = renderHook(() => {
-    //   const rh = useReactHasura(HasuraConfig.groups);
+    //   const rh = useReactGraphql(HasuraConfig.groups);
     //   return rh.useInfiniteQueryMany({});
     // });
 

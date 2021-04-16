@@ -281,6 +281,8 @@ const heightStyles = { 'h-null': { height: null } };
 _.times(1024, (n) => (heightStyles[`h-${n}`] = { height: n }));
 _.times(1024, (n) => (heightStyles[`h-min-${n}`] = { minHeight: n }));
 _.times(100, (n) => (heightStyles[`h-${n}p`] = { height: `${n}%` }));
+_.times(1024, (n) => (heightStyles[`h-max-${n}`] = { maxHeight: n }));
+
 
 const widthStyles = { 'w-null': { width: null } };
 

@@ -1,8 +1,7 @@
 import React from 'react';
-import useReactHasura from 'hooks/useReactHasura';
-import { HasuraDataConfig } from 'types/hasuraConfig';
-import { Divider,Text } from 'react-native-elements';
+import { Divider, Text } from 'react-native-elements';
 import { bs } from '../support/styling/buildStyles';
+import { HasuraDataConfig } from '../types/hasuraConfig';
 
 export interface PaginationListProps<T> {
   config: HasuraDataConfig;
@@ -16,7 +15,7 @@ export interface PaginationListProps<T> {
 export default function PaginatedList<T extends { [key: string]: any }>(props: PaginationListProps<T>) {
   // const { config, where, orderBy, pageSize, ...rest } = props;
 
-  // const { loadNextPage, results } = useReactHasura(config).useInfiniteQueryMany({
+  // const { loadNextPage, results } = useReactGraphql(config).useInfiniteQueryMany({
   //   initialVariables: {
   //     where,
   //     orderBy,

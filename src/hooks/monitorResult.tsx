@@ -1,5 +1,6 @@
 import { print } from 'graphql';
 import {useEffect} from 'react';
+import { JsonArray } from 'type-fest';
 import {
   QueryPostMiddlewareState,
 } from '../types/hookMiddleware';
@@ -35,7 +36,7 @@ export function useMonitorResult(
       if (keys.length === 1) {
         const key = keys[0];
         //only single response category so use single layer items
-        const queryItems: IJsonArray = result.data[key];
+        const queryItems: JsonArray = result.data[key];
         if (Array.isArray(queryItems) && queryItems.length === 0) {
           console.log(
             `❗ WARN: ${resultType} EMPTY RESULTS`,

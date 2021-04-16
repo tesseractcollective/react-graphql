@@ -1,16 +1,16 @@
 import React, {useEffect, useState, ReactElement} from 'react';
-import {FlatList} from 'react-native-gesture-handler';
+import {FlatList} from 'react-native';
 import {
   RefreshControl,
   ListRenderItem,
   Text,
   ScrollViewProps,
 } from 'react-native';
-import {HasuraDataConfig} from 'react-graphql/support/HasuraConfigType';
-import {useIsFocused} from '@react-navigation/core';
-import useReactGraphql from 'react-graphql/hooks/useReactGraphql';
-import {QueryMiddleware} from 'react-graphql/types/hookMiddleware';
-import { keyExtractor } from 'react-graphql/support/HasuraConfigUtils';
+import {HasuraDataConfig} from '../support/HasuraConfigType';
+// import {useIsFocused} from '@react-navigation/core';
+import useReactGraphql from '../hooks/useReactGraphql';
+import {QueryMiddleware} from '../types/hookMiddleware';
+import { keyExtractor } from '../support/HasuraConfigUtils';
 
 const defaultPageSize = 50;
 
@@ -92,7 +92,7 @@ export default function <T extends {[key: string]: any}>(
           }
           data={items}
           renderItem={renderItem}
-          keyExtractor={(item) => keyExtractor(config, item)}
+          keyExtractor={(item: T) => keyExtractor(config, item)}
           onEndReachedThreshold={1}
           onEndReached={loadNextPage}
         />

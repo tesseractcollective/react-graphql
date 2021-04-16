@@ -1,6 +1,6 @@
 import {isEqual} from 'lodash';
 import {useCallback, useEffect, useState, useMemo} from 'react';
-import {stateFromQueryMiddleware} from 'react-graphql/support/middlewareHelpers';
+import {stateFromQueryMiddleware} from '../support/middlewareHelpers';
 import {HasuraDataConfig} from '../types/hasuraConfig';
 import {QueryMiddleware} from '../types/hookMiddleware';
 import {findDefaultPks} from './findDefaultPks';
@@ -8,6 +8,7 @@ import {useUrqlQuery} from './useUrqlQuery';
 import {useMonitorResult} from './monitorResult';
 import {useAtom} from 'jotai';
 import {mutationEventAtom, IMutationEvent} from './mutationEventAtom';
+import { JsonArray, JsonObject } from 'type-fest';
 
 interface IUseInfiniteQueryMany {
   where?: {[key: string]: any};
@@ -20,7 +21,7 @@ interface IUseInfiniteQueryMany {
 
 const defaultPageSize = 50;
 
-export default function useInfiniteQueryMany<TData extends IJsonObject>(
+export default function useInfiniteQueryMany<TData extends any>(
   props: IUseInfiniteQueryMany,
 ) {
   const {sharedConfig, middleware, where, orderBy, pageSize, listKey} = props;
@@ -83,12 +84,12 @@ export default function useInfiniteQueryMany<TData extends IJsonObject>(
   //Parse response
   useEffect(() => {
     if (queryState.data) {
-      const data: IJsonMapOfArraysObject = queryState.data;
+      const data: {[key:string]: JsonArray} = queryState.data;
       const keys = Object.keys(data);
       if (keys.length === 1) {
         const key = keys[0];
         //only single response category so use single layer items
-        const queryItems: IJsonArray = data[key];
+        const queryItems: any[] = data[key] as any;
         if (!queryItems?.length) return;
 
         const {detectedPks} = meta;
@@ -157,14 +158,6 @@ export default function useInfiniteQueryMany<TData extends IJsonObject>(
     const _listKey = listKey ?? sharedConfig.typename;
     const isMatchingListKey = _listKey === mutationEvent.listKey;
 
-    console.log(
-      'mutationEvent recieved <- Before check <- useInfiniteQueryMany',
-      {
-        isMatchingListKey,
-        _listKey,
-        'mutationEvent.listKey': mutationEvent.listKey,
-      },
-    );
     if (!isMatchingListKey) {
       return;
     }

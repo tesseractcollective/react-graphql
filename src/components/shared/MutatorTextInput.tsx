@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import {TextInput, TextInputProps} from 'react-native';
-import {MutateState} from 'react-graphql/hooks/useMutate';
-import {bs} from 'react-graphql/support/styling/buildStyles';
-import {isDefined} from 'react-graphql/support/javaScriptHelpers';
+import {MutateState} from '../../hooks/useMutate';
+import {bs} from '../../support/styling/buildStyles';
+import {isDefined} from '../../support/javaScriptHelpers';
 
 export interface MutatorInputProps {
   state: MutateState;

@@ -2,17 +2,18 @@ import {useEffect, useState, useCallback} from 'react';
 import {HasuraDataConfig} from '../types/hasuraConfig';
 import {QueryMiddleware} from '../types/hookMiddleware';
 import {OperationContext, useMutation, UseMutationState} from 'urql';
-import {stateFromQueryMiddleware} from 'react-graphql/support/middlewareHelpers';
+import {stateFromQueryMiddleware} from '../support/middlewareHelpers';
 import {useMonitorResult} from './monitorResult';
 import {mutationEventAtom} from './mutationEventAtom';
 import {useAtom} from 'jotai';
-import {keyExtractor} from 'react-graphql/support/HasuraConfigUtils';
+import {keyExtractor} from '../support/HasuraConfigUtils';
 import {print} from 'graphql';
+import { JsonObject } from 'type-fest';
 
 interface IUseMutateProps {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
-  initialVariables?: IJsonObject;
+  initialVariables?: JsonObject;
   operationEventType: 'insert-first' | 'insert-last' | 'update' | 'delete';
   listKey?: string;
 }
@@ -23,7 +24,7 @@ export interface MutateState {
   error?: Error;
   mutationState: UseMutationState;
   executeMutation: (
-    variables?: IJsonObject,
+    variables?: JsonObject,
     context?: Partial<OperationContext>,
   ) => void;
   setVariable: (key: string, value: any) => void;
@@ -31,7 +32,7 @@ export interface MutateState {
   objectVariables: {[key: string]: any};
 }
 
-export default function useMutate<T extends IJsonObject>(
+export default function useMutate<T extends JsonObject>(
   props: IUseMutateProps,
 ): MutateState {
   const {sharedConfig, middleware, initialVariables, listKey} = props;
@@ -51,7 +52,7 @@ export default function useMutate<T extends IJsonObject>(
   if (!sharedConfig || !middleware?.length) {
     throw new Error('sharedConfig and at least one middleware required');
   }
-  const computeConfig = (variables: IJsonObject) => {
+  const computeConfig = (variables: JsonObject) => {
     const state = stateFromQueryMiddleware(
       {variables},
       middleware,
@@ -118,7 +119,7 @@ export default function useMutate<T extends IJsonObject>(
   }, []);
 
   const wrappedExecuteMutation = (
-    _variables?: IJsonObject,
+    _variables?: JsonObject,
     context?: Partial<OperationContext>,
   ) => {
     if (_variables) {

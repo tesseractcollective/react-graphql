@@ -1,21 +1,22 @@
 import {useState, useEffect} from 'react';
-import {HasuraDataConfig} from 'react-graphql/types/hasuraConfig';
-import {QueryMiddleware} from 'react-graphql/types/hookMiddleware';
+import {HasuraDataConfig} from '../types/hasuraConfig';
+import {QueryMiddleware} from '../types/hookMiddleware';
 import {OperationContext, useQuery} from 'urql';
-import {stateFromQueryMiddleware} from 'react-graphql/support/middlewareHelpers';
-import {keyExtractor} from 'react-graphql/support/HasuraConfigUtils';
+import {stateFromQueryMiddleware} from '../support/middlewareHelpers';
+import {keyExtractor} from '../support/HasuraConfigUtils';
 import {useAtom} from 'jotai';
 import {IMutationEvent, mutationEventAtom} from './mutationEventAtom';
+import { JsonObject } from 'type-fest';
 
 interface IUseQueryOne {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
-  variables: IJsonObject;
+  variables: JsonObject;
 }
 
 export default function useQueryOne<
-  TData extends IJsonObject,
-  TVariables extends IJsonObject
+  TData extends JsonObject,
+  TVariables extends JsonObject
 >(props: IUseQueryOne) {
   const {sharedConfig, middleware, variables} = props;
 
@@ -85,7 +86,7 @@ export default function useQueryOne<
   useEffect(() => {
     if (resp.data) {
       console.log('⛱️ resp.data', resp.data);
-      setItem(resp.data[queryCfg.operationName]);
+      setItem(resp.data[queryCfg.operationName] as any);
     }
   }, [resp.data]);
 
@@ -140,11 +141,11 @@ export default function useQueryOne<
       if (newKey !== key) {
         setKey(newKey);
       }
-    } else if (item.typename !== sharedConfig.typename) {
+    } else if (item?.typename !== sharedConfig.typename) {
       console.log(
         `❗ useQueryOne -> item -> keyExtractor failed',
-                   ${item.typename} !== ${sharedConfig.typename}
-                   Recieved a item with a key of ${item.listKey}
+                  //  ${item?.typename} !== ${sharedConfig.typename}
+                   Recieved a item with a key of ${item?.listKey}
                    This instance of the useQueryOne hook was given a config for ${sharedConfig.typename}
             `,
       );
