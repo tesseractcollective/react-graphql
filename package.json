@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.5.11",
+  "version": "0.5.12",
   "private": false,
   "dependencies": {
     "graphql": "^15.5.0",
