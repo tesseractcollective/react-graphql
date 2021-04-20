@@ -1,4 +1,3 @@
-import HasuraConfigType from '../support/HasuraConfigType';
 import {
   GroupFieldsFragmentDoc,
   PostFieldsFragmentDoc,
@@ -7,6 +6,7 @@ import {
   PostCommentFieldsFragmentDoc,
   PostMutationtFieldsFragmentDoc,
 } from './generated/graphql';
+import { HasuraConfigType } from '../types/hasuraConfig'
 
 const HasuraConfig: HasuraConfigType = {
   groups: {

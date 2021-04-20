@@ -3,8 +3,8 @@ import {HasuraDataConfig} from '../types/hasuraConfig';
 import {QueryMiddleware} from '../types/hookMiddleware';
 import {OperationContext, useMutation, UseMutationState} from 'urql';
 import {stateFromQueryMiddleware} from '../support/middlewareHelpers';
-import {useMonitorResult} from './monitorResult';
-import {mutationEventAtom} from './mutationEventAtom';
+import {useMonitorResult} from './support/monitorResult';
+import {mutationEventAtom} from './support/mutationEventAtom';
 import {useAtom} from 'jotai';
 import {keyExtractor} from '../support/HasuraConfigUtils';
 import {print} from 'graphql';
@@ -32,7 +32,7 @@ export interface MutateState {
   objectVariables: {[key: string]: any};
 }
 
-export default function useMutate<T extends JsonObject>(
+export function useMutate<T extends JsonObject>(
   props: IUseMutateProps,
 ): MutateState {
   const {sharedConfig, middleware, initialVariables, listKey} = props;

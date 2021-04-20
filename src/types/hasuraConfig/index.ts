@@ -1,11 +1,10 @@
 import { DocumentNode } from "graphql";
-interface HasuraConfigsMapType {
 
+export interface HasuraConfigType {
   [key: string]: HasuraDataConfig;
 }
 
-
-interface HasuraDataConfig {
+export interface HasuraDataConfig {
   typename: string;
   primaryKey: string[];
   primaryKeyRequiredOnCreate?: boolean;

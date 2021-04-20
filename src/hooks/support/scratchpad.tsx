@@ -30,7 +30,7 @@
 // //Create UserGroups
 
 // //Me
-// export default function useHasuraContext<T extends string = string>() {
+// export function useHasuraContext<T extends string = string>() {
 //   useEffect(() => {
 //     const res: T.core = getData();
 //     res;

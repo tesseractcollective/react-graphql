@@ -5,7 +5,7 @@ import {OperationContext, useQuery} from 'urql';
 import {stateFromQueryMiddleware} from '../support/middlewareHelpers';
 import {keyExtractor} from '../support/HasuraConfigUtils';
 import {useAtom} from 'jotai';
-import {IMutationEvent, mutationEventAtom} from './mutationEventAtom';
+import {IMutationEvent, mutationEventAtom} from './support/mutationEventAtom';
 import { JsonObject } from 'type-fest';
 
 interface IUseQueryOne {
@@ -14,7 +14,7 @@ interface IUseQueryOne {
   variables: JsonObject;
 }
 
-export default function useQueryOne<
+export function useQueryOne<
   TData extends JsonObject,
   TVariables extends JsonObject
 >(props: IUseQueryOne) {

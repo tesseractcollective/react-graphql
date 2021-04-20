@@ -1,19 +1,19 @@
-import useMutate from './useMutate';
+import {useMutate} from './useMutate';
 import {
   createDeleteMutation,
   createInsertMutation,
   createUpdateMutation,
 } from './useMutate.utils';
-import useInfiniteQueryMany from './useInfiniteQueryMany';
+import {useInfiniteQueryMany} from './useInfiniteQueryMany';
 import {createInfiniteQueryMany} from './useInfiniteQueryMany.utils';
-import useQueryOne from './useQueryOne';
+import {useQueryOne} from './useQueryOne';
 import {createQueryOne} from './useQueryOne.utils';
 import {QueryMiddleware} from '../types/hookMiddleware';
 import {HasuraDataConfig} from '../types/hasuraConfig';
 import { OperationContext } from '@urql/core';
 import { JsonObject } from 'type-fest';
 
-export default function useReactGraphql(config: HasuraDataConfig) {
+export function useReactGraphql(config: HasuraDataConfig) {
   return {
     useInsert: (props?: {
       initialVariables?: JsonObject;

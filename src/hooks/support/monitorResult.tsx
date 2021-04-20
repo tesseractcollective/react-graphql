@@ -3,7 +3,7 @@ import {useEffect} from 'react';
 import { JsonArray } from 'type-fest';
 import {
   QueryPostMiddlewareState,
-} from '../types/hookMiddleware';
+} from '../../types/hookMiddleware';
 
 export function useMonitorResult(
   resultType: 'mutation' | 'query',

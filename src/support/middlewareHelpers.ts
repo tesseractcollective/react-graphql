@@ -1,4 +1,4 @@
-import {HasuraDataConfig} from '../support/HasuraConfigType';
+import { HasuraDataConfig } from '../types/hasuraConfig'
 import {
   QueryMiddleware,
   QueryPostMiddlewareState,

@@ -1,7 +1,6 @@
 import React, {useState, useEffect, ReactElement} from 'react';
 import {Text} from 'react-native';
 import {UseQueryState, CombinedError} from 'urql';
-import Toast from 'react-native-toast-message';
 
 interface IUseOperationStateHelperOptions {
   successToastMessage?: string;
@@ -12,9 +11,10 @@ interface IUseOperationStateHelperOptions {
   errorString?: string;
   errorRender?: (error: CombinedError) => ReactElement;
   onError?: (error: CombinedError) => void;
+  Toast?: any
 }
 
-export default function useOperationStateHelper(
+export function useOperationStateHelper(
   queryState: UseQueryState,
   options: IUseOperationStateHelperOptions,
 ) {
@@ -39,7 +39,7 @@ export default function useOperationStateHelper(
       if (queryState.error) {
         //TODO: Show error
         if (options.errorToastMessage) {
-          Toast.show({
+         options.Toast?.show({
             text2: options.errorToastMessage,
             type: 'error',
             position: 'bottom',
@@ -56,7 +56,7 @@ export default function useOperationStateHelper(
         }
       } else if (queryState.data) {
         if (options.successToastMessage) {
-          Toast.show({
+          options.Toast?.show({
             text2: options.successToastMessage,
             type: 'success',
             position: 'bottom',

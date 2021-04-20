@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react-hooks';
 import HasuraConfig from './TestHasuraConfig';
-import useReactGraphql from '../hooks/useReactGraphql';
+import {useReactGraphql} from '../hooks/useReactGraphql';
 // jest.mock('../hooks/useUrqlQuery');
 
 describe('useInfiniteQueryMany', () => {
