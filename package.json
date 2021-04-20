@@ -23,6 +23,7 @@
     "build": "tsc --project tsconfig-web.json",
     "setupdevlink": "cd dist && pwd && yarn link && cd ../node_modules/react && pwd && yarn link && cd ../react-dom && yarn link",
     "dopack": "tsc --project tsconfig-web.json && cd dist && rm -rf react-graphql-v0.1.1.tgz && yarn pack && cd ..",
+    "dopack:ps": "tsc | npm version patch | yarn pack",
     "pub": "npm publish --access public"
   },
   "eslintConfig": {
