@@ -10,6 +10,7 @@ export interface HasuraDataConfig {
   primaryKeyRequiredOnCreate?: boolean;
   instanceId?: string;
   fieldFragment: DocumentNode;
+  fieldNames?: string[];
   overrides?: {
     operationNames?: {
       query_many?: string;
