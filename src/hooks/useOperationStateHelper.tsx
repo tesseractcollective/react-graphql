@@ -1,6 +1,6 @@
 import React, {useState, useEffect, ReactElement} from 'react';
 import {Text} from 'react-native';
-import {UseQueryState, CombinedError} from 'urql';
+import {UseQueryState, CombinedError, UseMutationState} from 'urql';
 
 interface IUseOperationStateHelperOptions {
   successToastMessage?: string;
@@ -15,7 +15,7 @@ interface IUseOperationStateHelperOptions {
 }
 
 export function useOperationStateHelper(
-  queryState: UseQueryState,
+  queryState: UseQueryState | UseMutationState,
   options: IUseOperationStateHelperOptions,
 ) {
   const [Error, setError] = useState<ReactElement>();
