@@ -2,15 +2,6 @@
   "name": "@tesseractcollective/react-graphql",
   "version": "0.5.15",
   "private": false,
-  "dependencies": {
-    "graphql": "^15.5.0",
-    "graphql-tag": "^2.11.0",
-    "jotai": "^0.16.0",
-    "lodash": "^4.17.21",
-    "react-dom": "16.13.1",
-    "react-native-web": "0.14.13",
-    "react-scripts": "4.0.3"
-  },
   "main": "dist/index.js",
   "files": [
     "dist",
@@ -43,6 +34,23 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
+    "moduleFileExtensions": ["ts", "tsx", "js"],
+    "moduleDirectories": ["node_modules", "src"]
+  },
+  "dependencies": {
+    "graphql": "^15.5.0",
+    "graphql-tag": "^2.11.0",
+    "jotai": "^0.16.0",
+    "lodash": "^4.17.21",
+    "react-dom": "16.13.1",
+    "react-native-web": "0.14.13",
+    "react-scripts": "4.0.3"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.13.10",
