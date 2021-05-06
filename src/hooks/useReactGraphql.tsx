@@ -1,17 +1,16 @@
-import {useMutate} from './useMutate';
+import { JsonObject } from 'type-fest';
+import { HasuraDataConfig } from '../types/hasuraConfig';
+import { QueryMiddleware } from '../types/hookMiddleware';
+import { useInfiniteQueryMany } from './useInfiniteQueryMany';
+import { createInfiniteQueryMany } from './useInfiniteQueryMany.utils';
+import { useMutate } from './useMutate';
 import {
   createDeleteMutation,
   createInsertMutation,
-  createUpdateMutation,
+  createUpdateMutation
 } from './useMutate.utils';
-import {useInfiniteQueryMany} from './useInfiniteQueryMany';
-import {createInfiniteQueryMany} from './useInfiniteQueryMany.utils';
-import {useQueryOne} from './useQueryOne';
-import {createQueryOne} from './useQueryOne.utils';
-import {QueryMiddleware} from '../types/hookMiddleware';
-import {HasuraDataConfig} from '../types/hasuraConfig';
-import { OperationContext } from '@urql/core';
-import { JsonObject } from 'type-fest';
+import { useQueryOne } from './useQueryOne';
+import { createQueryOne } from './useQueryOne.utils';
 
 export function useReactGraphql(config: HasuraDataConfig) {
   return {

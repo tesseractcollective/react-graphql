@@ -6,6 +6,6 @@
   },
   "exclude": [
     "./src/components/*.native.*",
-    "node_modules",
+    "node_modules"
   ]
 }
