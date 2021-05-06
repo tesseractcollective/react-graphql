@@ -46,9 +46,9 @@
   "include": [
     "src",
     "src/**/*.{ts|tsx|js|jsx}",
-    "src/__tests__/**/*.{ts|tsx|js|jsx}"
+    "tests/**/*.{ts|tsx|js|jsx}"    
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
   ]
 }

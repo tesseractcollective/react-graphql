@@ -1,4 +1,4 @@
-import { OperationContext } from "@urql/core";
+import { OperationContext } from "urql";
 import { HasuraDataConfig } from "../hasuraConfig";
 
 export interface UseMutatorProps<T> {
