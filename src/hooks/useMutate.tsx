@@ -1,20 +1,22 @@
-import {useEffect, useState, useCallback} from 'react';
-import {HasuraDataConfig} from '../types/hasuraConfig';
-import {QueryMiddleware} from '../types/hookMiddleware';
-import {OperationContext, useMutation, UseMutationState} from 'urql';
-import {stateFromQueryMiddleware} from '../support/middlewareHelpers';
-import {useMonitorResult} from './support/monitorResult';
-import {mutationEventAtom} from './support/mutationEventAtom';
-import {useAtom} from 'jotai';
-import {keyExtractor} from '../support/HasuraConfigUtils';
-import {print} from 'graphql';
-import { JsonObject } from 'type-fest';
+import { useEffect, useState, useCallback } from "react";
+import { HasuraDataConfig } from "../types/hasuraConfig";
+import { QueryMiddleware } from "../types/hookMiddleware";
+import { OperationContext, stringifyVariables, useMutation, UseMutationState } from "urql";
+import { stateFromQueryMiddleware } from "../support/middlewareHelpers";
+import { useMonitorResult } from "./support/monitorResult";
+import { mutationEventAtom } from "./support/mutationEventAtom";
+import { useAtom } from "jotai";
+import { keyExtractor } from "../support/HasuraConfigUtils";
+import { print } from "graphql";
+import { JsonObject } from "type-fest";
+import { Variable, VariableMap } from "types";
 
 interface IUseMutateProps {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
-  initialVariables?: JsonObject;
-  operationEventType: 'insert-first' | 'insert-last' | 'update' | 'delete';
+  initialItem?: JsonObject;
+  initialVariables?: Variable[];
+  operationEventType: "insert-first" | "insert-last" | "update" | "delete";
   listKey?: string;
 }
 
@@ -24,52 +26,65 @@ export interface MutateState {
   error?: Error;
   mutationState: UseMutationState;
   executeMutation: (
-    variables?: JsonObject,
-    context?: Partial<OperationContext>,
+    itemValues?: JsonObject,
+    variables?: Variable[],
+    context?: Partial<OperationContext>
   ) => void;
-  setVariable: (key: string, value: any) => void;
-  setVariables: (variables: {[key: string]: any}) => void;
-  objectVariables: {[key: string]: any};
+  setItemValue: (key: string, value: any) => void;
+  item: JsonObject;
+  setVariable: (name: string, value: any, type: string) => void;
+  variables: VariableMap;
 }
 
 export function useMutate<T extends JsonObject>(
-  props: IUseMutateProps,
+  props: IUseMutateProps
 ): MutateState {
-  const {sharedConfig, middleware, initialVariables, listKey} = props;
+  const { sharedConfig, middleware, initialVariables, initialItem, listKey } =
+    props;
   //MutationConfig is what we internally refer to the middlewareState as
-  const [objectVariables, setObjectVariables] = useState<{[key: string]: any}>(
-    initialVariables || {},
+
+  const [variables, setVariables] = useState<VariableMap>(
+    (initialVariables || []).reduce<VariableMap>((previous, variable) => {
+      previous[variable.name] = variable;
+      return previous;
+    }, {})
   );
+  const [item, setItem] = useState<JsonObject>(initialItem || {});
   const [needsExecuteMutation, setNeedsExecuteMutation] = useState<boolean>();
-  const [
-    executeContext,
-    setExecuteContext,
-  ] = useState<Partial<OperationContext> | null>();
+  const [executeContext, setExecuteContext] =
+    useState<Partial<OperationContext> | null>();
 
   const [_, setMutationEvent] = useAtom(mutationEventAtom);
 
   //Guards
   if (!sharedConfig || !middleware?.length) {
-    throw new Error('sharedConfig and at least one middleware required');
+    throw new Error("sharedConfig and at least one middleware required");
   }
-  const computeConfig = (variables: JsonObject) => {
+  const computeConfig = (variables: VariableMap, item: JsonObject) => {
+    const variablesWithItem = {
+      ...variables,
+      item: {
+        name: "item",
+        value: item,
+        type: "",
+      },
+    };
+
     const state = stateFromQueryMiddleware(
-      {variables},
+      { variables: variablesWithItem },
       middleware,
-      sharedConfig,
+      sharedConfig
     );
     return state;
   };
 
   const [mutationCfg, setMutationCfg] = useState(
-    computeConfig(objectVariables),
+    computeConfig(variables, item)
   );
-
-  //Setup the initial mutation Config so it's for sure ready before we get to urql
   useEffect(() => {
-    const newState = computeConfig(objectVariables);
+    const newState = computeConfig(variables, item);
     setMutationCfg(newState);
-  }, [objectVariables]);
+  }, [variables, item]);
 
   //The mutation
   const [mutationResult, executeMutation] = useMutation(mutationCfg.document);
@@ -78,15 +93,26 @@ export function useMutate<T extends JsonObject>(
   useEffect(() => {
     (async () => {
       if (needsExecuteMutation && !executeContext) {
-        console.log('💪 executingMutation');
-        console.log(print(mutationCfg.document));
-        console.log(JSON.stringify({variables: mutationCfg.variables}));
         setNeedsExecuteMutation(false);
-        const resp = await executeMutation(mutationCfg.variables);
+
+        const variables = Object.keys(mutationCfg.variables).reduce<JsonObject>(
+          (previous, key) => {
+            previous[key] = mutationCfg.variables[key].value;
+            return previous;
+          },
+          {}
+        );
+
+        console.log("💪 executingMutation");
+        console.log(print(mutationCfg.document));
+        console.log(JSON.stringify({ variables }));
+
+        const resp = await executeMutation(variables);
         const successItem = resp?.data?.[mutationCfg.operationName];
+        
         if (successItem) {
           const key = keyExtractor(sharedConfig, successItem);
-          console.log('setMutationEvent');
+          console.log("setMutationEvent");
 
           setMutationEvent(() => ({
             listKey: listKey ?? sharedConfig.typename,
@@ -101,48 +127,48 @@ export function useMutate<T extends JsonObject>(
     })();
   }, [needsExecuteMutation, executeContext, executeMutation, mutationCfg]);
 
-  useMonitorResult('mutation', mutationResult, mutationCfg);
+  useMonitorResult("mutation", mutationResult, mutationCfg);
 
   //Handling variables
-  const setVariable = useCallback((key: string, value: any) => {
-    setObjectVariables((original) => ({
+  const setVariable = useCallback((name: string, value: any, type: string) => {
+    setVariables((original) => ({
+      ...original,
+      [name]: { name, value, type },
+    }));
+  }, []);
+
+  const setItemValue = useCallback((key: string, value: any) => {
+    setItem((original) => ({
       ...original,
       [key]: value,
     }));
   }, []);
 
-  const setVariables = useCallback((variables: {[key: string]: any}) => {
-    setObjectVariables((original) => ({
-      ...original,
-      ...variables,
-    }));
-  }, []);
-
   const wrappedExecuteMutation = (
-    _variables?: JsonObject,
-    context?: Partial<OperationContext>,
+    _itemValues?: JsonObject,
+    _variables?: Variable[],
+    context?: Partial<OperationContext>
   ) => {
-    if (_variables) {
-      if (_variables._dispatchInstances) {
-        console.log(
-          '🎁 wrappedExecuteMutation-> _variables -> Found reactEvent Object.  Will not update variables',
-        );
-      } else {
-        console.log(
-          '🎁 wrappedExecuteMutation-> _variables',
-          JSON.stringify(_variables),
-        );
+    if (_variables || _itemValues) {
+      const variableMap = (_variables || []).reduce<VariableMap>((previous, variable) => {
+        previous[variable.name] = variable;
+        return previous;
+      }, {});
+      const newVariables = {
+        ...variables,
+        ...variableMap,
+      };
+      const newItem = {
+        ...item,
+        ..._itemValues,
+      };
 
-        const newVariables = {
-          ...objectVariables,
-          ..._variables,
-        }
-
-        // you need to both because setObjectVariables triggers the
-        // effect too late
-        setMutationCfg(computeConfig(newVariables));
-        setObjectVariables(newVariables);
-      }
+      // you need to both because setVariables triggers the
+      // useEffect to compute the new config on the next render
+      // cycle
+      setMutationCfg(computeConfig(newVariables, newItem));
+      setVariables(newVariables);
+      setItem(newItem);
     }
     if (context) {
       setExecuteContext(context);
@@ -158,8 +184,9 @@ export function useMutate<T extends JsonObject>(
     error: mutationResult.error,
     mutationState: mutationResult,
     executeMutation: wrappedExecuteMutation,
+    item,
+    setItemValue,
+    variables,
     setVariable,
-    setVariables,
-    objectVariables,
   };
 }

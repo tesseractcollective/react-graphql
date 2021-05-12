@@ -1,6 +1,7 @@
 import { JsonObject } from 'type-fest';
 import { HasuraDataConfig } from '../types/hasuraConfig';
 import { QueryMiddleware } from '../types/hookMiddleware';
+import { Variable } from '../types';
 import { useInfiniteQueryMany } from './useInfiniteQueryMany';
 import { createInfiniteQueryMany } from './useInfiniteQueryMany.utils';
 import { useMutate } from './useMutate';
@@ -15,7 +16,8 @@ import { createQueryOne } from './useQueryOne.utils';
 export function useReactGraphql(config: HasuraDataConfig) {
   return {
     useInsert: (props?: {
-      initialVariables?: JsonObject;
+      initialVariables?: Variable[];
+      initialItem?: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
       firstOrLast?: 'insert-first' | 'insert-last';
@@ -23,13 +25,14 @@ export function useReactGraphql(config: HasuraDataConfig) {
       useMutate({
         sharedConfig: config,
         middleware: props?.middleware || [createInsertMutation],
+        initialItem: props?.initialItem,
         initialVariables: props?.initialVariables,
         operationEventType: props?.firstOrLast ?? 'insert-first',
         listKey: props?.listKey,
       }),
 
     useDelete: (props: {
-      variables: JsonObject;
+      variables: Variable[];
       middleware?: QueryMiddleware[];
       listKey?: string;
     }) =>
@@ -42,13 +45,15 @@ export function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useUpdate: (props?: {
-      initialVariables?: JsonObject;
+      initialItem?: JsonObject;
+      initialVariables?: Variable[];
       middleware?: QueryMiddleware[];
       listKey?: string;
     }) =>
       useMutate({
         sharedConfig: config,
         middleware: props?.middleware || [createUpdateMutation],
+        initialItem: props?.initialItem,
         initialVariables: props?.initialVariables,
         operationEventType: 'update',
         listKey: props?.listKey,
@@ -70,7 +75,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useQueryOne: (props: {
-      variables: JsonObject;
+      variables: Variable[];
       middleware?: QueryMiddleware[];
     }) =>
       useQueryOne({

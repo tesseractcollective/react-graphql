@@ -7,16 +7,23 @@ import {
 } from '../types/hookMiddleware';
 import {HasuraDataConfig} from '../types/hasuraConfig';
 
-function createArgsString(state: QueryPreMiddlewareState, config: HasuraDataConfig): string {
+function createPkArgsString(state: QueryPreMiddlewareState, config: HasuraDataConfig): string {
   return config.primaryKey
     .map((key) => {
-      let argValue = state.variables?.[key];
-      if (typeof argValue === 'string') {
-        argValue = `"${argValue}"`;
-      }
-      return `${key}:${argValue}`
+      const variable = state.variables?.[key];
+      return `${key}:${variable.type}`;
     })
     .join(', ');
+}
+
+function createVariableArgsString(state: QueryPreMiddlewareState, objectType: string): string {
+  return Object.keys(state.variables).map((key) => {
+    const variable = state.variables[key];
+    if (key === 'item') {
+      return `$object:${objectType}`;
+    }
+    return `$${key}:${variable.type}`;
+  }).join(', ');
 }
 
 export function createDeleteMutation(
@@ -32,17 +39,17 @@ export function createDeleteMutation(
     config.overrides?.fieldFragments?.delete_by_pk,
   );
 
-  const args = createArgsString(state, config);
+  const pkArgs = createPkArgsString(state, config);
 
   const mutationStr = `mutation ${name}DeleteMutation {
-      ${operationName}(${args}) {
+      ${operationName}(${pkArgs}) {
         ...${fragmentName}
       }
     }
     ${print(fragment)}`;
   const document = gql(mutationStr);
 
-  return {document, operationName, variables: {}};
+  return {document, operationName, variables: state.variables};
 }
 
 export function createInsertMutation(
@@ -55,6 +62,8 @@ export function createInsertMutation(
     config.overrides?.fieldFragments?.insert_core_one,
   );
 
+  const objectType = `${name}_insert_input!`;
+  const variableArgsString = createVariableArgsString(state, objectType);
   const onConflictVariable = config.overrides?.onConflict?.insert
     ? `, $onConflict:${name}_on_conflict`
     : '';
@@ -64,7 +73,7 @@ export function createInsertMutation(
 
   const operationName =
     config.overrides?.operationNames?.insert_one ?? `insert_${name}_one`;
-  const mutationStr = `mutation ${name}Mutation($object:${name}_insert_input!${onConflictVariable}) {
+  const mutationStr = `mutation ${name}Mutation(${variableArgsString}${onConflictVariable}) {
     ${operationName}(object:$object${onConflictArg}) {
       ...${fragmentName}
     }
@@ -72,8 +81,12 @@ export function createInsertMutation(
   ${print(fragment)}`;
   const document = gql(mutationStr);
 
-  const variables = {object: {...state.variables}};
-
+  const { item, ...rest } = state.variables;
+  item.name = 'object';
+  const variables = {
+    ...rest,
+    object: item,
+  };
   return {document, operationName, variables};
 }
 
@@ -90,10 +103,13 @@ export function createUpdateMutation(
   const operationName =
     config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;
 
-  const args = createArgsString(state, config);
+  const objectType = `${name}_set_input!`;
+  const variableArgsString = createVariableArgsString(state, objectType);
 
-  const mutationStr = `mutation ${name}Mutation($object:${name}_set_input!) {
-    ${operationName}(pk_columns: {${args}} _set:$object ) {
+  const pkArgs = createPkArgsString(state, config);
+
+  const mutationStr = `mutation ${name}Mutation(${variableArgsString}) {
+    ${operationName}(pk_columns: {${pkArgs}} _set:$object ) {
       ...${fragmentName}
     }
   }
@@ -101,8 +117,14 @@ export function createUpdateMutation(
 
   const document = gql(mutationStr);
 
-  const variables = {object: {...state.variables}};
-  delete variables.object.id;
-
+  const { item, ...rest } = state.variables;
+  item.name = 'object';
+  delete item.value.id;
+  const variables = {
+    ...rest,
+    object: item,
+  };
   return {document, operationName, variables};
+
+  return {document, operationName, variables: state.variables};
 }

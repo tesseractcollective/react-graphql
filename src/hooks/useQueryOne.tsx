@@ -7,11 +7,12 @@ import {keyExtractor} from '../support/HasuraConfigUtils';
 import {useAtom} from 'jotai';
 import {IMutationEvent, mutationEventAtom} from './support/mutationEventAtom';
 import { JsonObject } from 'type-fest';
+import { Variable, VariableMap } from 'types';
 
 interface IUseQueryOne {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
-  variables: JsonObject;
+  variables: Variable[];
 }
 
 export function useQueryOne<
@@ -22,8 +23,11 @@ export function useQueryOne<
 
   const [item, setItem] = useState<TData | null>();
   const [key, setKey] = useState<string>();
-  const [objectVariables, setObjectVariables] = useState<{[key: string]: any}>(
-    variables,
+  const [objectVariables, setObjectVariables] = useState<VariableMap>(
+    (variables || []).reduce<VariableMap>((previous, variable) => {
+      previous[variable.name] = variable;
+      return previous;
+    }, {}),
   );
 
   const [mutationEvent] = useAtom<IMutationEvent>(mutationEventAtom);
@@ -35,9 +39,16 @@ export function useQueryOne<
 
   const [queryCfg, setQueryCfg] = useState(computeConfig);
 
+  const queryVariables = Object.keys(queryCfg.variables).reduce<JsonObject>(
+    (previous, key) => {
+      previous[key] = queryCfg.variables[key].value;
+      return previous;
+    },
+    {}
+  );
   const [resp, reExecuteQuery] = useQuery<TData>({
     query: queryCfg?.document,
-    variables: queryCfg.variables,
+    variables: queryVariables,
   });
 
   useEffect(() => {
