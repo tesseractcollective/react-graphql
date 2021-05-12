@@ -1,4 +1,4 @@
-import { DocumentNode } from "graphql";
+import { DocumentNode, GraphQLOutputType } from "graphql";
 
 export interface HasuraConfigType {
   [key: string]: HasuraDataConfig;
@@ -11,8 +11,9 @@ export interface HasuraDataConfig {
   instanceId?: string;
   fieldFragment: DocumentNode;
   fieldNames?: string[];
+  fields?: { [key: string]: GraphQLOutputType };
   overrides?: {
-    operationNames?: {
+    operationNames?: {  
       query_many?: string;
       query_aggregate?: string;
       query_by_pk?: string;
