@@ -1,7 +1,7 @@
 import React, { FunctionComponent } from 'react';
 import { Client, Provider as UrqlProvider } from 'urql';
 
-export interface IReactGraphqlProviderProps {
+export type IReactGraphqlProviderProps = {
   client: Client;
 }
 

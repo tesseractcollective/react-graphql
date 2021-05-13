@@ -10,7 +10,7 @@ import { useAtom } from "jotai";
 import { mutationEventAtom, IMutationEvent } from "./support/mutationEventAtom";
 import { JsonArray, JsonObject } from "type-fest";
 
-interface IUseInfiniteQueryMany {
+export interface IUseInfiniteQueryMany {
   where?: { [key: string]: any };
   orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
   pageSize?: number;
