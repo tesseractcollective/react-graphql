@@ -1,14 +1,6 @@
 import { OperationContext } from "urql";
 import { HasuraDataConfig } from "../hasuraConfig";
 
-export interface Variable {
-  name: string;
-  value: any;
-  type: string;
-}
-
-export type VariableMap = { [key: string]: Variable };
-
 export interface UseMutatorProps<T> {
   config: HasuraDataConfig;
   initialVariables?: { [key: string]: any };

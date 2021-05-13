@@ -1,47 +1,97 @@
-import {getFieldFragmentInfo} from '../support/HasuraConfigUtils';
-import {print} from 'graphql';
-import gql from 'graphql-tag';
+import { getFieldFragmentInfo } from "../support/HasuraConfigUtils";
+import { print } from "graphql";
+import gql from "graphql-tag";
 import {
   QueryPostMiddlewareState,
   QueryPreMiddlewareState,
-} from '../types/hookMiddleware';
-import {HasuraDataConfig} from '../types/hasuraConfig';
+} from "../types/hookMiddleware";
+import { HasuraDataConfig } from "../types/hasuraConfig";
+import { JsonObject } from "type-fest";
+import { getFieldTypeMap } from "support";
 
-function createPkArgsString(state: QueryPreMiddlewareState, config: HasuraDataConfig): string {
+function createPkArgsString(config: HasuraDataConfig): string {
   return config.primaryKey
     .map((key) => {
-      const variable = state.variables?.[key];
-      return `${key}:${variable.type}`;
+      return `${key}:$${key}`;
     })
-    .join(', ');
+    .join(", ");
 }
 
-function createVariableArgsString(state: QueryPreMiddlewareState, objectType: string): string {
-  return Object.keys(state.variables).map((key) => {
-    const variable = state.variables[key];
-    if (key === 'item') {
-      return `$object:${objectType}`;
+function createVariableDefinitionsString(
+  variables: JsonObject,
+  objectType: string,
+  config: HasuraDataConfig
+): string {
+  const fieldTypeMap = getFieldTypeMap(config.fieldFragment, config.schema);
+  return Object.keys(variables)
+    .map((key) => {
+      if (key === "object") {
+        return `$${key}:${objectType}`;
+      }
+      const type = fieldTypeMap[key]?.toString() || "Any!";
+      return `$${key}:${type}`;
+    })
+    .join(", ");
+}
+
+function createVariables(
+  state: QueryPreMiddlewareState,
+  config: HasuraDataConfig,
+  operationName: string,
+  includePks: boolean = false
+): JsonObject {
+  const variables: JsonObject = {};
+
+  config.primaryKey.forEach((key) => {
+    const item: any = state.variables.item;
+    const value = item && item[key];
+    if (!value && includePks) {
+      throw new Error(
+        `No value for required primary key ${key} for operation ${operationName}`
+      );
     }
-    return `$${key}:${variable.type}`;
-  }).join(', ');
+
+    if (value) {
+      variables[key] = value;
+    }
+  });
+
+  Object.keys(state.variables).forEach((key) => {
+    const variable = state.variables[key];
+    if (key === "item") {
+      if (variable) {
+        variables.object = variable;
+      }
+    } else {
+      variables[key] = variable;
+    }
+  });
+
+  return variables;
 }
 
 export function createDeleteMutation(
   state: QueryPreMiddlewareState,
-  config: HasuraDataConfig,
+  config: HasuraDataConfig
 ): QueryPostMiddlewareState {
   const name = config.typename;
   const operationName =
     config.overrides?.operationNames?.delete_by_pk ?? `delete_${name}_by_pk`;
 
-  const {fragment, fragmentName} = getFieldFragmentInfo(
+  const { fragment, fragmentName } = getFieldFragmentInfo(
     config,
-    config.overrides?.fieldFragments?.delete_by_pk,
+    config.overrides?.fieldFragments?.delete_by_pk
   );
 
-  const pkArgs = createPkArgsString(state, config);
+  const variables = createVariables(state, config, operationName);
+  const variableDefinitionsString = createVariableDefinitionsString(
+    variables,
+    "Any!",
+    config
+  );
+  const pkArgs = createPkArgsString(config);
 
-  const mutationStr = `mutation ${name}DeleteMutation {
+  const mutationStr = `mutation ${name}DeleteMutation(${variableDefinitionsString}) {
       ${operationName}(${pkArgs}) {
         ...${fragmentName}
       }
@@ -49,66 +99,77 @@ export function createDeleteMutation(
     ${print(fragment)}`;
   const document = gql(mutationStr);
 
-  return {document, operationName, variables: state.variables};
+  return { document, operationName, variables };
 }
 
 export function createInsertMutation(
   state: QueryPreMiddlewareState,
-  config: HasuraDataConfig,
+  config: HasuraDataConfig
 ): QueryPostMiddlewareState {
   const name = config.typename;
-  const {fragment, fragmentName} = getFieldFragmentInfo(
+  const { fragment, fragmentName } = getFieldFragmentInfo(
     config,
-    config.overrides?.fieldFragments?.insert_core_one,
+    config.overrides?.fieldFragments?.insert_core_one
   );
-
-  const objectType = `${name}_insert_input!`;
-  const variableArgsString = createVariableArgsString(state, objectType);
-  const onConflictVariable = config.overrides?.onConflict?.insert
-    ? `, $onConflict:${name}_on_conflict`
-    : '';
-  const onConflictArg = config.overrides?.onConflict?.insert_args
-    ? ', on_conflict:$onConflict'
-    : '';
 
   const operationName =
     config.overrides?.operationNames?.insert_one ?? `insert_${name}_one`;
-  const mutationStr = `mutation ${name}Mutation(${variableArgsString}${onConflictVariable}) {
+  const objectType = `${name}_insert_input!`;
+  const variables = createVariables(
+    state,
+    config,
+    operationName,
+    config.primaryKeyRequiredOnCreate
+  );
+  const variableDefinitionsString = createVariableDefinitionsString(
+    variables,
+    objectType,
+    config
+  );
+  const onConflictVariable = config.overrides?.onConflict?.insert
+    ? `, $onConflict:${name}_on_conflict`
+    : "";
+  const onConflictArg = config.overrides?.onConflict?.insert_args
+    ? ", on_conflict:$onConflict"
+    : "";
+
+  const variablesString = variableDefinitionsString || onConflictVariable ? `(${variableDefinitionsString}${onConflictVariable})` : '';
+
+  const mutationStr = `mutation ${name}Mutation${variablesString} {
     ${operationName}(object:$object${onConflictArg}) {
       ...${fragmentName}
     }
   }
   ${print(fragment)}`;
+
   const document = gql(mutationStr);
 
-  const { item, ...rest } = state.variables;
-  item.name = 'object';
-  const variables = {
-    ...rest,
-    object: item,
-  };
-  return {document, operationName, variables};
+  return { document, operationName, variables };
 }
 
 export function createUpdateMutation(
   state: QueryPreMiddlewareState,
-  config: HasuraDataConfig,
+  config: HasuraDataConfig
 ): QueryPostMiddlewareState {
   const name = config.typename;
-  const {fragment, fragmentName} = getFieldFragmentInfo(
+  const { fragment, fragmentName } = getFieldFragmentInfo(
     config,
-    config.overrides?.fieldFragments?.update_core,
+    config.overrides?.fieldFragments?.update_core
   );
 
   const operationName =
     config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;
 
   const objectType = `${name}_set_input!`;
-  const variableArgsString = createVariableArgsString(state, objectType);
+  const variables = createVariables(state, config, operationName);
+  const variableDefinitionsString = createVariableDefinitionsString(
+    variables,
+    objectType,
+    config
+  );
+  const pkArgs = createPkArgsString(config);
 
-  const pkArgs = createPkArgsString(state, config);
-
-  const mutationStr = `mutation ${name}Mutation(${variableArgsString}) {
+  const mutationStr = `mutation ${name}Mutation(${variableDefinitionsString}) {
     ${operationName}(pk_columns: {${pkArgs}} _set:$object ) {
       ...${fragmentName}
     }
@@ -117,14 +178,5 @@ export function createUpdateMutation(
 
   const document = gql(mutationStr);
 
-  const { item, ...rest } = state.variables;
-  item.name = 'object';
-  delete item.value.id;
-  const variables = {
-    ...rest,
-    object: item,
-  };
-  return {document, operationName, variables};
-
-  return {document, operationName, variables: state.variables};
+  return { document, operationName, variables };
 }

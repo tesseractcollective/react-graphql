@@ -12,6 +12,7 @@ function graphqlExecutorWithValue(value: any) {
       data: {
         [resultFieldName]: {
           ...value,
+          ...variables,
           ...variables.object
         }
       }

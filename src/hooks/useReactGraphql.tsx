@@ -1,7 +1,6 @@
 import { JsonObject } from 'type-fest';
 import { HasuraDataConfig } from '../types/hasuraConfig';
 import { QueryMiddleware } from '../types/hookMiddleware';
-import { Variable } from '../types';
 import { useInfiniteQueryMany } from './useInfiniteQueryMany';
 import { createInfiniteQueryMany } from './useInfiniteQueryMany.utils';
 import { useMutate } from './useMutate';
@@ -16,7 +15,7 @@ import { createQueryOne } from './useQueryOne.utils';
 export function useReactGraphql(config: HasuraDataConfig) {
   return {
     useInsert: (props?: {
-      initialVariables?: Variable[];
+      initialVariables?: JsonObject;
       initialItem?: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
@@ -32,7 +31,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useDelete: (props: {
-      variables: Variable[];
+      variables: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
     }) =>
@@ -46,7 +45,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
 
     useUpdate: (props?: {
       initialItem?: JsonObject;
-      initialVariables?: Variable[];
+      initialVariables?: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
     }) =>
@@ -75,7 +74,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useQueryOne: (props: {
-      variables: Variable[];
+      variables: JsonObject;
       middleware?: QueryMiddleware[];
     }) =>
       useQueryOne({

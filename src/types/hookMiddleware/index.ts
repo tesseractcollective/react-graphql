@@ -1,5 +1,5 @@
 import {DocumentNode} from 'graphql';
-import { VariableMap } from 'types/hasuraHooks';
+import { JsonObject } from 'type-fest';
 import {HasuraDataConfig} from '../../types/hasuraConfig';
 
 export interface QueryMiddleware {
@@ -11,12 +11,12 @@ export interface QueryMiddleware {
 
 export interface QueryPreMiddlewareState {
   document?: DocumentNode;
-  variables: VariableMap;
+  variables: JsonObject;
   operationName?: string;
 }
 
 export interface QueryPostMiddlewareState {
   document: DocumentNode;
-  variables: VariableMap;
+  variables: JsonObject;
   operationName: string;
 }
