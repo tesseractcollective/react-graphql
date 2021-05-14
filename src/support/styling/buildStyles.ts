@@ -1,7 +1,7 @@
-import { styleMap as defaultStyles } from "./defaultStyles";
+// import { styleMap as defaultStyles } from "./defaultStyles";
 
 let styleMap: any = {
-  ...defaultStyles,
+  // ...defaultStyles,
 };
 
 export function registerStyles(newStyles: any) {

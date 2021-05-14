@@ -16,6 +16,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
   return {
     useInsert: (props?: {
       initialVariables?: JsonObject;
+      initialItem?: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
       firstOrLast?: 'insert-first' | 'insert-last';
@@ -23,6 +24,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       useMutate({
         sharedConfig: config,
         middleware: props?.middleware || [createInsertMutation],
+        initialItem: props?.initialItem,
         initialVariables: props?.initialVariables,
         operationEventType: props?.firstOrLast ?? 'insert-first',
         listKey: props?.listKey,
@@ -42,6 +44,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useUpdate: (props?: {
+      initialItem?: JsonObject;
       initialVariables?: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
@@ -49,6 +52,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       useMutate({
         sharedConfig: config,
         middleware: props?.middleware || [createUpdateMutation],
+        initialItem: props?.initialItem,
         initialVariables: props?.initialVariables,
         operationEventType: 'update',
         listKey: props?.listKey,

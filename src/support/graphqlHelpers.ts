@@ -1,18 +1,17 @@
 import {
+  buildClientSchema,
   DocumentNode,
   GraphQLOutputType,
-  GraphQLSchema,
-  isObjectType,
-  print,
-  VariableDefinitionNode,
-  buildClientSchema,
   IntrospectionQuery,
-  isScalarType,
   isListType,
-  isNullableType,
   isNonNullType,
+  isObjectType,
+  isScalarType,
+  VariableDefinitionNode,
 } from 'graphql';
 import { JsonObject } from 'type-fest';
+
+export type GraphQLOutputTypeMap = { [key: string]: GraphQLOutputType };
 
 export function isMutation(document: DocumentNode) {
   const node = document.definitions[0];
@@ -30,7 +29,7 @@ export function isFragment(document: DocumentNode) {
 }
 
 export function getVariableDefinition(document: DocumentNode, name: string): VariableDefinitionNode | undefined {
-  return getVariableDefinitions(document)?.find(d => d.variable.name.value === name);
+  return getVariableDefinitions(document)?.find((d) => d.variable.name.value === name);
 }
 
 export function getVariableDefinitions(document: DocumentNode): ReadonlyArray<VariableDefinitionNode> | undefined {
@@ -69,11 +68,66 @@ export interface IFieldOutputType {
   data?: any;
 }
 
+export function getFieldMap(document: DocumentNode, schema: GraphQLSchema): GraphQLFieldMap<any, any> {
+  const typeName = getFragmentTypeName(document);
+  if (!typeName) {
+    return {};
+  }
+  const type = schema.getType(typeName);
+  if (!isObjectType(type)) {
+    return {};
+  }
+  return type.getFields();
+}
+
+function typeMapFromFieldMap(fieldMap: GraphQLFieldMap<any, any>): GraphQLOutputTypeMap {
+  const typeMap: GraphQLOutputTypeMap = {};
+  for (const key in fieldMap) {
+    typeMap[key] = fieldMap[key].type;
+  }
+  return typeMap;
+}
+
+export function getFieldTypeMap(document: DocumentNode, schema: GraphQLSchema): GraphQLOutputTypeMap {
+  const fieldMap = getFieldMap(document, schema);
+  return typeMapFromFieldMap(fieldMap);
+}
+
+export function getFragmentFieldMap(document: DocumentNode, schema: GraphQLSchema): GraphQLFieldMap<any, any> {
+  const typeName = getFragmentTypeName(document);
+  if (!typeName) {
+    return {};
+  }
+  const type = schema.getType(typeName);
+  if (!isObjectType(type)) {
+    return {};
+  }
+  const allFields = type.getFields();
+  const fieldMap: GraphQLFieldMap<any, any> = {};
+
+  for (const definition of document.definitions) {
+    if (definition.kind === 'FragmentDefinition') {
+      const fields = definition.selectionSet.selections;
+      for (const field of fields) {
+        if (field.kind === 'Field') {
+          fieldMap[field.name.value] = allFields[field.name.value];
+        }
+      }
+    }
+  }
+  return fieldMap;
+}
+
+export function getFragmentFieldTypeMap(document: DocumentNode, schema: GraphQLSchema): GraphQLOutputTypeMap {
+  const fieldMap = getFragmentFieldMap(document, schema);
+  return typeMapFromFieldMap(fieldMap);
+}
+
 export function getFragmentFields(
   document: DocumentNode,
   schema: JsonObject,
 ): { fieldTypeMap?: { [key: string]: GraphQLOutputType }; fieldSimpleMap?: { [key: string]: any } } {
-  const schemaConverted = buildClientSchema(schema as unknown as IntrospectionQuery);
+  const schemaConverted = buildClientSchema((schema as unknown) as IntrospectionQuery);
   // const schemaLanguageString = '';
   // buildSchema(schemaLanguageString);
   const fieldTypeMap: { [key: string]: GraphQLOutputType } = {};
@@ -151,5 +205,3 @@ export function getResultFieldName(document: DocumentNode): string | undefined {
   }
   return undefined;
 }
-
-
