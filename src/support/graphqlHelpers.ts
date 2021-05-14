@@ -8,6 +8,8 @@ import {
   isObjectType,
   isScalarType,
   VariableDefinitionNode,
+  GraphQLSchema,
+  GraphQLFieldMap,
 } from 'graphql';
 import { JsonObject } from 'type-fest';
 
