@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.5.17",
+  "version": "0.6.0",
   "private": false,
   "main": "dist/index.js",
   "files": [
@@ -11,9 +11,10 @@
   "scripts": {
     "dev:web": "tsc -w --project tsconfig-web.json",
     "dev:native": "tsc -w --project tsconfig-native.json",
-    "build": "node build.js",
-    "dopack:web": "pnpm build && pnpm pack",
-    "dopack:native": "pnpm build && pnpm pack",
+    "build:web": "node build.web.js",
+    "build:native": "node build.native.js",
+    "pack:web": "pnpm build:web && pnpm pack",
+    "pack:native": "pnpm build:native && pnpm pack",
     "pub": "pnpm publish --access public",
     "test": "jest",
     "test:watch": "jest --watch"
