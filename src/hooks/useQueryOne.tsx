@@ -22,7 +22,7 @@ export function useQueryOne<
 
   const [item, setItem] = useState<TData | null>();
   const [key, setKey] = useState<string>();
-  const [objectVariables, setObjectVariables] = useState<{[key: string]: any}>(
+  const [objectVariables, setObjectVariables] = useState<JsonObject>(
     variables,
   );
 
@@ -34,7 +34,6 @@ export function useQueryOne<
   }
 
   const [queryCfg, setQueryCfg] = useState(computeConfig);
-
   const [resp, reExecuteQuery] = useQuery<TData>({
     query: queryCfg?.document,
     variables: queryCfg.variables,
