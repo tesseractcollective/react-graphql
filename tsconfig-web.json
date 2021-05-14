@@ -2,7 +2,6 @@
   "extends": "./tsconfig-base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "outDir": "./dist-web",
     "paths": {
       "hooks": [
         "hooks"
@@ -18,9 +17,5 @@
       ],
       "react-native": ["./node_modules/react-native-web"]
     },
-  },
-  "exclude": [
-    "./src/components/*.native.*",
-    "node_modules"
-  ]
+  }
 }

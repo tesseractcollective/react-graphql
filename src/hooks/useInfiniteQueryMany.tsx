@@ -193,7 +193,7 @@ export function useInfiniteQueryMany<TData extends any>(
   }, [mutationEvent]);
 
   //Update user items from map
-  const items = useMemo(() => {
+  const items:TData[] = useMemo(() => {
     return Array.from(itemsMap.values());
   }, [itemsMap]);
 
