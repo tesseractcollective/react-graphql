@@ -3,7 +3,6 @@
 export * from './graphqlHelpers'
 export * from './HasuraConfigUtils'
 export * from './index'
-export * from './javaScriptHelpers'
 export * from './middlewareHelpers'
 // @endindex
 
