@@ -1,9 +1,9 @@
-const useQueryResults = require("./useQueryResults");
+import mockData from "./mockData";
 
 export function useUrqlQueryMock(instanceId) {
   return (queryCfg, objectVariables) => {
     if (instanceId) {
-      const results = useQueryResults[instanceId];
+      const results = mockData[instanceId];
       if (!results) {
         console.log("Add query definition to useQueryResults.js to get data");
       } else {
