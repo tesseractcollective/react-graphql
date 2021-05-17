@@ -1,17 +1,14 @@
 import {
-  buildClientSchema,
   DocumentNode,
+  GraphQLFieldMap,
   GraphQLOutputType,
-  IntrospectionQuery,
+  GraphQLSchema,
   isListType,
   isNonNullType,
   isObjectType,
   isScalarType,
   VariableDefinitionNode,
-  GraphQLSchema,
-  GraphQLFieldMap,
 } from 'graphql';
-import { JsonObject } from 'type-fest';
 
 export type GraphQLOutputTypeMap = { [key: string]: GraphQLOutputType };
 
@@ -95,43 +92,10 @@ export function getFieldTypeMap(document: DocumentNode, schema: GraphQLSchema): 
   return typeMapFromFieldMap(fieldMap);
 }
 
-export function getFragmentFieldMap(document: DocumentNode, schema: GraphQLSchema): GraphQLFieldMap<any, any> {
-  const typeName = getFragmentTypeName(document);
-  if (!typeName) {
-    return {};
-  }
-  const type = schema.getType(typeName);
-  if (!isObjectType(type)) {
-    return {};
-  }
-  const allFields = type.getFields();
-  const fieldMap: GraphQLFieldMap<any, any> = {};
-
-  for (const definition of document.definitions) {
-    if (definition.kind === 'FragmentDefinition') {
-      const fields = definition.selectionSet.selections;
-      for (const field of fields) {
-        if (field.kind === 'Field') {
-          fieldMap[field.name.value] = allFields[field.name.value];
-        }
-      }
-    }
-  }
-  return fieldMap;
-}
-
-export function getFragmentFieldTypeMap(document: DocumentNode, schema: GraphQLSchema): GraphQLOutputTypeMap {
-  const fieldMap = getFragmentFieldMap(document, schema);
-  return typeMapFromFieldMap(fieldMap);
-}
-
 export function getFragmentFields(
   document: DocumentNode,
-  schema: JsonObject,
+  schema: GraphQLSchema,
 ): { fieldTypeMap?: { [key: string]: GraphQLOutputType }; fieldSimpleMap?: { [key: string]: any } } {
-  const schemaConverted = buildClientSchema((schema as unknown) as IntrospectionQuery);
-  // const schemaLanguageString = '';
-  // buildSchema(schemaLanguageString);
   const fieldTypeMap: { [key: string]: GraphQLOutputType } = {};
 
   const fieldSimpleMap: { [key: string]: IFieldOutputType } = {};
@@ -139,11 +103,8 @@ export function getFragmentFields(
   if (!typeName) {
     return {};
   }
-  const type = schemaConverted.getType(typeName);
-  if (!isObjectType(type)) {
-    return {};
-  }
-  const allFields = type.getFields();
+
+  const allFields = getFieldMap(document, schema);
 
   for (const definition of document.definitions) {
     if (definition.kind === 'FragmentDefinition') {

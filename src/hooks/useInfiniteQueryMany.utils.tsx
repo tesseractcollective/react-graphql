@@ -7,7 +7,6 @@ import {
 } from '../types/hookMiddleware';
 import {HasuraDataConfig} from '../types/hasuraConfig';
 import {getFieldFragmentInfo} from '../support/HasuraConfigUtils';
-import {isDefined} from '../support/javaScriptHelpers';
 
 export function createInfiniteQueryMany(
   state: QueryPreMiddlewareState,
@@ -26,9 +25,9 @@ export function createInfiniteQueryMany(
   const variablesStrInner = [
     variables['where'] ? `$where: ${name}_bool_exp` : null,
     variables['orderBy'] ? `$orderBy: [${name}_order_by!]` : null,
-    isDefined(variables['limit']) ? `$limit: Int` : null,
-    isDefined(variables['offset']) ? `$offset: Int` : null,
-    isDefined(variables['userId']) ? `$userId: uuid` : null,
+    typeof('limit') === 'number' ? `$limit: Int` : null,
+    typeof('offset') === 'number' ? `$offset: Int` : null,
+    variables['userId'] ? `$userId: uuid` : null,
   ]
     .filter((x) => !!x)
     .join(', ');
@@ -37,8 +36,8 @@ export function createInfiniteQueryMany(
   const operationStr = [
     variables['where'] ? `where: $where` : null,
     variables['orderBy'] ? `order_by: $orderBy` : null,
-    isDefined(variables['limit']) ? `limit: $limit` : null,
-    isDefined(variables['offset']) ? `offset: $offset` : null,
+    typeof('limit') === 'number' ? `limit: $limit` : null,
+    typeof('offset') === 'number' ? `offset: $offset` : null,
   ]
     .filter((x) => !!x)
     .join(', ');

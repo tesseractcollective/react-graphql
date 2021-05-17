@@ -2,7 +2,7 @@
 // @index('./*.ts', f => `export * from '${f.path}'`)
 export * from './graphqlHelpers'
 export * from './HasuraConfigUtils'
-export * from './javaScriptHelpers'
+export * from './index'
 export * from './middlewareHelpers'
 // @endindex
 
