@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "outDir": "dist/src",
     "target": "ES5",
     "lib": [
       "dom",

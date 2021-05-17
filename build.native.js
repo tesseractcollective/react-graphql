@@ -6,7 +6,7 @@ const flow = require('esbuild-plugin-flow');
 require('esbuild').build({
   entryPoints: ['./src/index.ts'],
   bundle: true,
-  outfile: './dist/bundle.native.js',
+  outfile: './dist/src/index.js',
   tsconfig: './tsconfig-native.json',
   define: {'process.env.NODE_ENV': '"production"', '__DEV__': false},
   resolveExtensions: ['.tsx','.ts','.jsx','.js', '.web.tsx','.web.ts','.web.jsx','.web.js'], //prioritize non .web extensions

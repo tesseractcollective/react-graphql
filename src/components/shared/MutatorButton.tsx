@@ -1,11 +1,12 @@
 import React from 'react';
 import {MutateState} from '../../hooks/useMutate';
+import {Pressable} from 'react-native';
 
 export interface MutatorButtonProps {
   state: MutateState;
 }
 
-export default function MutatorButton(props: MutatorButtonProps) {
+export function MutatorButton(props: MutatorButtonProps) {
   const {state, ...rest} = props;
-  return <button {...rest} onClick={()=> state.executeMutation()} />;
+  return <Pressable {...rest} onPress={()=> state.executeMutation()} />;
 }

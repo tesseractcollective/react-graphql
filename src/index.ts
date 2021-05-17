@@ -1,3 +1,6 @@
+export { MutatorButton } from './components/shared/MutatorButton';
+export { MutatorTextInput } from './components/shared/MutatorTextInput';
+
 export { ReactGraphqlProvider } from './hooks/ReactGraphqlProvider';
 export type { IReactGraphqlProviderProps } from './hooks/ReactGraphqlProvider';
 export { useInfiniteQueryMany } from './hooks/useInfiniteQueryMany';

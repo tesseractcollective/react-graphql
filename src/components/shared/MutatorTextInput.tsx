@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import {TextInput, TextInputProps} from 'react-native';
-import {MutateState} from '../../hooks/useMutate';
-import {bs} from '../../support/styling/buildStyles';
-import {isDefined} from '../../support/javaScriptHelpers';
+import React, { useState, useEffect } from 'react';
+import { TextInput, TextInputProps } from 'react-native';
+import { MutateState } from '../../hooks/useMutate';
+import { bs } from '../../support/styling/buildStyles';
+import { isDefined } from '../../support/javaScriptHelpers';
 
 export interface MutatorInputProps {
   state: MutateState;
@@ -14,16 +14,11 @@ export interface MutatorInputProps {
 
 const defaultStyleStr = `b-0 bb-1 p-sxx p-s mb-s`;
 
-export default function MutatorTextInput(
-  props: MutatorInputProps & TextInputProps,
-) {
-  const {state, input, defaultValue, ...rest} = props;
+export function MutatorTextInput(props: MutatorInputProps & TextInputProps) {
+  const { state, input, defaultValue, ...rest } = props;
   const [value, setValue] = useState<string>(props.value || defaultValue || '');
   useEffect(() => {
-    if (
-      isDefined(state?.resultItem?.[input]) &&
-      state?.resultItem?.[input] !== value
-    ) {
+    if (isDefined(state?.resultItem?.[input]) && state?.resultItem?.[input] !== value) {
       setValue(state.resultItem[input]);
     }
   }, [state?.resultItem?.[input]]);
@@ -35,13 +30,17 @@ export default function MutatorTextInput(
   }, [props.value]);
 
   useEffect(() => {
-    if (
-      isDefined(state?.objectVariables?.[input]) &&
-      state?.objectVariables?.[input] !== value
-    ) {
-      setValue(state.objectVariables[input]);
+    const newInput = state?.variables?.[input];
+    if (newInput && newInput !== value) {
+      if (typeof newInput === 'string') {
+        setValue(newInput);
+      } else if(typeof newInput === 'object'){
+        setValue(JSON.stringify(newInput));
+      } else {
+        setValue(newInput.toString())
+      }
     }
-  }, [state.objectVariables]);
+  }, [state?.variables]);
 
   useEffect(() => {
     if (props.clearState) {
