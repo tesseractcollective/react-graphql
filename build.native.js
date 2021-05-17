@@ -6,12 +6,13 @@ const flow = require('esbuild-plugin-flow');
 require('esbuild').build({
   entryPoints: ['./src/index.ts'],
   bundle: true,
-  outfile: './dist/src/index.js',
+  target: ['es2017'],
+  format: 'esm',
   tsconfig: './tsconfig-native.json',
   define: {'process.env.NODE_ENV': '"production"', '__DEV__': false},
   resolveExtensions: ['.tsx','.ts','.jsx','.js', '.web.tsx','.web.ts','.web.jsx','.web.js'], //prioritize non .web extensions
   loader: {".png": "file", ".ttf": "file", ".js": "jsx" },
-  minify: true,
+  minify: false,
   sourcemap: true,
   external: ['react-native', 'react', 'react-dom', 'react-native-web', 'react-scripts', 'urql', 'jotai', 'graphql', 'graphql-tag'],
   plugins: [
