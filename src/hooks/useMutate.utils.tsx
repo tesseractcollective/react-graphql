@@ -1,13 +1,14 @@
 import { getFieldFragmentInfo } from "../support/HasuraConfigUtils";
 import { print } from "graphql";
 import gql from "graphql-tag";
+import { JsonObject } from "type-fest";
+
 import {
   QueryPostMiddlewareState,
   QueryPreMiddlewareState,
 } from "../types/hookMiddleware";
 import { HasuraDataConfig } from "../types/hasuraConfig";
-import { JsonObject } from "type-fest";
-import { getFieldTypeMap } from "support";
+import { getFieldTypeMap } from "../support";
 
 function createPkArgsString(config: HasuraDataConfig): string {
   return config.primaryKey

@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import {TextInput, TextInputProps} from 'react-native';
 import {MutateState} from '../../hooks/useMutate';
 import {bs} from '../../support/styling/buildStyles';
-import {isDefined} from '../../support/javaScriptHelpers';
 
 export interface MutatorInputProps {
   state: MutateState;
@@ -20,11 +19,12 @@ export default function MutatorTextInput(
   const {state, input, defaultValue, ...rest} = props;
   const [value, setValue] = useState<string>(props.value || defaultValue || '');
   useEffect(() => {
+    const newValue = state?.resultItem?.[input];
     if (
-      isDefined(state?.resultItem?.[input]) &&
-      state?.resultItem?.[input] !== value
+      typeof(newValue) === 'string' &&
+      newValue !== value
     ) {
-      setValue(state.resultItem[input]);
+      setValue(newValue);
     }
   }, [state?.resultItem?.[input]]);
 
@@ -35,13 +35,14 @@ export default function MutatorTextInput(
   }, [props.value]);
 
   useEffect(() => {
+    const newValue = state?.variables?.[input];
     if (
-      isDefined(state?.objectVariables?.[input]) &&
-      state?.objectVariables?.[input] !== value
+      typeof(newValue) === 'string' &&
+      newValue !== value
     ) {
-      setValue(state.objectVariables[input]);
+      setValue(newValue);
     }
-  }, [state.objectVariables]);
+  }, [state.variables]);
 
   useEffect(() => {
     if (props.clearState) {
