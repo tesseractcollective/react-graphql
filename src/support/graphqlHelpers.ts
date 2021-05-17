@@ -11,6 +11,7 @@ import {
   GraphQLSchema,
   GraphQLFieldMap,
 } from 'graphql';
+import { JsonObject } from 'type-fest';
 
 export type GraphQLOutputTypeMap = { [key: string]: GraphQLOutputType };
 
@@ -100,107 +101,67 @@ export function getFieldTypeMap(
   return typeMapFromFieldMap(fieldMap);
 }
 
-export function getFragmentFieldMap(
+export function getFragmentFields(
   document: DocumentNode,
   schema: GraphQLSchema,
-): GraphQLFieldMap<any, any> {
+): { fieldTypeMap?: { [key: string]: GraphQLOutputType }; fieldSimpleMap?: { [key: string]: any } } {
+  const fieldTypeMap: { [key: string]: GraphQLOutputType } = {};
+
+  const fieldSimpleMap: { [key: string]: IFieldOutputType } = {};
   const typeName = getFragmentTypeName(document);
   if (!typeName) {
     return {};
   }
-  const type = schema.getType(typeName);
-  if (!isObjectType(type)) {
-    return {};
-  }
-  const allFields = type.getFields();
-  const fieldMap: GraphQLFieldMap<any, any> = {};
+
+  const allFields = getFieldMap(document, schema);
 
   for (const definition of document.definitions) {
     if (definition.kind === 'FragmentDefinition') {
       const fields = definition.selectionSet.selections;
       for (const field of fields) {
         if (field.kind === 'Field') {
-          fieldMap[field.name.value] = allFields[field.name.value];
+          const fieldName = field.name.value;
+          const graphQlField = allFields[fieldName];
+          fieldTypeMap[fieldName] = graphQlField.type;
+          // // in the caller
+          let fieldType = graphQlField.type;
+          let isNonNull = false;
+          if (isNonNullType(fieldType)) {
+            isNonNull = true;
+            fieldType = fieldType.ofType;
+          }
+
+          if (isScalarType(fieldType)) {
+            // make a scalar form field
+            fieldSimpleMap[fieldName] = {
+              name: fieldName,
+              typeName: fieldType.name,
+              isNonNull,
+            };
+          } else if (isObjectType(fieldType)) {
+            // recurse
+            fieldSimpleMap[fieldName] = {
+              name: fieldName,
+              typeName: fieldType.name,
+              isObject: true,
+              isNonNull,
+            };
+          } else if (isListType(fieldType)) {
+            const innerType = fieldType.ofType;
+            // recurse
+            fieldSimpleMap[fieldName] = {
+              typeName: innerType,
+              name: fieldName,
+              isList: true,
+              isNonNull,
+            };
+          }
         }
       }
     }
   }
-  return fieldMap;
+  return { fieldTypeMap, fieldSimpleMap };
 }
-
-export function getFragmentFieldTypeMap(
-  document: DocumentNode,
-  schema: GraphQLSchema,
-): GraphQLOutputTypeMap {
-  const fieldMap = getFragmentFieldMap(document, schema);
-  return typeMapFromFieldMap(fieldMap);
-}
-
-// export function getFragmentFields(
-//   document: DocumentNode,
-//   schema: GraphQLSchema,
-// ): { fieldTypeMap?: { [key: string]: GraphQLOutputType }; fieldSimpleMap?: { [key: string]: any } } {
-//   // const schemaConverted = buildClientSchema(schema as unknown as IntrospectionQuery);
-//   const fieldTypeMap: { [key: string]: GraphQLOutputType } = {};
-
-//   const fieldSimpleMap: { [key: string]: IFieldOutputType } = {};
-//   const typeName = getFragmentTypeName(document);
-//   if (!typeName) {
-//     return {};
-//   }
-//   const type = schemaConverted.getType(typeName);
-//   if (!isObjectType(type)) {
-//     return {};
-//   }
-//   const allFields = type.getFields();
-
-//   for (const definition of document.definitions) {
-//     if (definition.kind === 'FragmentDefinition') {
-//       const fields = definition.selectionSet.selections;
-//       for (const field of fields) {
-//         if (field.kind === 'Field') {
-//           const fieldName = field.name.value;
-//           const graphQlField = allFields[fieldName];
-//           fieldTypeMap[fieldName] = graphQlField.type;
-//           // // in the caller
-//           let fieldType = graphQlField.type;
-//           let isNonNull = false;
-//           if (isNonNullType(fieldType)) {
-//             isNonNull = true;
-//             fieldType = fieldType.ofType;
-//           }
-
-//           if (isScalarType(fieldType)) {
-//             // make a scalar form field
-//             fieldSimpleMap[fieldName] = {
-//               name: fieldName,
-//               typeName: fieldType.name,
-//               isNonNull,
-//             };
-//           } else if (isObjectType(fieldType)) {
-//             // recurse
-//             fieldSimpleMap[fieldName] = {
-//               name: fieldName,
-//               typeName: fieldType.name,
-//               isObject: true,
-//               isNonNull,
-//             };
-//           } else if (isListType(fieldType)) {
-//             const innerType = fieldType.ofType;
-//             // recurse
-//             fieldSimpleMap[fieldName] = {
-//               typeName: innerType,
-//               name: fieldName,
-//               isList: true,
-//               isNonNull,
-//             };
-//           }
-//         }
-//       }
-//     }
-//   }
-//   return { fieldTypeMap, fieldSimpleMap };
-// }
 
 export function hasVariableDefinition(document: DocumentNode, name: string) {
   return getVariableDefinition(document, name) !== undefined;
