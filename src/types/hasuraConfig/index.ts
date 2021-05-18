@@ -12,7 +12,6 @@ export interface HasuraDataConfig {
   schema?: GraphQLSchema;
   primaryKeyRequiredOnCreate?: boolean;
   instanceId?: string;
-  fieldNames?: string[];
   fields?: { 
     fieldSimpleMap: { [key: string]: IFieldOutputType } 
     fieldTypeMap: { [key: string]: GraphQLOutputType}

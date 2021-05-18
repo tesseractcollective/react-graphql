@@ -25,12 +25,12 @@ export const getFieldFragmentInfo = (
   return { fragment, fragmentName };
 };
 
-export function addFieldsToConfig(config: HasuraDataConfig, schema: JsonObject){
-  Object.values(config).forEach((tableConfig) => {
-    if (!tableConfig.fieldFragment) return;
+// export function addFieldsToConfig(config: HasuraDataConfig, schema: JsonObject){
+//   Object.values(config).forEach((tableConfig) => {
+//     if (!tableConfig.fieldFragment) return;
 
-    const fields = getFragmentFields(tableConfig.fieldFragment, schema);
-    tableConfig.fieldNames = Object.keys(fields.fieldTypeMap || {});
-    tableConfig.fields = fields;
-  });
-}
+//     const fields = getFragmentFields(tableConfig.fieldFragment, schema);
+//     tableConfig.fieldNames = Object.keys(fields.fieldTypeMap || {});
+//     tableConfig.fields = fields;
+//   });
+// }
