@@ -95,13 +95,16 @@ export function getFieldTypeMap(document: DocumentNode, schema: GraphQLSchema): 
 export function getFragmentFields(
   document: DocumentNode,
   schema: GraphQLSchema,
-): { fieldTypeMap?: { [key: string]: GraphQLOutputType }; fieldSimpleMap?: { [key: string]: any } } {
+): { fieldTypeMap: { [key: string]: GraphQLOutputType }; fieldSimpleMap: { [key: string]: any } } {
   const fieldTypeMap: { [key: string]: GraphQLOutputType } = {};
 
   const fieldSimpleMap: { [key: string]: IFieldOutputType } = {};
   const typeName = getFragmentTypeName(document);
   if (!typeName) {
-    return {};
+    return {
+      fieldTypeMap: {},
+      fieldSimpleMap: {},
+    };
   }
 
   const allFields = getFieldMap(document, schema);
