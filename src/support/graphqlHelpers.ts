@@ -1,17 +1,14 @@
 import {
   DocumentNode,
+  GraphQLFieldMap,
   GraphQLOutputType,
-  isObjectType,
-  VariableDefinitionNode,
-  buildClientSchema,
-  IntrospectionQuery,
-  isScalarType,
+  GraphQLSchema,
   isListType,
   isNonNullType,
-  GraphQLSchema,
-  GraphQLFieldMap,
+  isObjectType,
+  isScalarType,
+  VariableDefinitionNode,
 } from 'graphql';
-import { JsonObject } from 'type-fest';
 
 export type GraphQLOutputTypeMap = { [key: string]: GraphQLOutputType };
 
@@ -31,7 +28,7 @@ export function isFragment(document: DocumentNode) {
 }
 
 export function getVariableDefinition(document: DocumentNode, name: string): VariableDefinitionNode | undefined {
-  return getVariableDefinitions(document)?.find(d => d.variable.name.value === name);
+  return getVariableDefinitions(document)?.find((d) => d.variable.name.value === name);
 }
 
 export function getVariableDefinitions(document: DocumentNode): ReadonlyArray<VariableDefinitionNode> | undefined {
@@ -70,10 +67,7 @@ export interface IFieldOutputType {
   data?: any;
 }
 
-export function getFieldMap(
-  document: DocumentNode,
-  schema: GraphQLSchema,
-): GraphQLFieldMap<any, any> {
+export function getFieldMap(document: DocumentNode, schema: GraphQLSchema): GraphQLFieldMap<any, any> {
   const typeName = getFragmentTypeName(document);
   if (!typeName) {
     return {};
@@ -93,10 +87,7 @@ function typeMapFromFieldMap(fieldMap: GraphQLFieldMap<any, any>): GraphQLOutput
   return typeMap;
 }
 
-export function getFieldTypeMap(
-  document: DocumentNode,
-  schema: GraphQLSchema,
-): GraphQLOutputTypeMap {
+export function getFieldTypeMap(document: DocumentNode, schema: GraphQLSchema): GraphQLOutputTypeMap {
   const fieldMap = getFieldMap(document, schema);
   return typeMapFromFieldMap(fieldMap);
 }

@@ -1,51 +1,89 @@
-import React from 'react';
-import { bs } from '../support/styling/buildStyles';
+import React, { ReactElement, useState } from 'react';
+import { FlatList, ListRenderItem, RefreshControl, ScrollViewProps, Text } from 'react-native';
+// import {useIsFocused} from '@react-navigation/core';
+import { useReactGraphql } from '../hooks/useReactGraphql';
+import { keyExtractor } from '../support/HasuraConfigUtils';
 import { HasuraDataConfig } from '../types/hasuraConfig';
+import { QueryMiddleware } from '../types/hookMiddleware';
+
+const defaultPageSize = 50;
 
 export interface PaginationListProps<T> {
   config: HasuraDataConfig;
-  // renderItem: ListRenderItem<T>;
+  renderItem: ListRenderItem<T>;
   where?: { [key: string]: any };
   orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
-  primaryKey?: string;
   pageSize?: number;
+  primaryKey?: string;
+  reloadOnFocus?: boolean;
+  pullToRefresh?: boolean;
+  middleware?: QueryMiddleware[];
+  renderEmpty?: () => ReactElement;
+  listKey?: string;
 }
 
-export default function PaginatedList<T extends { [key: string]: any }>(props: PaginationListProps<T>) {
-  // const { config, where, orderBy, pageSize, ...rest } = props;
+export default function <T extends { [key: string]: any }>(props: PaginationListProps<T> & ScrollViewProps) {
+  const {
+    config,
+    renderItem,
+    where,
+    orderBy,
+    pageSize,
+    reloadOnFocus,
+    pullToRefresh = true,
+    middleware,
+    listKey,
+    ...rest
+  } = props;
 
-  // const { loadNextPage, results } = useReactGraphql(config).useInfiniteQueryMany({
-  //   initialVariables: {
-  //     where,
-  //     orderBy,
-  //     pageSize,
-  //   },
-  // });
+  const { loadNextPage, items, queryState, refresh } = useReactGraphql(config).useInfiniteQueryMany<T>({
+    where,
+    orderBy,
+    pageSize,
+    middleware: middleware || undefined,
+    listKey,
+  });
+  const { fetching, error } = queryState;
 
-  //Error is Todo
-  //Fetching is Todo
+  // const isFocused = useIsFocused();
+  const [isManualRefresh, setIsManualRefresh] = useState(false);
+  const [hasLostFocus, setHasLostFocus] = useState(false);
+
+  // useEffect(() => {
+  //   if (reloadOnFocus) {
+  //     setHasLostFocus(!isFocused);
+  //     if (isFocused && hasLostFocus) {
+  //       setIsManualRefresh(false);
+  //       console.log('refresh');
+  //       refresh();
+  //     }
+  //   }
+  // }, [isFocused, hasLostFocus, reloadOnFocus]);
+
+  const handleRefresh = () => {
+    setIsManualRefresh(true);
+    refresh();
+  };
 
   return (
-    <div style={bs(`w-99p b-1 b-blue-300 h-50`).single}>
-      <div>PaginatedList</div>
-    </div>
+    <>
+      {error ? (
+        <Text>{error.message}</Text>
+      ) : (
+        <FlatList
+          {...rest}
+          refreshControl={
+            pullToRefresh ? (
+              <RefreshControl refreshing={fetching && !isManualRefresh} onRefresh={handleRefresh} />
+            ) : undefined
+          }
+          data={items as any[]}
+          renderItem={renderItem}
+          keyExtractor={(item: T) => keyExtractor(config, item)}
+          onEndReachedThreshold={1}
+          onEndReached={loadNextPage}
+        />
+      )}
+    </>
   );
-
-  // return (
-  //   <>
-  //     {error ? (
-  //       <Text>{error.message}</Text>
-  //     ) : (
-  //       <FlatList
-  //         {...rest}
-  //         refreshControl={<RefreshControl refreshing={fetching} onRefresh={refresh} />}
-  //         data={results}
-  //         renderItem={renderItem}
-  //         keyExtractor={(item: any) => keyExtractor(config, item)}
-  //         onEndReachedThreshold={1}
-  //         onEndReached={loadNextPage}
-  //       />
-  //     )}
-  //   </>
-  // );
 }

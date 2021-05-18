@@ -33,7 +33,7 @@ export function createInfiniteQueryMany(
     .join(', ');
   const variablesStr = variablesStrInner ? `(${variablesStrInner})` : '';
 
-  const operationStr = [
+  const operationStrBase = [
     variables['where'] ? `where: $where` : null,
     variables['orderBy'] ? `order_by: $orderBy` : null,
     typeof('limit') === 'number' ? `limit: $limit` : null,
@@ -42,8 +42,10 @@ export function createInfiniteQueryMany(
     .filter((x) => !!x)
     .join(', ');
 
+  const operationStr = operationStrBase ? ['(', operationStrBase, ')'].join('') : '';
+
   const queryStr = `query ${name}Query${variablesStr} {
-    ${name}(${operationStr}) {
+    ${name}${operationStr} {
       ...${fragmentName}
     }
   }

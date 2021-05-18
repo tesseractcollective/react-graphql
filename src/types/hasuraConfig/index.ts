@@ -1,4 +1,5 @@
-import { DocumentNode, GraphQLOutputType, GraphQLSchema } from "graphql";
+import { DocumentNode, GraphQLOutputType, GraphQLSchema } from 'graphql';
+import { IFieldOutputType } from 'support';
 
 export interface HasuraConfigType {
   [key: string]: HasuraDataConfig;
@@ -8,13 +9,15 @@ export interface HasuraDataConfig {
   typename: string;
   primaryKey: string[];
   fieldFragment: DocumentNode;
-  schema: GraphQLSchema;
+  schema?: GraphQLSchema;
   primaryKeyRequiredOnCreate?: boolean;
   instanceId?: string;
-  fieldNames?: string[];
-  fields?: { [key: string]: GraphQLOutputType };
+  fields?: { 
+    fieldSimpleMap: { [key: string]: IFieldOutputType } 
+    fieldTypeMap: { [key: string]: GraphQLOutputType}
+  };
   overrides?: {
-    operationNames?: {  
+    operationNames?: {
       query_many?: string;
       query_aggregate?: string;
       query_by_pk?: string;

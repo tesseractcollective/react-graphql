@@ -10,7 +10,7 @@ import { useAtom } from "jotai";
 import { mutationEventAtom, IMutationEvent } from "./support/mutationEventAtom";
 import { JsonArray, JsonObject } from "type-fest";
 
-interface IUseInfiniteQueryMany {
+export interface IUseInfiniteQueryMany {
   where?: { [key: string]: any };
   orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
   pageSize?: number;
@@ -193,7 +193,7 @@ export function useInfiniteQueryMany<TData extends any>(
   }, [mutationEvent]);
 
   //Update user items from map
-  const items = useMemo(() => {
+  const items:TData[] = useMemo(() => {
     return Array.from(itemsMap.values());
   }, [itemsMap]);
 

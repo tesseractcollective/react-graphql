@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react';
-import {TextInput, TextInputProps} from 'react-native';
-import {MutateState} from '../../hooks/useMutate';
-import {bs} from '../../support/styling/buildStyles';
+import { default as React, useEffect, useState } from 'react';
+import { TextInput, TextInputProps } from 'react-native';
+import { MutateState } from '../../hooks/useMutate';
+import { bs } from '../../support/styling/buildStyles';
 
 export interface MutatorInputProps {
   state: MutateState;
@@ -13,10 +13,8 @@ export interface MutatorInputProps {
 
 const defaultStyleStr = `b-0 bb-1 p-sxx p-s mb-s`;
 
-export default function MutatorTextInput(
-  props: MutatorInputProps & TextInputProps,
-) {
-  const {state, input, defaultValue, ...rest} = props;
+export function MutatorTextInput(props: MutatorInputProps & TextInputProps) {
+  const { state, input, defaultValue, ...rest } = props;
   const [value, setValue] = useState<string>(props.value || defaultValue || '');
   useEffect(() => {
     const newValue = state?.resultItem?.[input];

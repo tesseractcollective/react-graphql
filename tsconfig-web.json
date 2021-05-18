@@ -2,10 +2,20 @@
   "extends": "./tsconfig-base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "outDir": "./dist"
-  },
-  "exclude": [
-    "./src/components/*.native.*",
-    "node_modules"
-  ]
+    "paths": {
+      "hooks": [
+        "hooks"
+      ],
+      "support": [
+        "support"
+      ],
+      "components": [
+        "components"
+      ],
+      "types": [
+        "types"
+      ],
+      "react-native": ["./node_modules/react-native-web"]
+    },
+  }
 }
