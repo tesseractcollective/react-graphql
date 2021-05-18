@@ -9,47 +9,36 @@ import IntrospectionQuery, {
 } from './generated/graphql';
 import { HasuraConfigType } from '../src/types/hasuraConfig';
 import { buildHasuraConfig } from '../src/support/hasuraConfigUtils';
+import schema from './generated/graphql.schema.json';
 
-const schema = buildClientSchema(IntrospectionQuery);
-
-const HasuraConfig: HasuraConfigType = buildHasuraConfig(
-  {
-    //JSON SCHEMA FROM FILE HERE:
+const HasuraConfig: HasuraConfigType = buildHasuraConfig(schema, {
+  groups: {
+    typename: 'group',
+    primaryKey: ['id'],
+    fieldFragment: GroupFieldsFragmentDoc,
   },
-  {
-    groups: {
-      typename: 'group',
-      primaryKey: ['id'],
-      fieldFragment: GroupFieldsFragmentDoc,
-      schema,
-    },
-    userGroups: {
-      typename: 'userGroup',
-      primaryKey: ['userId', 'groupId'],
-      fieldFragment: UserGroupFieldsFragmentDoc,
-      schema,
-      primaryKeyRequiredOnCreate: true,
-    },
-    posts: {
-      typename: 'post',
-      primaryKey: ['id'],
-      fieldFragment: PostFieldsFragmentDoc,
-      schema,
-    },
-    userPostReactions: {
-      typename: 'userPostReaction',
-      primaryKey: ['userId', 'postId'],
-      fieldFragment: UserPostReactionFieldsFragmentDoc,
-      schema,
-      primaryKeyRequiredOnCreate: true,
-    },
-    postComments: {
-      typename: 'postComment',
-      primaryKey: ['id'],
-      fieldFragment: PostCommentFieldsFragmentDoc,
-      schema,
-    },
+  userGroups: {
+    typename: 'userGroup',
+    primaryKey: ['userId', 'groupId'],
+    fieldFragment: UserGroupFieldsFragmentDoc,
+    primaryKeyRequiredOnCreate: true,
   },
-);
+  posts: {
+    typename: 'post',
+    primaryKey: ['id'],
+    fieldFragment: PostFieldsFragmentDoc,
+  },
+  userPostReactions: {
+    typename: 'userPostReaction',
+    primaryKey: ['userId', 'postId'],
+    fieldFragment: UserPostReactionFieldsFragmentDoc,
+    primaryKeyRequiredOnCreate: true,
+  },
+  postComments: {
+    typename: 'postComment',
+    primaryKey: ['id'],
+    fieldFragment: PostCommentFieldsFragmentDoc,
+  },
+});
 
 export default HasuraConfig;

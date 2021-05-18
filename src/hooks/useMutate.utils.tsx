@@ -86,12 +86,14 @@ export function createDeleteMutation(
   const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.delete_by_pk);
 
   const variables = createVariables(state, config, operationName, true);
-  const variableDefinitionsString = createVariableDefinitionsString(variables, 'Any!', config);
+  const variablesForDeleting = {...variables};
+  delete variablesForDeleting.item;
+  const variableDefinitionsString = createVariableDefinitionsString(variablesForDeleting, 'Any!', config);
   const pkArgs = createPkArgsString(config);
 
   const variablesStr = variableDefinitionsString ? `(${variableDefinitionsString})` : '';
 
-  let frag = buildFragment(fragment, operationName, variables);
+  let frag = buildFragment(fragment, operationName, variablesForDeleting);
 
   const mutationStr = `mutation ${name}DeleteMutation${variablesStr} {
       ${operationName}(${pkArgs}) {
@@ -100,7 +102,7 @@ export function createDeleteMutation(
     }
     ${frag}`;
 
-  let document = buildDocument(mutationStr, operationName, variables, 'createDeleteMutation', 'mutation');
+  let document = buildDocument(mutationStr, operationName, variablesForDeleting, 'createDeleteMutation', 'mutation');
 
   return { document, operationName, variables };
 }

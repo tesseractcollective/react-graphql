@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-native-graphql",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -42,12 +42,17 @@
     "transform": {
       ".(ts|tsx|js)": "ts-jest"
     },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx)$",
+      "^.+\\.module\\.(css|sass|scss)$"
+    ],
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
     "moduleFileExtensions": [
       "ts",
       "tsx",
       "js"
     ],
+    "testEnvironment": "jsdom",
     "moduleDirectories": [
       "node_modules",
       "src"
