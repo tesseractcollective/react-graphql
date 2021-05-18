@@ -14,8 +14,8 @@ describe("useMutateMiddleware", () => {
       }
     };
 
-    const mutation = `mutation userPostReactionMutation($userId: Any!, $postId: Any!, $object: userPostReaction_insert_input!) {
-  insert_userPostReaction_one(object: $object) {
+    const mutation = `mutation userPostReactionMutation($userId: Any!, $postId: Any!, $item: userPostReaction_insert_input!) {
+  insert_userPostReaction_one(object: $item) {
     ...userPostReactionFields
   }
 }

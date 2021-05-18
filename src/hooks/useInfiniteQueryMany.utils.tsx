@@ -7,6 +7,8 @@ import {
 } from '../types/hookMiddleware';
 import {HasuraDataConfig} from '../types/hasuraConfig';
 import {getFieldFragmentInfo} from '../support/HasuraConfigUtils';
+import { buildDocument } from './support/buildDocument';
+import { buildFragment } from './support/buildFragment';
 
 export function createInfiniteQueryMany(
   state: QueryPreMiddlewareState,
@@ -25,33 +27,36 @@ export function createInfiniteQueryMany(
   const variablesStrInner = [
     variables['where'] ? `$where: ${name}_bool_exp` : null,
     variables['orderBy'] ? `$orderBy: [${name}_order_by!]` : null,
-    typeof('limit') === 'number' ? `$limit: Int` : null,
-    typeof('offset') === 'number' ? `$offset: Int` : null,
+    typeof variables['limit'] === 'number' ? `$limit: Int` : null,
+    typeof variables['offset'] === 'number' ? `$offset: Int` : null,
     variables['userId'] ? `$userId: uuid` : null,
   ]
     .filter((x) => !!x)
     .join(', ');
+    
   const variablesStr = variablesStrInner ? `(${variablesStrInner})` : '';
 
   const operationStrBase = [
     variables['where'] ? `where: $where` : null,
     variables['orderBy'] ? `order_by: $orderBy` : null,
-    typeof('limit') === 'number' ? `limit: $limit` : null,
-    typeof('offset') === 'number' ? `offset: $offset` : null,
+    typeof variables['limit'] === 'number' ? `limit: $limit` : null,
+    typeof variables['offset'] === 'number' ? `offset: $offset` : null,
   ]
     .filter((x) => !!x)
     .join(', ');
 
-  const operationStr = operationStrBase ? ['(', operationStrBase, ')'].join('') : '';
+  const operationStr = operationStrBase ? `(${operationStrBase})` : '';
+
+  let frag = buildFragment(fragment, operationStr, variables);
 
   const queryStr = `query ${name}Query${variablesStr} {
     ${name}${operationStr} {
       ...${fragmentName}
     }
   }
-  ${print(fragment)}`;
+  ${frag}`;
 
-  const document = gql(queryStr);
+  const document = buildDocument(queryStr, operationStr, variables, 'useInifniteQueryMany', 'query');
 
-  return {document, operationName, variables: state.variables ?? {}};
+  return { document, operationName, variables: state.variables ?? {} };
 }

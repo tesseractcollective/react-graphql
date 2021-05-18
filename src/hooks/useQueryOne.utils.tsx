@@ -9,6 +9,8 @@ import {
 } from '../types/hookMiddleware';
 import {HasuraDataConfig} from '../types/hasuraConfig';
 import { JsonObject } from 'type-fest';
+import { buildFragment } from './support/buildFragment';
+import { buildDocument } from './support/buildDocument';
 
 interface IUseQueryOne {
   sharedConfig: HasuraDataConfig;
@@ -40,14 +42,17 @@ export function createQueryOne<
     })
     .filter((x) => !!x)
     .join(', ');
+
+  let frag = buildFragment(fragment, operationStr, variables);
+
   const queryString = `query ${name}Query {
     ${operationName}(${operationStr}) {
       ...${fragmentName}
     }
   }
-  ${print(fragment)}`;
-  console.log('queryString <- createQueryOne', queryString);
+  ${frag}`;
 
-  const document = gql(queryString);
-  return {document, operationName, variables: {} ?? {}};
+  const document = buildDocument(queryString, operationStr, variables, 'useInifniteQueryMany', 'query');
+
+  return { document, operationName, variables: {} ?? {} };
 }

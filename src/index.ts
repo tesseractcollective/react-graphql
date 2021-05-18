@@ -29,8 +29,7 @@ export {
   getResultFieldName,
 } from './support/graphqlHelpers';
 export type { IFieldOutputType } from './support/graphqlHelpers';
-export { keyExtractor, getFieldFragmentInfo, addFieldsToConfig } from './support/HasuraConfigUtils';
-export { isDefined } from './support/javaScriptHelpers';
+export { keyExtractor, getFieldFragmentInfo } from './support/HasuraConfigUtils';
 export { stateFromQueryMiddleware } from './support/middlewareHelpers';
 // @endindex
 

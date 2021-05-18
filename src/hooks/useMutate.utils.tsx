@@ -1,11 +1,10 @@
-import { print } from 'graphql';
-import gql from 'graphql-tag';
 import { getFieldTypeMap } from 'support';
 import { JsonObject } from 'type-fest';
 import { getFieldFragmentInfo } from '../support/HasuraConfigUtils';
 import { HasuraDataConfig } from '../types/hasuraConfig';
 import { QueryPostMiddlewareState, QueryPreMiddlewareState } from '../types/hookMiddleware';
-
+import { buildFragment } from './support/buildFragment';
+import { buildDocument } from './support/buildDocument';
 
 function createPkArgsString(config: HasuraDataConfig): string {
   return config.primaryKey
@@ -22,7 +21,7 @@ function createVariableDefinitionsString(variables: JsonObject, objectType: stri
   const fieldTypeMap = getFieldTypeMap(config.fieldFragment, config.schema);
   return Object.keys(variables)
     .map((key) => {
-      if (key === 'object') {
+      if (key === 'item') {
         return `$${key}:${objectType}`;
       }
       const type = fieldTypeMap[key]?.toString() || 'Any!';
@@ -39,24 +38,36 @@ function createVariables(
 ): JsonObject {
   const variables: JsonObject = {};
 
+  const missingPrimaryKeyNames: string[] = [];
   config.primaryKey.forEach((key) => {
     const item: any = state.variables.item;
-    const value = item && item[key];
-    if (!value && includePks) {
-      throw new Error(`No value for required primary key ${key} for operation ${operationName}`);
+    const valueFromItem = item && item[key];
+    const valueFromVariables = state.variables && state.variables[key];
+
+    if (!valueFromItem && !valueFromVariables && includePks) {
+      missingPrimaryKeyNames.push(key);
     }
 
-    if (value) {
-      variables[key] = value;
+    if (valueFromItem) {
+      variables[key] = valueFromItem;
     }
   });
 
+  if (missingPrimaryKeyNames.length) {
+    throw new Error(`When using useDelete you need to ensure you pass in variables that match the primary keys needed for this type.
+    The operation for this was: ${operationName}.
+    We detected the following primary keys from config.primaryKey: ${config.primaryKey}
+    The following were not found in the variables but were needed: ${missingPrimaryKeyNames.join(', ')}
+    This was for the config: ${config.typename}
+    The current middleware state was: ${JSON.stringify(state, null, 2)}
+    `);
+  }
+
   Object.keys(state.variables).forEach((key) => {
     const variable = state.variables[key];
-    if (key === 'item') {
-      if (variable) {
-        variables.object = variable;
-      }
+    const itemAlreadyExists = !!variable;
+    if (key === 'item' && itemAlreadyExists) {
+      variables.item = variable;
     } else {
       variables[key] = variable;
     }
@@ -74,17 +85,22 @@ export function createDeleteMutation(
 
   const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.delete_by_pk);
 
-  const variables = createVariables(state, config, operationName);
+  const variables = createVariables(state, config, operationName, true);
   const variableDefinitionsString = createVariableDefinitionsString(variables, 'Any!', config);
   const pkArgs = createPkArgsString(config);
 
-  const mutationStr = `mutation ${name}DeleteMutation(${variableDefinitionsString}) {
+  const variablesStr = variableDefinitionsString ? `(${variableDefinitionsString})` : '';
+
+  let frag = buildFragment(fragment, operationName, variables);
+
+  const mutationStr = `mutation ${name}DeleteMutation${variablesStr} {
       ${operationName}(${pkArgs}) {
         ...${fragmentName}
       }
     }
-    ${print(fragment)}`;
-  const document = gql(mutationStr);
+    ${frag}`;
+
+  let document = buildDocument(mutationStr, operationName, variables, 'createDeleteMutation', 'mutation');
 
   return { document, operationName, variables };
 }
@@ -106,14 +122,16 @@ export function createInsertMutation(
   const variablesString =
     variableDefinitionsString || onConflictVariable ? `(${variableDefinitionsString}${onConflictVariable})` : '';
 
+  let frag = buildFragment(fragment, operationName, variables);
+
   const mutationStr = `mutation ${name}Mutation${variablesString} {
-    ${operationName}(object:$object${onConflictArg}) {
+    ${operationName}(object:$item${onConflictArg}) {
       ...${fragmentName}
     }
   }
-  ${print(fragment)}`;
+  ${frag}`;
 
-  const document = gql(mutationStr);
+  let document = buildDocument(mutationStr, operationName, variables, 'createInsertMutation', 'mutation');
 
   return { document, operationName, variables };
 }
@@ -128,18 +146,22 @@ export function createUpdateMutation(
   const operationName = config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;
 
   const objectType = `${name}_set_input!`;
-  const variables = createVariables(state, config, operationName);
+  const variables = createVariables(state, config, operationName, true);
   const variableDefinitionsString = createVariableDefinitionsString(variables, objectType, config);
   const pkArgs = createPkArgsString(config);
 
-  const mutationStr = `mutation ${name}Mutation(${variableDefinitionsString}) {
-    ${operationName}(pk_columns: {${pkArgs}} _set:$object ) {
+  const variablesStr = variableDefinitionsString ? `(${variableDefinitionsString})` : '';
+
+  let frag = buildFragment(fragment, operationName, variables);
+
+  const mutationStr = `mutation ${name}Mutation${variablesStr} {
+    ${operationName}(pk_columns: {${pkArgs}} _set:$item ) {
       ...${fragmentName}
     }
   }
-  ${print(fragment)}`;
+  ${frag}`;
 
-  const document = gql(mutationStr);
+  let document = buildDocument(mutationStr, operationName, variables, 'createUploadMutation', 'mutation');
 
   return { document, operationName, variables };
 }
