@@ -4,10 +4,10 @@
 // PaginatedList (many)
 // Form (insert & updates)
 
-import { DocumentNode } from 'graphql';
+import { buildClientSchema, DocumentNode, IntrospectionQuery } from 'graphql';
 import { JsonObject } from 'type-fest';
-import { HasuraDataConfig } from '../types/hasuraConfig';
-import { getFragmentName, getFragmentFields } from './graphqlHelpers';
+import { HasuraConfigType, HasuraDataConfig } from '../types/hasuraConfig';
+import { getFragmentFields, getFragmentName } from './graphqlHelpers';
 
 export const keyExtractor = (config: HasuraDataConfig, item: { [key: string]: any }): string => {
   return config.primaryKey.map((key) => item[key]).join(':');
@@ -34,3 +34,17 @@ export const getFieldFragmentInfo = (
 //     tableConfig.fields = fields;
 //   });
 // }
+
+export function buildHasuraConfig(schema: JsonObject, config: HasuraConfigType): HasuraConfigType {
+  const schemaConverted = buildClientSchema(schema as unknown as IntrospectionQuery);
+
+  Object.values(config).forEach((tableConfig) => {
+    if (!tableConfig.fieldFragment) return;
+
+    tableConfig.schema = schemaConverted;
+
+    const fields = getFragmentFields(tableConfig.fieldFragment, schemaConverted);
+    tableConfig.fields = fields;
+  });
+  return config;
+}
