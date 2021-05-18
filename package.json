@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-native-graphql",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
