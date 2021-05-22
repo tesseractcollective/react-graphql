@@ -1,11 +1,29 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react-hooks/dom';
+import { useReactGraphql } from '../src/hooks/useReactGraphql';
+import HasuraConfig from './TestHasuraConfig';
+import { wrapperWithResultValue } from './urqlTestUtils';
 
-it('App loads with initial state of 0', () => {
-  // const { result } = renderHook(() => useQueryByPK());
+const resultValue = { id: '123' };
 
-  // act(() => {
-  //   result.current.increment();
-  // });
+describe('useQueryOne', () => {
+  it('can do a basic query', async () => {
+    const wrapper = wrapperWithResultValue(resultValue, 'query');
 
-  // expect(result.current.count).toBe(1);
+    const { result } = renderHook(
+      () => {
+        const reactGraphql = useReactGraphql(HasuraConfig.groups);
+        return reactGraphql.useQueryOne({
+          variables: { id: 'abc' },
+        });
+      },
+      { wrapper },
+    );
+
+
+    expect(result.current.item).toBeUndefined();
+
+    // await waitFor(() => result.current.executeMutation());
+    expect(result.current.item.id).toBe(resultValue.id);
+  });
 });

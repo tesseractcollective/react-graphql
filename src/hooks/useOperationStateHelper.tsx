@@ -2,7 +2,7 @@ import React, {useState, useEffect, ReactElement} from 'react';
 import {Text} from 'react-native';
 import {UseQueryState, CombinedError, UseMutationState} from 'urql';
 
-interface IUseOperationStateHelperOptions {
+export interface IUseOperationStateHelperOptions {
   successToastMessage?: string;
   successString?: string;
   successRender?: (data: any) => ReactElement;

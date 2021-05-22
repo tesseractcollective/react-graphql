@@ -8,7 +8,8 @@ require('esbuild').build({
   bundle: true,
   target: ['es2017'],
   format: 'esm',
-  outfile: './dist/src/index.js',
+  // outfile: './dist/src/index.js',
+  outfile: '../thelitas-mobile/node_modules/@tesseractcollective/react-native-graphql/dist/src/index.js',
   tsconfig: './tsconfig-native.json',
   define: {'process.env.NODE_ENV': '"production"', '__DEV__': false},
   resolveExtensions: ['.tsx','.ts','.jsx','.js', '.web.tsx','.web.ts','.web.jsx','.web.js'], //prioritize non .web extensions

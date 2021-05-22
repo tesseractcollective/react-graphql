@@ -8,7 +8,7 @@ import IntrospectionQuery, {
   PostCommentFieldsFragmentDoc,
 } from './generated/graphql';
 import { HasuraConfigType } from '../src/types/hasuraConfig';
-import { buildHasuraConfig } from '../src/support/hasuraConfigUtils';
+import { buildHasuraConfig } from '../src/support/HasuraConfigUtils';
 import schema from './generated/graphql.schema.json';
 
 const HasuraConfig: HasuraConfigType = buildHasuraConfig(schema, {

@@ -6,7 +6,7 @@ import { QueryPostMiddlewareState, QueryPreMiddlewareState } from '../types/hook
 import { buildFragment } from './support/buildFragment';
 import { buildDocument } from './support/buildDocument';
 
-function createPkArgsString(config: HasuraDataConfig): string {
+export function createPkArgsString(config: HasuraDataConfig): string {
   return config.primaryKey
     .map((key) => {
       return `${key}:$${key}`;
@@ -104,7 +104,7 @@ export function createDeleteMutation(
 
   let document = buildDocument(mutationStr, operationName, variablesForDeleting, 'createDeleteMutation', 'mutation');
 
-  return { document, operationName, variables };
+  return { document, operationName, variables: variablesForDeleting };
 }
 
 export function createInsertMutation(
