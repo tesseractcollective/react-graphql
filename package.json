@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-native-graphql",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -13,6 +13,7 @@
     "dev:native": "tsc -w --project tsconfig-native.json",
     "build:web": "node build.web.js",
     "build:native": "node build.native.js",
+    "build:local": "node build.local.js",
     "build:ts": "tsc --emitDeclarationOnly",
     "pack:web": "pnpm build:web && pnpm build:ts && pnpm pack",
     "pack:native": "pnpm build:native && pnpm build:ts && pnpm pack",
