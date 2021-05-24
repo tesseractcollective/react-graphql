@@ -137,7 +137,8 @@ export function useInfiniteQueryMany<TData extends any>(
         setItemsMap(newItemsMap);
         console.log(
           "🚀 ~ file: useInfiniteQueryMany.tsx ~ line 138 ~ useEffect ~ newItemsMap",
-          newItemsMap
+          newItemsMap?.size + ' items found',
+          newItemsMap?.size && newItemsMap.get(newItemsMap.keys().next().value)
         );
         setMeta({
           detectedPks: newDetectedPks ?? meta.detectedPks,
@@ -166,11 +167,6 @@ export function useInfiniteQueryMany<TData extends any>(
     if (!isMatchingListKey) {
       return;
     }
-    console.log(
-      "mutationEvent recieved <- useInfiniteQueryMany",
-      mutationEvent,
-      listKey
-    );
 
     if (mutationEvent?.type === "insert-first") {
       const newMap = new Map();
