@@ -9,7 +9,7 @@ import { useMonitorResult } from "./support/monitorResult";
 import { useAtom } from "jotai";
 import { mutationEventAtom, IMutationEvent } from "./support/mutationEventAtom";
 import { JsonArray, JsonObject } from "type-fest";
-import { RequestPolicy } from "urql";
+import { OperationContext, RequestPolicy } from "urql";
 
 export interface IUseInfiniteQueryMany {
   where?: { [key: string]: any };
@@ -18,7 +18,7 @@ export interface IUseInfiniteQueryMany {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
   listKey?: string;
-  requestPolicy?: RequestPolicy;
+  urqlContext?: Partial<OperationContext>;
 }
 
 const defaultPageSize = 50;
@@ -26,7 +26,7 @@ const defaultPageSize = 50;
 export function useInfiniteQueryMany<TData extends any>(
   props: IUseInfiniteQueryMany
 ) {
-  const { sharedConfig, middleware, where, orderBy, pageSize, listKey, requestPolicy } = props;
+  const { sharedConfig, middleware, where, orderBy, pageSize, listKey, urqlContext } = props;
 
   const limit = pageSize ?? defaultPageSize;
 
@@ -72,9 +72,7 @@ export function useInfiniteQueryMany<TData extends any>(
   }, [externalVariables, offset]);
 
   // Setup the initial query Config so it's for sure ready before we get to urql
-  const [queryState, reExecuteQuery] = useUrqlQuery<TData>(queryCfg, undefined, requestPolicy ? {
-    requestPolicy
-  } : undefined);
+  const [queryState, reExecuteQuery] = useUrqlQuery<TData>(queryCfg, undefined, urqlContext);
 
   useEffect(() => {
     if (needsReQuery) {
