@@ -72,9 +72,9 @@ export function useInfiniteQueryMany<TData extends any>(
   }, [externalVariables, offset]);
 
   // Setup the initial query Config so it's for sure ready before we get to urql
-  const [queryState, reExecuteQuery] = useUrqlQuery<TData>(queryCfg, undefined, {
+  const [queryState, reExecuteQuery] = useUrqlQuery<TData>(queryCfg, undefined, requestPolicy ? {
     requestPolicy
-  });
+  } : undefined);
 
   useEffect(() => {
     if (needsReQuery) {
