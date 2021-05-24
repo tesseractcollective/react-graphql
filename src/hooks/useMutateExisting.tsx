@@ -74,7 +74,7 @@ export function useMutateExisting<T extends JsonObject>(props: IUseMutateExistin
 
   useEffect(() => {
     if (queryItem) {
-      Object.keys(queryItem).filter(x=> !x.startsWith('__') && sharedConfig.primaryKey.indexOf(x) === -1).forEach((key) => queryItem[key] && setMutationItemValue(key, queryItem[key]));
+      Object.keys(queryItem).filter(x=> !x.startsWith('__') && sharedConfig.primaryKey.indexOf(x) >= 0).forEach((key) => queryItem[key] && setMutationVariable(key, queryItem[key]));
     }
   }, [queryItem]);
 
