@@ -1,4 +1,5 @@
 import { JsonObject } from 'type-fest';
+import { RequestPolicy } from 'urql';
 import { HasuraDataConfig } from '../types/hasuraConfig';
 import { QueryMiddleware } from '../types/hookMiddleware';
 import { useInfiniteQueryMany } from './useInfiniteQueryMany';
@@ -71,6 +72,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       pageSize?: number;
       middleware?: QueryMiddleware[];
       listKey?: string;
+      requestPolicy?: RequestPolicy
     }) {
       return useInfiniteQueryMany<TData>({
         where: props?.where,
