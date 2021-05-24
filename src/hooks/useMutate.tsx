@@ -16,6 +16,7 @@ import { useAtom } from "jotai";
 import { keyExtractor } from "../support/HasuraConfigUtils";
 import { print } from "graphql";
 import { JsonObject } from "type-fest";
+import { IUseOperationStateHelperOptions, useOperationStateHelper } from "./useOperationStateHelper";
 
 interface IUseMutateProps {
   sharedConfig: HasuraDataConfig;
@@ -24,6 +25,7 @@ interface IUseMutateProps {
   initialVariables?: JsonObject;
   operationEventType: "insert-first" | "insert-last" | "update" | "delete";
   listKey?: string;
+  resultHelperOptions?: IUseOperationStateHelperOptions
 }
 
 export interface MutateState {
@@ -161,6 +163,8 @@ export function useMutate<T extends JsonObject>(
       setNeedsExecuteMutation(true);
     }
   };
+
+  useOperationStateHelper(mutationResult, props.resultHelperOptions || {});
 
   //Return values
   return {

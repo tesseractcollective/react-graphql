@@ -10,6 +10,7 @@ import { useAtom } from "jotai";
 import { mutationEventAtom, IMutationEvent } from "./support/mutationEventAtom";
 import { JsonArray, JsonObject } from "type-fest";
 import { OperationContext, RequestPolicy } from "urql";
+import { IUseOperationStateHelperOptions, useOperationStateHelper } from "./useOperationStateHelper";
 
 export interface IUseInfiniteQueryMany {
   where?: { [key: string]: any };
@@ -19,6 +20,7 @@ export interface IUseInfiniteQueryMany {
   middleware: QueryMiddleware[];
   listKey?: string;
   urqlContext?: Partial<OperationContext>;
+  resultHelperOptions?: IUseOperationStateHelperOptions
 }
 
 const defaultPageSize = 50;
@@ -212,6 +214,8 @@ export function useInfiniteQueryMany<TData extends any>(
   const requeryKeepInfinite = () => {
     setNeedsReQuery(true);
   };
+
+  useOperationStateHelper(queryState, props.resultHelperOptions || {});
 
   return {
     queryState,

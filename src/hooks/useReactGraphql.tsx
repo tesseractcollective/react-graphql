@@ -19,6 +19,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       middleware?: QueryMiddleware[];
       listKey?: string;
       firstOrLast?: 'insert-first' | 'insert-last';
+      resultHelperOptions?: IUseOperationStateHelperOptions;
     }) =>
       useMutate({
         sharedConfig: config,
@@ -27,21 +28,29 @@ export function useReactGraphql(config: HasuraDataConfig) {
         initialVariables: props?.initialVariables,
         operationEventType: props?.firstOrLast ?? 'insert-first',
         listKey: props?.listKey,
+        resultHelperOptions: props?.resultHelperOptions,
       }),
 
-    useDelete: (props: { variables: JsonObject; middleware?: QueryMiddleware[]; listKey?: string }) =>
+    useDelete: (props: {
+      variables: JsonObject;
+      middleware?: QueryMiddleware[];
+      listKey?: string;
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+    }) =>
       useMutate({
         sharedConfig: config,
         middleware: props.middleware || [createDeleteMutation],
         initialVariables: props.variables,
         operationEventType: 'delete',
         listKey: props.listKey,
+        resultHelperOptions: props?.resultHelperOptions,
       }),
 
     useUpdate: (props?: {
       initialItem?: JsonObject;
       initialVariables?: JsonObject;
       middleware?: QueryMiddleware[];
+      resultHelperOptions?: IUseOperationStateHelperOptions;
     }) =>
       useMutate({
         sharedConfig: config,
@@ -49,6 +58,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
         initialItem: props?.initialItem,
         initialVariables: props?.initialVariables,
         operationEventType: 'update',
+        resultHelperOptions: props?.resultHelperOptions,
       }),
 
     useUpdateExisting: (props?: {
@@ -56,14 +66,14 @@ export function useReactGraphql(config: HasuraDataConfig) {
       queryMiddleware?: QueryMiddleware[];
       mutationMiddleware?: QueryMiddleware[];
       listKey?: string;
-      mutationResultHelperOptions?: IUseOperationStateHelperOptions
+      mutationResultHelperOptions?: IUseOperationStateHelperOptions;
     }) =>
       useMutateExisting({
         sharedConfig: config,
         mutationMiddleware: props?.mutationMiddleware || [createUpdateMutation],
         queryMiddleware: props?.queryMiddleware || [createQueryOne],
         queryVariables: props?.initialVariables || {},
-        mutationResultHelperOptions: props?.mutationResultHelperOptions
+        mutationResultHelperOptions: props?.mutationResultHelperOptions,
       }),
 
     useInfiniteQueryMany: function <TData>(props?: {
@@ -72,7 +82,8 @@ export function useReactGraphql(config: HasuraDataConfig) {
       pageSize?: number;
       middleware?: QueryMiddleware[];
       listKey?: string;
-      urqlContext?: Partial<OperationContext>
+      urqlContext?: Partial<OperationContext>;
+      resultHelperOptions?: IUseOperationStateHelperOptions;
     }) {
       return useInfiniteQueryMany<TData>({
         where: props?.where,
@@ -81,14 +92,20 @@ export function useReactGraphql(config: HasuraDataConfig) {
         pageSize: props?.pageSize,
         middleware: props?.middleware || [createInfiniteQueryMany],
         listKey: props?.listKey,
-        urqlContext: props?.urqlContext
+        urqlContext: props?.urqlContext,
+        resultHelperOptions: props?.resultHelperOptions,
       });
     },
-    useQueryOne: (props: { variables: JsonObject; middleware?: QueryMiddleware[] }) =>
+    useQueryOne: (props: {
+      variables: JsonObject;
+      middleware?: QueryMiddleware[];
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+    }) =>
       useQueryOne({
         sharedConfig: config,
         middleware: props?.middleware || [createQueryOne],
         variables: props.variables,
+        resultHelperOptions: props?.resultHelperOptions,
       }),
   };
 }

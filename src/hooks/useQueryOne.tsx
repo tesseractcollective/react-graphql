@@ -8,11 +8,13 @@ import { useAtom } from 'jotai';
 import { IMutationEvent, mutationEventAtom } from './support/mutationEventAtom';
 import { JsonObject } from 'type-fest';
 import _ from 'lodash';
+import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useOperationStateHelper';
 
 interface IUseQueryOne {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
   variables: JsonObject;
+  resultHelperOptions?: IUseOperationStateHelperOptions
 }
 
 export interface QueryState {
@@ -90,6 +92,8 @@ export function useQueryOne<TData extends JsonObject, TVariables extends JsonObj
       setItem(resp.data[queryCfg.operationName] as any);
     }
   }, [resp.data]);
+
+  useOperationStateHelper(resp, props.resultHelperOptions || {});
 
   return {
     item,
