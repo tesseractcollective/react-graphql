@@ -76,6 +76,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
         where: props?.where,
         orderBy: props?.orderBy,
         sharedConfig: config,
+        pageSize: props?.pageSize,
         middleware: props?.middleware || [createInfiniteQueryMany],
         listKey: props?.listKey,
       });
