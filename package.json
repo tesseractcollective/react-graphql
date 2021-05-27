@@ -1,5 +1,5 @@
 {
-  "name": "@tesseractcollective/react-native-graphql",
+  "name": "@tesseractcollective/react-graphql",
   "version": "0.6.10",
   "private": false,
   "main": "./dist/src/index.js",
