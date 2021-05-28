@@ -93,14 +93,11 @@ export function createDeleteMutation(
 
   const variablesStr = variableDefinitionsString ? `(${variableDefinitionsString})` : '';
 
-  let frag = buildFragment(fragment, operationName, variablesForDeleting);
-
   const mutationStr = `mutation ${name}DeleteMutation${variablesStr} {
       ${operationName}(${pkArgs}) {
-        ...${fragmentName}
+        ${config.primaryKey.join('\r\n')}
       }
-    }
-    ${frag}`;
+    }`;
 
   let document = buildDocument(mutationStr, operationName, variablesForDeleting, 'createDeleteMutation', 'mutation');
 
