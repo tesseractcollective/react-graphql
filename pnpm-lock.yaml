@@ -17,6 +17,7 @@ specifiers:
   '@types/react-native': ^0.64.4
   enzyme: ^3.11.0
   esbuild: ^0.11.20
+  esbuild-plugin-alias: ^0.1.2
   esbuild-plugin-flow: ^0.3.2
   graphql: ^15.5.0
   graphql-tag: ^2.12.4
@@ -53,6 +54,7 @@ devDependencies:
   '@types/react-native': 0.64.5
   enzyme: 3.11.0
   esbuild: 0.11.21
+  esbuild-plugin-alias: 0.1.2
   esbuild-plugin-flow: 0.3.2
   graphql: 15.5.0
   graphql-tag: 2.12.4_graphql@15.5.0
@@ -6841,6 +6843,10 @@ packages:
     dependencies:
       d: 1.0.1
       ext: 1.4.0
+    dev: true
+
+  /esbuild-plugin-alias/0.1.2:
+    resolution: {integrity: sha512-WsX0OJy8IGOsGZV+4oHEU5B6XQUpxOsZN1iSoYf9COTDbY7WXcOwd1oCLYNWUIWCExyGXSghIGq2k7sXBldxwQ==}
     dev: true
 
   /esbuild-plugin-flow/0.3.2:

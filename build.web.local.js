@@ -10,7 +10,7 @@ require('esbuild')
     bundle: true,
     target: ['es2017'],
     format: 'esm',
-    outfile: './dist/src/index.js',
+    outfile: '../purco/node_modules/@tesseractcollective/react-graphql/dist/src/index.js',
     tsconfig: './tsconfig-web.json',
     define: { 'process.env.NODE_ENV': '"production"', __DEV__: false, global: 'window' },
     resolveExtensions: ['.web.tsx', '.web.ts', '.web.jsx', '.web.js', '.tsx', '.ts', '.jsx', '.js'], //This takes into account priority, so it will resolve a .web.tsx of the same file name before a .tsx if it exists

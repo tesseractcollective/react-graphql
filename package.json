@@ -1,5 +1,5 @@
 {
-  "name": "@tesseractcollective/react-native-graphql",
+  "name": "@tesseractcollective/react-graphql",
   "version": "0.6.12",
   "private": false,
   "main": "./dist/src/index.js",
@@ -14,6 +14,7 @@
     "build:web": "node build.web.js",
     "build:native": "node build.native.js",
     "build:local": "node build.local.js",
+    "build:web:local": "node build.web.local.js",
     "build:ts": "tsc --emitDeclarationOnly",
     "pack:web": "pnpm build:web && pnpm build:ts && pnpm pack",
     "pack:native": "pnpm build:native && pnpm build:ts && pnpm pack",
@@ -79,6 +80,7 @@
     "@types/react-native": "^0.64.4",
     "enzyme": "^3.11.0",
     "esbuild": "^0.11.20",
+    "esbuild-plugin-alias": "^0.1.2",
     "esbuild-plugin-flow": "^0.3.2",
     "graphql": "^15.5.0",
     "graphql-tag": "^2.12.4",
