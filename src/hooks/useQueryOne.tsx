@@ -14,7 +14,8 @@ interface IUseQueryOne {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
   variables: JsonObject;
-  resultHelperOptions?: IUseOperationStateHelperOptions
+  resultHelperOptions?: IUseOperationStateHelperOptions;
+  urqlContext?: Partial<OperationContext>;
 }
 
 export interface QueryState {
@@ -30,7 +31,7 @@ export interface QueryState {
 }
 
 export function useQueryOne<TData extends JsonObject, TVariables extends JsonObject>(props: IUseQueryOne): QueryState {
-  const { sharedConfig, middleware, variables } = props;
+  const { sharedConfig, middleware, variables, urqlContext } = props;
 
   const [item, setItem] = useState<TData | null>();
   const [key, setKey] = useState<string>();
@@ -48,6 +49,7 @@ export function useQueryOne<TData extends JsonObject, TVariables extends JsonObj
   const [resp, reExecuteQuery] = useQuery<TData>({
     query: queryCfg?.document,
     variables: queryCfg.variables,
+    context: urqlContext
   });
   console.log('🚀 ~ file: useQueryOne.tsx ~ line 39 ~ resp', resp);
 

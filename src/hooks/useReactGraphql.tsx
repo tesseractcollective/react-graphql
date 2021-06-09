@@ -100,11 +100,13 @@ export function useReactGraphql(config: HasuraDataConfig) {
       variables: JsonObject;
       middleware?: QueryMiddleware[];
       resultHelperOptions?: IUseOperationStateHelperOptions;
+      urqlContext?: Partial<OperationContext>;
     }) =>
       useQueryOne({
         sharedConfig: config,
         middleware: props?.middleware || [createQueryOne],
         variables: props.variables,
+        urqlContext: props?.urqlContext,
         resultHelperOptions: props?.resultHelperOptions,
       }),
   };
