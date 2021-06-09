@@ -30,8 +30,10 @@ export interface QueryState {
   variables: JsonObject;
 }
 
+const defaultUrqlContext: Partial<OperationContext> = { requestPolicy: 'cache-and-network' };
+
 export function useQueryOne<TData extends JsonObject, TVariables extends JsonObject>(props: IUseQueryOne): QueryState {
-  const { sharedConfig, middleware, variables, urqlContext } = props;
+  const { sharedConfig, middleware, variables, urqlContext = defaultUrqlContext } = props;
 
   const [item, setItem] = useState<TData | null>();
   const [key, setKey] = useState<string>();
