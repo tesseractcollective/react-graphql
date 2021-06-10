@@ -23,8 +23,8 @@
     "postinstall": "node ./scripts/backupbase.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "webmode": "node ./scripts/enterwebmode.js",
-    "nativemode": "node ./scripts/enternativemode.js"
+    "webmode": "pnpm save || node ./scripts/enterwebmode.js",
+    "nativemode": "pnpm save || node ./scripts/enternativemode.js"
   },
   "eslintConfig": {
     "extends": [
@@ -110,9 +110,7 @@
     "jotai": "^0.16.0",
     "lodash": "^4.17.21",
     "react": "^17.0.0",
-    "react-dom": "^17.0.0",
-    "react-native-web": "0.14.13",
-    "react-scripts": "4.0.3",
+    "react-native": "^0.64.1",
     "urql": "^2.0.3"
   }
 }

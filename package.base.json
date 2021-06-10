@@ -1,4 +1,4 @@
-{  
+{
   "version": "0.6.14",
   "private": false,
   "main": "./dist/src/index.js",
@@ -18,17 +18,31 @@
     "pack:web": "pnpm build:web && pnpm build:ts && pnpm pack",
     "pack:native": "pnpm build:native && pnpm build:ts && pnpm pack",
     "pub": "pnpm publish --access public",
+    "save": "node ./scripts/backupbase.js",
+    "postinstall": "node ./scripts/backupbase.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "webmode": "",
-    "nativemode": ""
+    "webmode": "pnpm save || node ./scripts/enterwebmode.js",
+    "nativemode": "pnpm save || node ./scripts/enternativemode.js"
   },
   "eslintConfig": {
     "extends": [
       "react-app",
       "react-app/jest"
     ]
-  },  
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
   "jest": {
     "transform": {
       ".(ts|tsx|js)": "ts-jest"
@@ -52,18 +66,6 @@
       "^react-native$": "react-native-web"
     }
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },  
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.13.10",
     "@babel/preset-env": "^7.13.10",
@@ -100,5 +102,5 @@
     "urql": "^2.0.3",
     "web-vitals": "^1.0.1",
     "wonka": "^4.0.15"
-  }  
+  }
 }
