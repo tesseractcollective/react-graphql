@@ -1,0 +1,12 @@
+{
+  "name": "@tesseractcollective/react-native-graphql",  
+  "peerDependencies": {
+    "graphql": "^15.5.0",
+    "graphql-tag": "^2.11.0",
+    "jotai": "^0.16.0",
+    "lodash": "^4.17.21",
+    "react": "^17.0.0",
+    "react-native": "^0.64.1",
+    "urql": "^2.0.3"
+  }
+}
