@@ -1,5 +1,5 @@
 {
-  "version": "0.6.14",
+  "version": "0.6.15",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -14,6 +14,7 @@
     "build:native": "node build.native.js",
     "build:local": "node build.local.js",
     "build:web:local": "node build.web.local.js",
+    "build:web:local:ts": "tsc --project tsconfig-web.local.json",
     "build:ts": "tsc --emitDeclarationOnly",
     "pack:web": "pnpm build:web && pnpm build:ts && pnpm pack",
     "pack:native": "pnpm build:native && pnpm build:ts && pnpm pack",
@@ -22,8 +23,10 @@
     "postinstall": "node ./scripts/backupbase.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "webmode": "pnpm save || node ./scripts/enterwebmode.js",
-    "nativemode": "pnpm save || node ./scripts/enternativemode.js"
+    "webmode:internal": "node ./scripts/enterwebmode.js",
+    "webmode": "run-s save webmode:internal",
+    "nativemode:internal": "node ./scripts/enterwebmode.js",
+    "nativemode": "run-s save nativemode:internal"
   },
   "eslintConfig": {
     "extends": [
@@ -90,6 +93,7 @@
     "jest": "^26.6.3",
     "jotai": "^0.16.0",
     "lodash": "^4.17.21",
+    "npm-run-all": "^4.1.5",
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-native": "^0.64.1",

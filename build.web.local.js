@@ -10,8 +10,9 @@ require('esbuild')
     bundle: true,
     target: ['es2017'],
     format: 'esm',
-    outfile: '../purco/node_modules/@tesseractcollective/react-graphql/dist/src/index.js',
-    tsconfig: './tsconfig-web.json',
+    outfile: '../crowdpoint-admin/admin-ui/node_modules/@tesseractcollective/react-graphql/dist/src/index.js',
+    // outfile: '../purco/node_modules/@tesseractcollective/react-graphql/dist/src/index.js',
+    tsconfig: './tsconfig-web.local.json',
     define: { 'process.env.NODE_ENV': '"production"', __DEV__: false, global: 'window' },
     resolveExtensions: ['.web.tsx', '.web.ts', '.web.jsx', '.web.js', '.tsx', '.ts', '.jsx', '.js'], //This takes into account priority, so it will resolve a .web.tsx of the same file name before a .tsx if it exists
     loader: { '.png': 'file', '.ttf': 'file', '.js': 'jsx' },
@@ -27,6 +28,14 @@ require('esbuild')
       'jotai',
       'graphql',
       'graphql-tag',
+      'case',
+      'react-data-table-component',
+      'react-scroll-trigger',
+      'styled-components',
+      'graphql',
+      'graphql-tag',
+      'lodash',
+      'jotai'
     ],
     plugins: [
       // flow(/node_modules\\react-native-gesture-handler.*\.jsx?$/),
@@ -34,5 +43,6 @@ require('esbuild')
         'react-native': require.resolve('react-native-web'),
       }),
     ],
+    // watch: true
   })
   .catch(() => process.exit(1));

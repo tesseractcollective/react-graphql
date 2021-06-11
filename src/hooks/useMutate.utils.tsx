@@ -1,4 +1,4 @@
-import { getFieldTypeMap } from 'support';
+import { getFieldTypeMap } from '../support/graphqlHelpers';
 import { JsonObject } from 'type-fest';
 import { getFieldFragmentInfo } from '../support/HasuraConfigUtils';
 import { HasuraDataConfig } from '../types/hasuraConfig';

@@ -22,7 +22,7 @@ export interface PaginationListProps<T> {
   listKey?: string;
 }
 
-export default function <T extends { [key: string]: any }>(props: PaginationListProps<T> & ScrollViewProps) {
+export function PaginatedList<T extends { [key: string]: any }>(props: PaginationListProps<T> & ScrollViewProps) {
   const {
     config,
     renderItem,

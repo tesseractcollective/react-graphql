@@ -15,6 +15,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
+    "emitDeclarationOnly": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "resolveJsonModule": true,
