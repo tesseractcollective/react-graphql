@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.6.15",
+  "version": "0.6.16",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -21,7 +21,6 @@
     "pack:native": "pnpm build:native && pnpm build:ts && pnpm pack",
     "pub": "pnpm publish --access public",
     "save": "node ./scripts/backupbase.js",
-    "postinstall": "node ./scripts/backupbase.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "webmode:internal": "node ./scripts/enterwebmode.js",
