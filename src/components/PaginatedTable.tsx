@@ -2,14 +2,14 @@ import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import DataTable, { IDataTableColumn } from 'react-data-table-component';
 import Case from 'case';
 import ScrollTriggerFromLib from 'react-scroll-trigger';
-import type { PaginatedListActions, PaginatedListModalConfig } from '../types/PaginatedListTypes';
+import type { PaginatedTableActions, PaginatedTableModalConfig } from '../types/PaginatedTableTypes';
 import _ from 'lodash';
 import useModal from '../hooks/useModal';
 import { HasuraDataConfig } from '../types';
 import { useReactGraphql, useOperationStateHelper } from '../hooks';
 import { bs, buildStyles, IFieldOutputType } from '../support';
 
-interface IPaginatedListProps<TBoolExp extends any, TRecord> {
+export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   graphqlConfig: HasuraDataConfig;
   searchConfig?: {
     keywordSearchColumns?: Array<keyof TRecord>;
@@ -20,15 +20,15 @@ interface IPaginatedListProps<TBoolExp extends any, TRecord> {
     onSuccess?: (keywords?: string) => void;
   };
   columnConfig?: { [selector: string]: Partial<IDataTableColumn> };
-  actionConfig?: PaginatedListActions;
+  actionConfig?: PaginatedTableActions;
 }
 
 const PAGE_SIZE = 50;
 
 const ScrollTrigger: React.ElementType = ScrollTriggerFromLib as React.ElementType;
 
-export function PaginatedList<TBoolExp extends { [key: string]: any }, TOrderBy extends any, TRecord extends any>(
-  props: IPaginatedListProps<TBoolExp, TRecord>,
+export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy extends any, TRecord extends any>(
+  props: IPaginatedTableProps<TBoolExp, TRecord>,
 ) {
   const { searchConfig, graphqlConfig, columnConfig, actionConfig } = props;
 
@@ -53,8 +53,10 @@ export function PaginatedList<TBoolExp extends { [key: string]: any }, TOrderBy 
         name: Case.sentence(columnName),
         selector: columnName,
         sortable: column && !column.isList && !column.isObject,
-        style: paginatedListColStyle,
+        style: paginatedTableColStyle,
         editable: true,
+        grow: 1,
+        wrap: true,
         format: (data: any) => {
           if (columnName === 'isApproved') {
             console.log('💰', columnName, data);
@@ -90,8 +92,8 @@ export function PaginatedList<TBoolExp extends { [key: string]: any }, TOrderBy 
   }, [columnConfig]);
 
   const modalComponent =
-    (actionConfig?.clickConfig as PaginatedListModalConfig)?.modalComponent ||
-    (actionConfig?.doubleClickConfig as PaginatedListModalConfig)?.modalComponent;
+    (actionConfig?.clickConfig as PaginatedTableModalConfig)?.modalComponent ||
+    (actionConfig?.doubleClickConfig as PaginatedTableModalConfig)?.modalComponent;
 
   const { Modal, hideModal, showModal, shown } = useModal({ modalComponent });
   let actionProps = {};
@@ -123,7 +125,7 @@ export function PaginatedList<TBoolExp extends { [key: string]: any }, TOrderBy 
 
   useOperationStateHelper(usersQueryState.queryState, {
     onSuccess: () => {
-      console.log('🍇🚀 ~ file: PaginatedList.tsx ~ line 152 ~ useOperationStateHelper ~ keyword', keyword);
+      console.log('🍇🚀 ~ file: PaginatedTable.tsx ~ line 152 ~ useOperationStateHelper ~ keyword', keyword);
       onSuccess?.(keyword);
     },
   });
@@ -132,7 +134,7 @@ export function PaginatedList<TBoolExp extends { [key: string]: any }, TOrderBy 
 
   const submitSearch = useCallback(
     (_keywords?: string) => {
-      console.log('🚀 ~ file: PaginatedList.tsx ~ line 161 ~ submitSearch');
+      console.log('🚀 ~ file: PaginatedTable.tsx ~ line 161 ~ submitSearch');
 
       let _keyword = _keywords || keyword;
       if (_keyword) {
@@ -248,7 +250,7 @@ export function PaginatedList<TBoolExp extends { [key: string]: any }, TOrderBy 
   );
 }
 
-const paginatedListColStyle = buildStyles(`h-max-100 o-hidden`);
+const paginatedTableColStyle = buildStyles(`h-max-100 o-hidden`);
 
 function buildExpandProps(cfg: any, cfgOn: string) {
   if (cfg?.action !== 'expand') return {};

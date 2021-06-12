@@ -1,6 +1,8 @@
 export { MutatorButton } from './components/shared/MutatorButton';
 export { MutatorTextInput } from './components/shared/MutatorTextInput';
 export { PaginatedList } from './components/PaginatedList';
+export { PaginatedTable } from './components/PaginatedTable';
+export type { IPaginatedTableProps } from './components/PaginatedTable';
 
 export { ReactGraphqlProvider } from './hooks/ReactGraphqlProvider';
 export type { IReactGraphqlProviderProps } from './hooks/ReactGraphqlProvider';
@@ -38,6 +40,15 @@ export { stateFromQueryMiddleware } from './support/middlewareHelpers';
 
 export { registerStyles, buildStyles, bs } from './support/styling/buildStyles';
 
+export type {
+  PaginatedTableExpanderConfig,
+  PaginatedTableNavConfig,
+  PaginatedTableModalConfig,
+  PaginatedTableInvokeConfig,
+  PaginatedTableSelectConfig,
+  PaginatedTableActions,
+  Order_By
+} from './types/PaginatedTableTypes';
 export type { HasuraConfigType, HasuraDataConfig } from './types/hasuraConfig/index';
 export type { UseMutatorProps, Mutator, MutatorState, MutationConfig } from './types/hasuraHooks/index';
 export type { QueryMiddleware, QueryPreMiddlewareState, QueryPostMiddlewareState } from './types/hookMiddleware/index';

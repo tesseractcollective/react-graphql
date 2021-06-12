@@ -1,50 +1,50 @@
 import type { ReactElement } from 'react';
 
-interface PaginatedListExpanderConfig {
+export interface PaginatedTableExpanderConfig {
   action: 'expand';
   expandableRowsComponent?: React.ReactNode;
   hideIcon?: boolean;
 }
 
-interface PaginatedListNavConfig {
+export interface PaginatedTableNavConfig {
   action: 'nav';
   to: string;
 }
 
-interface PaginatedListModalConfig {
+export interface PaginatedTableModalConfig {
   action: 'modal';
   modalComponent?: ReactElement;
   onCancel?: () => void;
   onSuccess?: () => void;
 }
 
-interface PaginatedListInvokeConfig {
+export interface PaginatedTableInvokeConfig {
   action: 'invoke';
   function: () => void;
 }
 
-interface PaginatedListSelectConfig {
+export interface PaginatedTableSelectConfig {
   action: 'select';
   onSelectedRowsChange?: (rows: any[]) => void;
   hideSelectAllCheckbox?: boolean;
   //If not via selector then turn on highlight, else highlight is off
 }
 
-interface PaginatedListActions {
+export interface PaginatedTableActions {
   clickConfig?:
-    | PaginatedListExpanderConfig
-    | PaginatedListNavConfig
-    | PaginatedListModalConfig
-    | PaginatedListInvokeConfig
-    | PaginatedListSelectConfig;
+    | PaginatedTableExpanderConfig
+    | PaginatedTableNavConfig
+    | PaginatedTableModalConfig
+    | PaginatedTableInvokeConfig
+    | PaginatedTableSelectConfig;
   doubleClickConfig?:
-    | PaginatedListExpanderConfig
-    | PaginatedListNavConfig
-    | PaginatedListModalConfig
-    | PaginatedListInvokeConfig
-    | PaginatedListSelectConfig;
-  selectorBoxConfig?: PaginatedListSelectConfig;
-  expanderBoxConfig?: PaginatedListExpanderConfig;
+    | PaginatedTableExpanderConfig
+    | PaginatedTableNavConfig
+    | PaginatedTableModalConfig
+    | PaginatedTableInvokeConfig
+    | PaginatedTableSelectConfig;
+  selectorBoxConfig?: PaginatedTableSelectConfig;
+  expanderBoxConfig?: PaginatedTableExpanderConfig;
 }
 
 /*
