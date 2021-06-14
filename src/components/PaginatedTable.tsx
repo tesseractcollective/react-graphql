@@ -13,12 +13,13 @@ export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   graphqlConfig: HasuraDataConfig;
   searchConfig?: {
     keywordSearchColumns?: Array<keyof TRecord>;
-    onSubmitSearchBuildWhereClause?: (keywords: string) => TBoolExp;
-    renderSearchComponent?: (onSubmit: (keywords?: string) => void) => ReactElement;
-    initialWhereClause?: TBoolExp;
+    where?: TBoolExp;
+    renderSearchComponent?: ReactElement;
     searchPlaceholder?: string;
     onSuccess?: (keywords?: string) => void;
   };
+  pageSize?: number;
+  renderEmpty?: () => ReactElement;
   columnConfig?: { [selector: string]: Partial<IDataTableColumn> };
   actionConfig?: PaginatedTableActions;
 }
@@ -30,14 +31,13 @@ const ScrollTrigger: React.ElementType = ScrollTriggerFromLib as React.ElementTy
 export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy extends any, TRecord extends any>(
   props: IPaginatedTableProps<TBoolExp, TRecord>,
 ) {
-  const { searchConfig, graphqlConfig, columnConfig, actionConfig } = props;
+  const { searchConfig, graphqlConfig, columnConfig, actionConfig, renderEmpty } = props;
 
-  const { keywordSearchColumns, onSubmitSearchBuildWhereClause, renderSearchComponent, initialWhereClause, onSuccess } =
-    searchConfig || {};
+  const { keywordSearchColumns, renderSearchComponent, onSuccess } = searchConfig || {};
 
   const [keyword, setKeyword] = useState<string>();
   const [orderBy, setorderBy] = useState<TOrderBy[]>();
-  const [where, setWhere] = useState<TBoolExp | undefined>(initialWhereClause);
+  const [where, setWhere] = useState<TBoolExp | undefined>(searchConfig?.where);
   const [columnConfigInternal, setColumnConfigInternal] = useState<IDataTableColumn[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -47,7 +47,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
       ? Object.keys(graphqlConfig.fields.fieldSimpleMap)
       : [];
 
-    const defaultColumns = columnsFromDocument.map((columnName:string) => {
+    const defaultColumns = columnsFromDocument.map((columnName: string) => {
       const column: IFieldOutputType | undefined = graphqlConfig.fields?.fieldSimpleMap[columnName];
       return {
         name: Case.sentence(columnName),
@@ -80,7 +80,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         const customConfig = columnConfig[defaultColumn.selector];
         if (customConfig) {
           const newCustomConfig = Object.assign({}, defaultColumn, customConfig);
-          if(customConfig.selector && !defaultColumn.sortable){
+          if (customConfig.selector && !defaultColumn.sortable) {
             newCustomConfig.sortable = true;
           }
           return newCustomConfig;
@@ -90,6 +90,10 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     }
     setColumnConfigInternal(_columnConfig ?? defaultColumns);
   }, [columnConfig]);
+
+  useEffect(() => {
+    setWhere(searchConfig?.where);
+  }, [searchConfig?.where]);
 
   const modalComponent =
     (actionConfig?.clickConfig as PaginatedTableModalConfig)?.modalComponent ||
@@ -120,7 +124,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
   const usersQueryState = dataSource.useInfiniteQueryMany({
     orderBy,
     where,
-    pageSize: PAGE_SIZE,
+    pageSize: props.pageSize || PAGE_SIZE,
   });
 
   useOperationStateHelper(usersQueryState.queryState, {
@@ -139,9 +143,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
       let _keyword = _keywords || keyword;
       if (_keyword) {
         let whereClause;
-        if (onSubmitSearchBuildWhereClause) {
-          whereClause = onSubmitSearchBuildWhereClause(_keyword);
-        } else if (keywordSearchColumns) {
+        if (keywordSearchColumns) {
           const whereObj = {} as any;
 
           keywordSearchColumns.forEach((column) => {
@@ -150,9 +152,9 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
             };
           });
           whereClause = whereObj;
+          setWhere(whereClause);
         }
-        setWhere(whereClause);
-      } else {
+      } else if (!props.searchConfig?.where) {
         setWhere({} as TBoolExp);
       }
     },
@@ -171,23 +173,21 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     if (selectorOrNameStr.indexOf('.') >= 0) {
       const parts = selectorOrNameStr.split('.');
       newOrderBy = {};
-      let nextPart:string;
+      let nextPart: string;
       let currentTier: any = newOrderBy;
       //Loop over all the parts from our string: table.subtable.prop
-      while(parts.length > 0){
+      while (parts.length > 0) {
         nextPart = parts.shift() as string;
         //We're on the last part, the prop
-        if(parts.length === 0){
+        if (parts.length === 0) {
           currentTier[nextPart] = directionStr;
         } else {
           currentTier[nextPart] = {};
           currentTier = currentTier[nextPart];
         }
       }
-      setorderBy([
-        newOrderBy
-      ] as TOrderBy[]);
-    } else {      
+      setorderBy([newOrderBy] as TOrderBy[]);
+    } else {
       setorderBy([
         {
           //BUG: This will break if the consumer's graphql schema isn't camel case and they didn't provide a selector
@@ -197,15 +197,19 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     }
   }
 
-  const isSearchEnabled = !!(keywordSearchColumns || onSubmitSearchBuildWhereClause) && !renderSearchComponent;
+  const isSearchEnabled = !!keywordSearchColumns && !renderSearchComponent;
 
   useEffect(() => {
     //This one wierd useEffect gets the re-render to happen correctly
   }, [usersQueryState.items]);
 
+  const isLoadedSuccessfully =
+    columnConfigInternal && !usersQueryState.queryState.fetching && usersQueryState.items?.length;
+  const isLoadedEmpty = columnConfigInternal && !usersQueryState.queryState.fetching && !usersQueryState.items?.length;
+
   return (
     <div className="paginated-list">
-      {renderSearchComponent && renderSearchComponent(submitSearch)}
+      {renderSearchComponent ? renderSearchComponent : null}
 
       {isSearchEnabled && (
         <div>
@@ -222,7 +226,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         </div>
       )}
 
-      {columnConfigInternal && (
+      {isLoadedSuccessfully ? (
         <DataTable
           columns={columnConfigInternal}
           {...actionProps}
@@ -244,7 +248,9 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
             />
           )}
         />
-      )}
+      ) : isLoadedEmpty && renderEmpty ? (
+        renderEmpty()
+      ) : null}
       {Modal ? Modal : null}
     </div>
   );
