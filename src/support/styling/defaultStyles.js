@@ -275,6 +275,13 @@ positionSpacingStyles['absolute-0'] = {
   bottom: 0,
   position: 'absolute',
 };
+positionSpacingStyles['fixed-0'] = {
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  position: 'fixed',
+};
 
 const heightStyles = { 'h-null': { height: null } };
 
@@ -638,6 +645,7 @@ _.times(100, (n) => (flexStyles[`f-${n}`] = { flex: n }));
 _.times(100, (n) => (flexStyles[`f-grow-${n}`] = { flexGrow: n }));
 _.times(100, (n) => (flexStyles[`f-s-${n}`] = { flexShrink: n }));
 flexStyles['f-scroll'] = { flexGrow: 1 };
+flexStyles['f'] = { display: 'flex' };
 
 const gridAutoFlow = {
   column: 'column',

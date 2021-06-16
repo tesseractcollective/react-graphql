@@ -8,6 +8,9 @@ import useModal from '../hooks/useModal';
 import { HasuraDataConfig } from '../types';
 import { useReactGraphql, useOperationStateHelper } from '../hooks';
 import { bs, buildStyles, IFieldOutputType } from '../support';
+import ReactLoading from 'react-loading';
+import { colorsMap } from 'support/styling/colorsMap';
+import './PaginatedTable.css';
 
 export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   graphqlConfig: HasuraDataConfig;
@@ -19,6 +22,10 @@ export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
     onSuccess?: (keywords?: string) => void;
   };
   pageSize?: number;
+  headerConfig?: {
+    noHeader?: boolean;
+    fixedHeader?: boolean;
+  };
   renderEmpty?: () => ReactElement;
   columnConfig?: { [selector: string]: Partial<IDataTableColumn> };
   actionConfig?: PaginatedTableActions;
@@ -31,7 +38,16 @@ const ScrollTrigger: React.ElementType = ScrollTriggerFromLib as React.ElementTy
 export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy extends any, TRecord extends any>(
   props: IPaginatedTableProps<TBoolExp, TRecord>,
 ) {
-  const { searchConfig, graphqlConfig, columnConfig, actionConfig, renderEmpty } = props;
+  const {
+    searchConfig,
+    graphqlConfig,
+    columnConfig,
+    actionConfig,
+    renderEmpty,
+    headerConfig = {
+      noHeader: true,
+    },
+  } = props;
 
   const { keywordSearchColumns, renderSearchComponent, onSuccess } = searchConfig || {};
 
@@ -204,11 +220,16 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
   }, [usersQueryState.items]);
 
   const isLoadedSuccessfully =
-    columnConfigInternal && !usersQueryState.queryState.fetching && usersQueryState.items?.length;
+    columnConfigInternal && (!usersQueryState.queryState.fetching || !!usersQueryState.items?.length);
   const isLoadedEmpty = columnConfigInternal && !usersQueryState.queryState.fetching && !usersQueryState.items?.length;
 
   return (
-    <div className="paginated-list">
+    <div
+      className="tc-paginated-table"
+      style={{ ...bs(`${headerConfig.fixedHeader ? 'f f-1 f-rows' : ''}`).single,
+       overflowY: headerConfig.fixedHeader ? 'hidden' : undefined
+      }}
+    >
       {renderSearchComponent ? renderSearchComponent : null}
 
       {isSearchEnabled && (
@@ -226,32 +247,43 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         </div>
       )}
 
-      {isLoadedSuccessfully ? (
-        <DataTable
-          columns={columnConfigInternal}
-          {...actionProps}
-          data={usersQueryState.items}
-          sortServer
-          onSort={onSort}
-          pagination
-          paginationServer
-          paginationPerPage={PAGE_SIZE}
-          //   onChangePage={(pageNumber, totalRows) => {
-          //     if (pageNumber * PAGE_SIZE > usersQueryState.items.length) {
-          //     }
+      <DataTable
+        className="tc-datatable"
+        columns={columnConfigInternal}
+        {...actionProps}
+        data={usersQueryState.items}
+        sortServer
+        noHeader={headerConfig.noHeader}
+        onSort={onSort}
+        pagination
+        paginationServer
+        paginationPerPage={PAGE_SIZE}
+        progressPending={!isLoadedSuccessfully}
+        persistTableHead={true}
+        overflowY={true}
+        customStyles={{}}
+        noDataComponent={renderEmpty}
+        //   onChangePage={(pageNumber, totalRows) => {
+        //     if (pageNumber * PAGE_SIZE > usersQueryState.items.length) {
+        //     }
+        //   }}
+        paginationComponent={() => (
+          null
+          // <ScrollTrigger
+          //   onEnter={(e: any) => {
+          //     usersQueryState.loadNextPage();
           //   }}
-          paginationComponent={() => (
-            <ScrollTrigger
-              onEnter={(e: any) => {
-                usersQueryState.loadNextPage();
-              }}
-            />
-          )}
-        />
-      ) : isLoadedEmpty && renderEmpty ? (
-        renderEmpty()
-      ) : null}
+          // />
+        )}
+      />
       {Modal ? Modal : null}
+      {usersQueryState.queryState.fetching ? (
+        <div style={bs(`fixed-0 f f-cc`).single}>
+          <div style={bs(`bg-white p-xl sh-lg b-1 b-gray-200 z-99`).single}>
+            <ReactLoading type="spin" color={colorsMap['blue-400']} />
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
