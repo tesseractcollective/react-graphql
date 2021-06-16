@@ -1,5 +1,5 @@
 {
-  "version": "0.6.15",
+  "version": "0.7.2",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -11,6 +11,7 @@
     "dev:web": "tsc -w --project tsconfig-web.json",
     "dev:native": "tsc -w --project tsconfig-native.json",
     "build:web": "node build.web.js",
+    "build:web:ts": "tsc --project tsconfig-web.json",
     "build:native": "node build.native.js",
     "build:local": "node build.local.js",
     "build:web:local": "node build.web.local.js",
@@ -20,7 +21,6 @@
     "pack:native": "pnpm build:native && pnpm build:ts && pnpm pack",
     "pub": "pnpm publish --access public",
     "save": "node ./scripts/backupbase.js",
-    "postinstall": "node ./scripts/backupbase.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "webmode:internal": "node ./scripts/enterwebmode.js",
