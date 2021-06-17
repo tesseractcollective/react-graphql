@@ -11,6 +11,7 @@ import { bs, buildStyles, IFieldOutputType } from '../support';
 import ReactLoading from 'react-loading';
 import { colorsMap } from 'support/styling/colorsMap';
 import './PaginatedTable.css';
+import useWatchScroll from './support/useWatchScroll';
 
 export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   graphqlConfig: HasuraDataConfig;
@@ -55,7 +56,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
   const [orderBy, setorderBy] = useState<TOrderBy[]>();
   const [where, setWhere] = useState<TBoolExp | undefined>(searchConfig?.where);
   const [columnConfigInternal, setColumnConfigInternal] = useState<IDataTableColumn[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [isCompleted, setIsCompleted] = useState<boolean>(false);
 
   //Column Config
   useEffect(() => {
@@ -137,16 +138,19 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
 
   //GET - Search and List
   const dataSource = useReactGraphql(graphqlConfig);
-  const usersQueryState = dataSource.useInfiniteQueryMany({
+  const queryState = dataSource.useInfiniteQueryMany({
     orderBy,
     where,
     pageSize: props.pageSize || PAGE_SIZE,
   });
 
-  useOperationStateHelper(usersQueryState.queryState, {
+  useOperationStateHelper(queryState.queryState, {
     onSuccess: () => {
       console.log('🍇🚀 ~ file: PaginatedTable.tsx ~ line 152 ~ useOperationStateHelper ~ keyword', keyword);
       onSuccess?.(keyword);
+      if(queryState.items.length === 0 && !queryState.queryState.error){
+        setIsCompleted(true);
+      }
     },
   });
 
@@ -178,8 +182,25 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
   );
 
   useEffect(() => {
-    usersQueryState.refresh();
+    queryState.refresh();
+    setIsCompleted(false);
   }, [where]);
+
+  const {positionY: scrollPercentAsDecimal, prevPosY, reComputeHeight} = useWatchScroll(queryState.items.length > 0 ? `.rdt_TableBody`: '');
+
+  useEffect(() => {
+    prevPosY;   
+    if(prevPosY !== scrollPercentAsDecimal && scrollPercentAsDecimal > .9 && !queryState.queryState.fetching && !isCompleted){
+      queryState.loadNextPage();
+    }
+  }, [scrollPercentAsDecimal,queryState.queryState.fetching, prevPosY, isCompleted]);
+
+  useEffect(() => {
+    //This one wierd useEffect gets the re-render to happen correctly
+    if(queryState.items.length > 0){
+      reComputeHeight();
+    }
+  }, [queryState.items.length]);
 
   function onSort(column: IDataTableColumn<unknown>, sortDirection: 'desc' | 'asc') {
     const selectorOrNameStr: string = (column.selector?.valueOf() as any) || (column.name?.valueOf() as any);
@@ -217,11 +238,11 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
 
   useEffect(() => {
     //This one wierd useEffect gets the re-render to happen correctly
-  }, [usersQueryState.items]);
+  }, [queryState.items]);
 
   const isLoadedSuccessfully =
-    columnConfigInternal && (!usersQueryState.queryState.fetching || !!usersQueryState.items?.length);
-  const isLoadedEmpty = columnConfigInternal && !usersQueryState.queryState.fetching && !usersQueryState.items?.length;
+    columnConfigInternal && (!queryState.queryState.fetching || !!queryState.items?.length);
+  const isLoadedEmpty = columnConfigInternal && !queryState.queryState.fetching && !queryState.items?.length;
 
   return (
     <div
@@ -251,7 +272,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         className="tc-datatable"
         columns={columnConfigInternal}
         {...actionProps}
-        data={usersQueryState.items}
+        data={queryState.items}
         sortServer
         noHeader={headerConfig.noHeader}
         onSort={onSort}
@@ -277,7 +298,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         )}
       />
       {Modal ? Modal : null}
-      {usersQueryState.queryState.fetching ? (
+      {queryState.queryState.fetching ? (
         <div style={bs(`fixed-0 f f-cc`).single}>
           <div style={bs(`bg-white p-xl sh-lg b-1 b-gray-200 z-99`).single}>
             <ReactLoading type="spin" color={colorsMap['blue-400']} />
