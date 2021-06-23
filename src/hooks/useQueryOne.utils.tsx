@@ -7,11 +7,25 @@ import { HasuraDataConfig } from '../types/hasuraConfig';
 import { JsonObject } from 'type-fest';
 import { buildFragment } from './support/buildFragment';
 import { buildDocument } from './support/buildDocument';
+import { getFieldTypeMap } from 'support';
 
 interface IUseQueryOne {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
   initialVariables?: JsonObject;
+}
+
+function createVariableDefinitionsString(variables: JsonObject, config: HasuraDataConfig): string {
+  if (!config.fieldFragment || !config.schema) {
+    return '';
+  }
+  const fieldTypeMap = getFieldTypeMap(config.fieldFragment, config.schema);
+  return Object.keys(variables)
+    .map((key) => {
+      const type = fieldTypeMap[key]?.toString() || 'Any!';
+      return `$${key}:${type}`;
+    })
+    .join(', ');
 }
 
 export function createQueryOne<TData extends JsonObject, TVariables extends JsonObject>(
@@ -25,18 +39,25 @@ export function createQueryOne<TData extends JsonObject, TVariables extends Json
 
   const variables = state.variables;
 
+  for (const key of config.primaryKey) {
+    if (!variables[key]) {
+      throw new Error(`no value for primary key ${key}`);
+    }
+  }
+
   const operationStrBase = config.primaryKey
     .map((key) => {
-      return variables[key] ? `${key}: "${variables[key]}"` : null;
+      return variables[key] ? `${key}: $${key}` : null;
     })
     .filter((x) => !!x)
     .join(', ');
 
   const operationStr = operationStrBase ? `(${operationStrBase})` : '';
+  const variableDefinitionsString = createVariableDefinitionsString(variables, config);
 
   let frag = buildFragment(fragment, operationStr, variables);
 
-  const queryString = `query ${name}Query {
+  const queryString = `query ${name}Query(${variableDefinitionsString}) {
     ${operationName}${operationStr} {
       ...${fragmentName}
     }
