@@ -15,6 +15,7 @@
     "build:web:ts": "tsc --project tsconfig-web.json",
     "build:native": "node build.native.js",
     "build:local": "node build.local.js",
+    "build:local:ts": "tsc --project tsconfig-native.local.json",
     "build:web:local": "node build.web.local.js",
     "build:web:local:ts": "tsc --project tsconfig-web.local.json",
     "build:ts": "tsc --emitDeclarationOnly",
