@@ -1,5 +1,7 @@
 import { waitFor } from '@testing-library/react';
 import { renderHook, act } from '@testing-library/react-hooks/dom';
+import { print } from 'graphql';
+import { createQueryOne } from '../src/hooks/useQueryOne.utils';
 import { useReactGraphql } from '../src/hooks/useReactGraphql';
 import HasuraConfig from './TestHasuraConfig';
 import { wrapperWithResultValue } from './urqlTestUtils';
@@ -47,20 +49,13 @@ describe('useQueryOne', () => {
     expect(resultError).toBeDefined();
   });
 
-  it('will support arbitrary variables', async (done) => {
-    const wrapper = wrapperWithResultValue(resultValue, 'query');
+  it('will support arbitrary variables', async () => {
+    const variables = { id: 'abc', userId: '1234' };
 
-    const { result } = renderHook(
-      () => {
-        const reactGraphql = useReactGraphql(HasuraConfig.posts);
-        return reactGraphql.useQueryOne({
-          variables: { id: 'abc', userId: '1234' },
-        });
-      },
-      { wrapper },
-    );
+    const queryOneConfig = createQueryOne({ variables }, HasuraConfig.posts);
 
-    expect(result.current.item.userId).toEqual('1234');
-    // console.log(result.current.queryState.operation);
+    const query = print(queryOneConfig.document);
+    expect(query.includes("$userId: uuid")).toEqual(true);
+    expect(query.includes("id: $id")).toEqual(true);
   });
 });

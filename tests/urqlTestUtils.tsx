@@ -5,11 +5,8 @@ import { never, fromValue } from "wonka";
 
 import { getResultFieldName } from "../src/support/graphqlHelpers";
 
-function graphqlExecutorWithValue(value: any, queryTest?: (query: string) => void) {
+function graphqlExecutorWithValue(value: any) {
   return jest.fn(({ query, variables }) => {
-    if (queryTest) {
-      queryTest(query);
-    }
     const resultFieldName = getResultFieldName(query) || 'result';
     return fromValue({
       data: {
@@ -23,8 +20,8 @@ function graphqlExecutorWithValue(value: any, queryTest?: (query: string) => voi
   });
 }
 
-export function clientWithResultValue(value: any, operation: OperationType, queryTest?: (query: string) => void): any {
-  const valueMock = graphqlExecutorWithValue(value, queryTest);
+export function clientWithResultValue(value: any, operation: OperationType): any {
+  const valueMock = graphqlExecutorWithValue(value);
   const neverMock = jest.fn(() => never);
   
   return {
@@ -34,8 +31,8 @@ export function clientWithResultValue(value: any, operation: OperationType, quer
   };
 }
 
-export function wrapperWithResultValue(value: any, operation: OperationType, queryTest?: (query: string) => void) {
-  const mockClient = clientWithResultValue(value, operation, queryTest);
+export function wrapperWithResultValue(value: any, operation: OperationType) {
+  const mockClient = clientWithResultValue(value, operation);
   return ({ children }: { children: ReactNode }) => {
     return <Provider value={mockClient}>{children}</Provider>
   };
