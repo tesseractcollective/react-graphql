@@ -105,6 +105,8 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         return defaultColumn;
       });
     }
+    //TODO: map over the custom config and add any missing keys
+    //Respect the order they are in the config
     setColumnConfigInternal(_columnConfig ?? defaultColumns);
   }, [columnConfig]);
 
