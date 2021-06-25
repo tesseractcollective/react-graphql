@@ -2,16 +2,16 @@ import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import DataTable, { IDataTableColumn } from 'react-data-table-component';
 import Case from 'case';
 import ScrollTriggerFromLib from 'react-scroll-trigger';
-import type { PaginatedTableActions, PaginatedTableModalConfig } from '../types/PaginatedTableTypes';
+import type { PaginatedTableActions, PaginatedTableModalConfig } from '../../types/PaginatedTableTypes';
 import _ from 'lodash';
-import useModal from '../hooks/useModal';
-import { HasuraDataConfig } from '../types';
-import { useReactGraphql, useOperationStateHelper } from '../hooks';
-import { bs, buildStyles, IFieldOutputType } from '../support';
+import useModal from '../../hooks/useModal';
+import { HasuraDataConfig } from '../../types';
+import { useReactGraphql, useOperationStateHelper } from '../../hooks';
+import { bs, buildStyles, IFieldOutputType } from '../../support';
 import ReactLoading from 'react-loading';
-import { colorsMap } from 'support/styling/colorsMap';
+import { colorsMap } from '../../support/styling/colorsMap';
 import './PaginatedTable.css';
-import useWatchScroll from './support/useWatchScroll';
+import useWatchScroll from '../support/useWatchScroll';
 
 export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   graphqlConfig: HasuraDataConfig;

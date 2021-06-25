@@ -32,7 +32,6 @@ const Input: FunctionComponent<IInputProps> = function Inputs(props) {
 };
 
 (Input as FunctionComponent<IInputProps> & TInput).Text = function Inputs(props) {
-  //
   return <View>
     <TextInput placeholder="Input"/>
   </View>;

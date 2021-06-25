@@ -1,10 +1,10 @@
 import React, { ReactElement, useState } from 'react';
 import { FlatList, ListRenderItem, RefreshControl, ScrollViewProps, Text } from 'react-native';
 // import {useIsFocused} from '@react-navigation/core';
-import { useReactGraphql } from '../hooks/useReactGraphql';
-import { keyExtractor } from '../support/HasuraConfigUtils';
-import { HasuraDataConfig } from '../types/hasuraConfig';
-import { QueryMiddleware } from '../types/hookMiddleware';
+import { useReactGraphql } from '../../hooks/useReactGraphql';
+import { keyExtractor } from '../../support/HasuraConfigUtils';
+import { HasuraDataConfig } from '../../types/hasuraConfig';
+import { QueryMiddleware } from '../../types/hookMiddleware';
 
 const defaultPageSize = 50;
 
