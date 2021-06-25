@@ -22,7 +22,7 @@ describe('useQueryOne', () => {
       { wrapper },
     );
 
-    expect(result.current.item.id).toBe(resultValue.id);
+    expect(result.current.item.id).toEqual('abc');
   });
 
   it('will throw error if primary key is not in variables', async () => {
@@ -57,5 +57,6 @@ describe('useQueryOne', () => {
     const query = print(queryOneConfig.document);
     expect(query.includes("$userId: uuid")).toEqual(true);
     expect(query.includes("id: $id")).toEqual(true);
+    expect(queryOneConfig.variables.userId).toEqual('1234');
   });
 });

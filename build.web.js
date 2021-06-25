@@ -6,7 +6,7 @@ const alias = require('esbuild-plugin-alias');
 //build-web
 require('esbuild')
   .build({
-    entryPoints: ['./src/index.ts'],
+    entryPoints: ['./src/index.web.ts'],
     bundle: true,
     target: ['es2017'],
     format: 'esm',
