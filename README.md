@@ -11,3 +11,18 @@ Other APIs on roadmap:
 ### Installation
 
 Add these dependencies: `react-router-dom graphql graphql-tag jotai lodash react react-dom react-native-web react-scripts urql type-fest @tesseractcollective\react-graphql`
+
+### deploy locally to test:
+
+setup the correct dependencies for platform:
+```
+pnpm nativemode # for native
+pnpm webmode    # for web
+```
+
+then go to the corresponding build file (build.native.local.js for native and build.web.local.js for web) and update the outfile to where you want it to write to
+
+```
+pnpm build:native:local:ts # for native
+pnpm build:web:local:ts    # for web
+```

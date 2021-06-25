@@ -1,19 +1,12 @@
 import React from 'react';
-import { getFieldFragmentInfo } from '../support/HasuraConfigUtils';
-import { print } from 'graphql';
-import gql from 'graphql-tag';
-import { QueryMiddleware, QueryPostMiddlewareState, QueryPreMiddlewareState } from '../types/hookMiddleware';
-import { HasuraDataConfig } from '../types/hasuraConfig';
 import { JsonObject } from 'type-fest';
+
+import { getFieldFragmentInfo } from '../support/HasuraConfigUtils';
+import { QueryPostMiddlewareState, QueryPreMiddlewareState } from '../types/hookMiddleware';
+import { HasuraDataConfig } from '../types/hasuraConfig';
 import { buildFragment } from './support/buildFragment';
 import { buildDocument } from './support/buildDocument';
-import { getFieldTypeMap } from 'support';
-
-interface IUseQueryOne {
-  sharedConfig: HasuraDataConfig;
-  middleware: QueryMiddleware[];
-  initialVariables?: JsonObject;
-}
+import { getFieldTypeMap } from '../support';
 
 function createVariableDefinitionsString(variables: JsonObject, config: HasuraDataConfig): string {
   if (!config.fieldFragment || !config.schema) {
@@ -23,12 +16,12 @@ function createVariableDefinitionsString(variables: JsonObject, config: HasuraDa
   return Object.keys(variables)
     .map((key) => {
       const type = fieldTypeMap[key]?.toString() || 'Any!';
-      return `$${key}:${type}`;
+      return `$${key}: ${type}`;
     })
     .join(', ');
 }
 
-export function createQueryOne<TData extends JsonObject, TVariables extends JsonObject>(
+export function createQueryOne(
   state: QueryPreMiddlewareState,
   config: HasuraDataConfig,
 ): QueryPostMiddlewareState {
@@ -68,5 +61,5 @@ export function createQueryOne<TData extends JsonObject, TVariables extends Json
 
   const document = buildDocument(queryString, operationStr, variables, 'createQueryOne', 'query');
 
-  return { document, operationName, variables: {} ?? {} };
+  return { document, variables, operationName };
 }

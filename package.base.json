@@ -13,7 +13,8 @@
     "build:web": "node build.web.js",
     "build:web:ts": "tsc --project tsconfig-web.json",
     "build:native": "node build.native.js",
-    "build:local": "node build.local.js",
+    "build:native:local": "node build.native.local.js",
+    "build:native:local:ts": "tsc --project tsconfig-native.local.json",
     "build:web:local": "node build.web.local.js",
     "build:web:local:ts": "tsc --project tsconfig-web.local.json",
     "build:ts": "tsc --emitDeclarationOnly",
@@ -25,7 +26,7 @@
     "test:watch": "jest --watch",
     "webmode:internal": "node ./scripts/enterwebmode.js",
     "webmode": "run-s save webmode:internal",
-    "nativemode:internal": "node ./scripts/enterwebmode.js",
+    "nativemode:internal": "node ./scripts/enternativemode.js",
     "nativemode": "run-s save nativemode:internal"
   },
   "eslintConfig": {
