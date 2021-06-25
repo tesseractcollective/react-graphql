@@ -1,5 +1,5 @@
 {
-  "version": "0.7.3",
+  "version": "0.7.4",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -18,16 +18,19 @@
     "build:web:local": "node build.web.local.js",
     "build:web:local:ts": "tsc --project tsconfig-web.local.json",
     "build:ts": "tsc --emitDeclarationOnly",
+    "build:native:ts": "tsc --project tsconfig-native.json",
     "pack:web": "pnpm build:web && pnpm build:ts && pnpm pack",
-    "pack:native": "pnpm build:native && pnpm build:ts && pnpm pack",
+    "pack:native": "pnpm build:native && pnpm build:native:ts && pnpm pack",
     "pub": "pnpm publish --access public",
     "save": "node ./scripts/backupbase.js",
     "test": "jest",
     "test:watch": "jest --watch",
-    "webmode:internal": "node ./scripts/enterwebmode.js",
+    "webmode:internal": "node ./scripts/enterwebmode.js && cp ./src/index.web.ts ./src/index.ts -f",
     "webmode": "run-s save webmode:internal",
-    "nativemode:internal": "node ./scripts/enternativemode.js",
-    "nativemode": "run-s save nativemode:internal"
+    "nativemode:internal": "node ./scripts/enternativemode.js && cp ./src/index.native.ts ./src/index.ts -f",
+    "nativemode": "run-s save nativemode:internal",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
   },
   "eslintConfig": {
     "extends": [
@@ -71,10 +74,15 @@
     }
   },
   "devDependencies": {
+    "@babel/core": "^7.14.6",
     "@babel/plugin-transform-runtime": "^7.13.10",
     "@babel/preset-env": "^7.13.10",
     "@babel/preset-react": "^7.12.13",
     "@babel/preset-typescript": "^7.13.0",
+    "@storybook/addon-actions": "^6.3.0",
+    "@storybook/addon-essentials": "^6.3.0",
+    "@storybook/addon-links": "^6.3.0",
+    "@storybook/react": "^6.3.0",
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.2.5",
     "@testing-library/react-hooks": "^5.1.0",
@@ -85,6 +93,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/react-native": "^0.64.4",
+    "babel-loader": "^8.2.2",
     "enzyme": "^3.11.0",
     "esbuild": "^0.11.20",
     "esbuild-plugin-alias": "^0.1.2",

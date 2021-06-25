@@ -50,7 +50,7 @@
     "src/hooks/*.{ts|tsx|js|jsx}",
     "src/support/*.{ts|tsx|js|jsx}",
     "src/types/*.{ts|tsx|js|jsx}",
-    "src/*.{ts|tsx|js|jsx}"    
+    "src/index.ts"
   ],
   "exclude": [
     "node_modules",

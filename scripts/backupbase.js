@@ -8,3 +8,4 @@ delete baseEnvs.peerDependencies;
 delete baseEnvs.dependencies;
 //copy the json inside the env.json file
 fs.writeFileSync('package.base.json', JSON.stringify(baseEnvs, undefined, 2));
+

@@ -2,15 +2,20 @@
   "extends": "./tsconfig-base.json",
 
   "compilerOptions": {
-    "jsx": "react-native"
-  },
-  "include": [
-    "src/index.native.ts",
-    "src/*.{ts|tsx|js|jsx}",
-    "src/components/shared/*.{ts|tsx|js|jsx}",
-    "src/components/native/*.{ts|tsx|js|jsx}",
-    "src/hooks/*.{ts|tsx|js|jsx}",
-    "src/support/*.{ts|tsx|js|jsx}",
-    "src/types/*.{ts|tsx|js|jsx}",
-  ],
+    "jsx": "react-native",
+    "paths": {
+      "hooks": [
+        "hooks"
+      ],
+      "support": [
+        "support"
+      ],
+      "components": [
+        "components"
+      ],
+      "types": [
+        "types"
+      ]      
+    },
+  }
 }
