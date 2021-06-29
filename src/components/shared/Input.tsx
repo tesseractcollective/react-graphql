@@ -1,10 +1,25 @@
-import React, { FunctionComponent } from 'react';
-import { TextInput, View } from 'react-native';
+import React, { FunctionComponent, useEffect } from 'react';
+import {
+  TextInput,
+  View,
+  TextInputBase,
+  Constructor,
+  NativeMethods,
+  TimerMixin,
+  TextInputProps,
+  Text,
+} from 'react-native';
+import { MutateState } from '../../hooks/useMutate';
+import { HasuraDataConfig } from '../../types/hasuraConfig';
+//@ts-ignore
+import { Select } from 'react-native-web-ui-components';
+import { useReactGraphql } from '../../hooks/useReactGraphql';
+import HasuraConfig from '../../../tests/TestHasuraConfig';
 
 //TODO: Translations: All labels and placeholders and errors can check against translations
 
 export interface IInputProps {}
-export interface IInputTextProps {}
+
 export interface IInputNumberProps {}
 export interface IInputRichTextProps {}
 
@@ -20,7 +35,7 @@ export interface TInput {
   Password: FunctionComponent<IInputProps>;
   RichText: FunctionComponent<IInputRichTextProps>;
   Select: FunctionComponent<IInputProps>;
-  SelectViaRelationship: FunctionComponent<IInputProps>;
+  SelectViaRelationship: FunctionComponent<SelectViaRelationshipProps>;
   RadioButtonGroup: FunctionComponent<IInputProps>;
   SelectMany: FunctionComponent<IInputProps>;
   List: FunctionComponent<IInputProps>;
@@ -29,19 +44,35 @@ export interface TInput {
 
 const Input: FunctionComponent<IInputProps> = function Inputs(props) {
   return <View></View>;
+} as InputType;
+
+//TEXT INPUT
+export interface IInputTextProps extends TextInputProps {
+  state: MutateState;
+  name: string;
+  disabled?: boolean;
+}
+
+(Input as FunctionComponent<IInputProps> & TInput).Text = function InputText(props) {
+  const { state, name, disabled } = props;
+
+  return (
+    <View>
+      <TextInput
+        placeholder={props.placeholder}
+        value={state.item?.[name]?.toString()}
+        editable={!disabled}
+        onChangeText={(text) => props.state.setItemValue(props.name, text)}
+      />
+    </View>
+  );
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).Text = function Inputs(props) {
-  return <View>
-    <TextInput placeholder="Input"/>
-  </View>;
-};
-
-(Input as FunctionComponent<IInputProps> & TInput).RichText = function Inputs(props) {
+(Input as FunctionComponent<IInputProps> & TInput).RichText = function RichText(props) {
   return <View></View>;
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).Date = function Inputs(props) {
+(Input as FunctionComponent<IInputProps> & TInput).Date = function Date(props) {
   return <View></View>;
 };
 (Input as FunctionComponent<IInputProps> & TInput).DateTime = function Inputs(props) {
@@ -55,7 +86,6 @@ const Input: FunctionComponent<IInputProps> = function Inputs(props) {
 (Input as FunctionComponent<IInputProps> & TInput).Checkbox = function Inputs(props) {
   return <View></View>;
 };
-
 
 (Input as FunctionComponent<IInputProps> & TInput).Image = function Inputs(props) {
   return <View></View>;
@@ -75,11 +105,58 @@ const Input: FunctionComponent<IInputProps> = function Inputs(props) {
   //Can be a drop down, or an action sheet(native), or a modal(web)
   return <View></View>;
 };
-(Input as FunctionComponent<IInputProps> & TInput).SelectViaRelationship = function Inputs(props) {
-  return <View></View>;
+
+export interface SelectViaRelationshipProps {
+  state: MutateState;
+  name: string;
+  configForRelationship: HasuraDataConfig;
+  relationshipColumnName: String;
+  autoSave?: boolean;
+}
+
+(Input as FunctionComponent<IInputProps> & TInput).SelectViaRelationship = function SelectViaRelationship(props) {
+  const { state, name, configForRelationship, relationshipColumnName, autoSave } = props;
+
+  const dataApi = useReactGraphql(configForRelationship);
+  const queryState = dataApi.useInfiniteQueryMany({
+    pageSize: 1000,
+  });
+
+  console.log(
+    'items',
+    queryState.items?.length,
+    queryState.items?.map?.((itm) => (itm as any)?.[relationshipColumnName as any]),
+  );
+
+  if (!queryState.items?.length) {
+    //For some reason Select doesn't update when values changes, so this will ensure the values are there before render and the component works
+    return <View></View>;
+  }
+
+  const options = queryState.items?.map?.((itm:any) => itm?.[relationshipColumnName as any]);
+
+  const onChange = (e: any) => {
+    state.setItemValue(name, e.value || e)
+    if(e.value || e && autoSave){
+      state.executeMutation();
+    }
+  };
+
+  return (
+    <View>
+      <Select
+        style={{}}
+        values={options}
+        fitContent
+        onChange={onChange}
+        value={state.item?.[name]}
+        labels={options}
+      />
+    </View>
+  );
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).RadioButtonGroup = function Inputs(props) {
+(Input as FunctionComponent & TInput).RadioButtonGroup = function Inputs(props) {
   return <View></View>;
 };
 (Input as FunctionComponent<IInputProps> & TInput).SelectMany = function Inputs(props) {
@@ -92,4 +169,6 @@ const Input: FunctionComponent<IInputProps> = function Inputs(props) {
   return <View></View>;
 };
 
-export default Input as FunctionComponent<IInputProps> & TInput;
+export type InputType = FunctionComponent<IInputProps> & TInput;
+
+export default Input as InputType;

@@ -1,5 +1,5 @@
 import { DocumentNode, GraphQLOutputType, GraphQLSchema } from 'graphql';
-import { IFieldOutputType } from 'support';
+import { IFieldOutputType } from '../../support';
 
 export interface HasuraConfigType {
   [key: string]: HasuraDataConfig;
