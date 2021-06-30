@@ -1,6 +1,5 @@
 import React, { FunctionComponent, useEffect } from 'react';
 import {
-  TextInput,
   View,
   TextInputBase,
   Constructor,
@@ -12,7 +11,7 @@ import {
 import { MutateState } from '../../hooks/useMutate';
 import { HasuraDataConfig } from '../../types/hasuraConfig';
 //@ts-ignore
-import { Select } from 'react-native-web-ui-components';
+import { Select, TextInput } from 'react-native-web-ui-components';
 import { useReactGraphql } from '../../hooks/useReactGraphql';
 import HasuraConfig from '../../../tests/TestHasuraConfig';
 
@@ -27,8 +26,7 @@ export interface TInput {
   Text: FunctionComponent<IInputTextProps>;
   Number: FunctionComponent<IInputNumberProps>;
   Checkbox: FunctionComponent<IInputProps>;
-  Date: FunctionComponent<IInputProps>;
-  DateTime: FunctionComponent<IInputProps>;
+  DatePicker: FunctionComponent<IInputProps>;
   Image: FunctionComponent<IInputProps>;
   File: FunctionComponent<IInputProps>;
   Markdown: FunctionComponent<IInputProps>;
@@ -55,7 +53,7 @@ export interface IInputTextProps extends TextInputProps {
 
 (Input as FunctionComponent<IInputProps> & TInput).Text = function InputText(props) {
   const { state, name, disabled } = props;
-
+  
   return (
     <View>
       <TextInput
@@ -69,28 +67,31 @@ export interface IInputTextProps extends TextInputProps {
 };
 
 (Input as FunctionComponent<IInputProps> & TInput).RichText = function RichText(props) {
+  //TODO: P2: Need to find react-native-web compatible rich text editor, OR a rich text editor for React and react-native separately
   return <View></View>;
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).Date = function Date(props) {
-  return <View></View>;
-};
-(Input as FunctionComponent<IInputProps> & TInput).DateTime = function Inputs(props) {
+(Input as FunctionComponent<IInputProps> & TInput).DatePicker = function DatePicker(props) {
+  //TODO: P1: Implement RNWeb-UI-Components .Datepicker
   return <View></View>;
 };
 
 (Input as FunctionComponent<IInputProps> & TInput).Number = function Inputs(props) {
+  //Might be able to do this through just the TextInputComponent changing keyboard to number
   return <View></View>;
 };
 
 (Input as FunctionComponent<IInputProps> & TInput).Checkbox = function Inputs(props) {
+  //RNWeb-UI-Components
   return <View></View>;
 };
 
 (Input as FunctionComponent<IInputProps> & TInput).Image = function Inputs(props) {
+  //Uplaod image??
   return <View></View>;
 };
 (Input as FunctionComponent<IInputProps> & TInput).File = function Inputs(props) {
+  //Uplaod File?
   return <View></View>;
 };
 (Input as FunctionComponent<IInputProps> & TInput).Markdown = function Inputs(props) {

@@ -18,6 +18,7 @@ import { print } from "graphql";
 import { JsonObject } from "type-fest";
 import { IUseOperationStateHelperOptions, useOperationStateHelper } from "./useOperationStateHelper";
 
+
 interface IUseMutateProps {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
@@ -42,7 +43,7 @@ export interface MutateState {
   setItemValue: (key: string, value: any) => void;
   item?: JsonObject;
   setVariable: (name: string, value: any) => void;
-  variables: JsonObject;
+  variables: JsonObject;  
 }
 
 export function useMutate<T extends JsonObject>(
@@ -57,7 +58,6 @@ export function useMutate<T extends JsonObject>(
   const [needsExecuteMutation, setNeedsExecuteMutation] = useState<boolean>();
   const [executeContext, setExecuteContext] =
     useState<Partial<OperationContext> | null>();
-
   const [_, setMutationEvent] = useAtom(mutationEventAtom);
 
   //Guards

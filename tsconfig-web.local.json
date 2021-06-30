@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig-base.json",
   "compilerOptions": {
-    "outDir": "../crowdpoint-admin/admin-ui/node_modules/@tesseractcollective/react-graphql/dist/src",
+    "outDir": "../purco/node_modules/.pnpm/@tesseractcollective+react-graphql@0.7.3_15125e1cbb2d55bd572ee216cbc19f86/node_modules/@tesseractcollective/react-graphql/dist/src",    
     "jsx": "react",
     "paths": {
       "hooks": [

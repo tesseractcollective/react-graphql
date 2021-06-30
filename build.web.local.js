@@ -10,7 +10,7 @@ require('esbuild')
     bundle: true,
     target: ['es2017'],
     format: 'esm',
-    outfile: '../crowdpoint-admin/admin-ui/node_modules/@tesseractcollective/react-graphql/dist/src/index.js',
+    outfile: '../purco/node_modules/.pnpm/@tesseractcollective+react-graphql@0.7.3_15125e1cbb2d55bd572ee216cbc19f86/node_modules/@tesseractcollective/react-graphql/dist/src/index.d.ts',
     // outfile: '../purco/node_modules/@tesseractcollective/react-graphql/dist/src/index.js',
     tsconfig: './tsconfig-web.local.json',
     define: { 'process.env.NODE_ENV': '"production"', __DEV__: false, global: 'window' },
