@@ -8,13 +8,12 @@ import { Pressable, View } from 'react-native';
 import { useReactGraphql } from '../hooks/useReactGraphql';
 import HasuraConfig from '../../tests/TestHasuraConfig';
 // import { createClient, Provider as UrqlProvider } from 'urql';
-
-const hasuraUrl = process.env.STORYBOOK_HASURA_URL;
+import decorators from './decorators';
 
 export default {
   title: 'Inputs/Text',
   component: Input.Text,
-  decorators: [],
+  decorators,
 } as ComponentMeta<typeof Input.Text>;
 
 const StoryComponent: ComponentStory<typeof Input.Text> = (args) => <Input.Text {...args} />;

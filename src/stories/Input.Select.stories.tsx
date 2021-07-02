@@ -1,66 +1,17 @@
-import ENV from '../../.env';
-import React, { useState } from 'react';
-import { ComponentStory, ComponentMeta } from '@storybook/react';
-
-//Pull in our Input component instead
-import Input from '../components/shared/Input';
-import { StyleSheet, View } from 'react-native';
-import { useReactGraphql } from '../hooks/useReactGraphql';
+import { ComponentMeta, ComponentStory } from '@storybook/react';
+import React from 'react';
+import { View } from 'react-native';
+import ENV from '../../.env.js';
 import HasuraConfig from '../../tests/TestHasuraConfig';
-import { UIProvider } from 'react-native-web-ui-components';
-import { createClient, Provider as UrqlProvider } from 'urql';
+import Input from '../components/shared/Input';
+import { useReactGraphql } from '../hooks/useReactGraphql';
+import decorators from './decorators';
 
-const hasuraUrl = ENV.STORYBOOK_HASURA_URL;
-
-const theme = {
-  input: {
-    focused: StyleSheet.create({
-      border: {
-        borderColor: 'yellow',
-      },
-    }),
-  },
-};
 
 export default {
   title: 'Inputs/SelectViaRelationship',
   component: Input.SelectViaRelationship,
-  decorators: [
-    (Story) => {
-      return (
-        <UIProvider
-          theme={theme}
-          history={{
-            location: { pathname: '/hi' },
-            push: () => {},
-            replace: () => {},
-          }}
-        >
-          <Story />
-        </UIProvider>
-      );
-    },
-
-    (Story) => {
-      const [client, setClient] = useState(() =>
-        createClient({
-          url: hasuraUrl,
-          fetchOptions: () => {
-            return {
-              headers: {
-                [ENV.STORYBOOK_HAUSRA_AUTH_KEYNAME]: ENV.STORYBOOK_HASURA_AUTH_VALUE,
-              },
-            };
-          },
-        }),
-      );
-      return (
-        <UrqlProvider value={client}>
-          <Story />
-        </UrqlProvider>
-      );
-    },
-  ],
+  decorators,
 } as ComponentMeta<typeof Input.SelectViaRelationship>;
 
 export const Form: ComponentStory<typeof Input.SelectViaRelationship> = () => {

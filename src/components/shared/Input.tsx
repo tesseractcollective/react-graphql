@@ -11,9 +11,9 @@ import {
 import { MutateState } from '../../hooks/useMutate';
 import { HasuraDataConfig } from '../../types/hasuraConfig';
 //@ts-ignore
-import { Select, TextInput } from 'react-native-web-ui-components';
-import { useReactGraphql } from '../../hooks/useReactGraphql';
-import HasuraConfig from '../../../tests/TestHasuraConfig';
+import { Select, TextInput, Datepicker as RNWUIDatePicker } from "react-native-web-ui-components";
+import { useReactGraphql } from "../../hooks/useReactGraphql";
+import HasuraConfig from "../../../tests/TestHasuraConfig";
 
 //TODO: Translations: All labels and placeholders and errors can check against translations
 
@@ -71,10 +71,19 @@ export interface IInputTextProps extends TextInputProps {
   return <View></View>;
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).DatePicker = function DatePicker(props) {
-  //TODO: P1: Implement RNWeb-UI-Components .Datepicker
-  return <View></View>;
-};
+(Input as FunctionComponent<IInputProps> & TInput).DatePicker =
+  function DatePicker(props) {
+    //TODO: P1: Implement RNWeb-UI-Components .Datepicker
+    // const [startDate, setStartDate] = useState();
+
+    return (
+      <View>
+          <RNWUIDatePicker 
+          // selected={new Date()} onChange={(date) => setStartDate(date)}
+          />
+      </View>
+    );
+  };
 
 (Input as FunctionComponent<IInputProps> & TInput).Number = function Inputs(props) {
   //Might be able to do this through just the TextInputComponent changing keyboard to number
