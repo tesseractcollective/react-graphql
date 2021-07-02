@@ -60,7 +60,7 @@ export interface IInputTextProps extends TextInputProps {
         placeholder={props.placeholder}
         value={state.item?.[name]?.toString()}
         editable={!disabled}
-        onChangeText={(text) => props.state.setItemValue(props.name, text)}
+        onChangeText={(text:string) => props.state.setItemValue(props.name, text)}
       />
     </View>
   );
