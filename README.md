@@ -26,3 +26,21 @@ then go to the corresponding build file (build.native.local.js for native and bu
 pnpm build:native:local:ts # for native
 pnpm build:web:local:ts    # for web
 ```
+
+
+
+## Storybook
+
+To run story book:
+
+* Make sure you have installed dependencies via `pnpm i`
+* add `.env.js` file in the root of the project
+* Place this content inside:
+
+```
+module.exports = {
+  STORYBOOK_HASURA_URL: 'https://DOMAIN.APP/v1/graphql',
+  STORYBOOK_HAUSRA_AUTH_KEYNAME: 'x-hasura-admin-secret OR x-collaborator-token OR other key',
+  STORYBOOK_HASURA_AUTH_VALUE: 'TOKEN_OR SECRET',
+};
+```
