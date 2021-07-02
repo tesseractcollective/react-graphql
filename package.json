@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.8.1beta",
+  "version": "0.8.2beta",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -18,8 +18,8 @@
     "build:native:local:ts": "tsc --project tsconfig-native.local.json",
     "build:web:local": "node build.web.local.js",
     "build:web:local:ts": "tsc --project tsconfig-web.local.json",
-    "build:ts": "tsc --emitDeclarationOnly",
-    "build:native:ts": "tsc --project tsconfig-native.json",
+    "build:ts": "tsc --project tsconfig-web.json --emitDeclarationOnly",
+    "build:native:ts": "tsc --project tsconfig-native.json --emitDeclarationOnly",
     "pack:web": "pnpm build:web && pnpm build:ts && pnpm pack",
     "pack:native": "pnpm build:native && pnpm build:native:ts && pnpm pack",
     "pub": "pnpm publish --access public",

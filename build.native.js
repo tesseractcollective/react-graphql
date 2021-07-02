@@ -4,7 +4,7 @@ const flow = require('esbuild-plugin-flow');
 
 //build-native
 require('esbuild').build({
-  entryPoints: ['./src/index.native.ts'],
+  entryPoints: ['./src/index.ts'],
   bundle: true,
   target: ['es2017'],
   format: 'esm',
