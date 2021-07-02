@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.8.0beta",
+  "version": "0.8.1beta",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -20,7 +20,7 @@
     "build:web:local:ts": "tsc --project tsconfig-web.local.json",
     "build:ts": "tsc --emitDeclarationOnly",
     "build:native:ts": "tsc --project tsconfig-native.json",
-    "pack:web": "rm ./dist && pnpm build:web && pnpm build:ts && pnpm pack",
+    "pack:web": "pnpm build:web && pnpm build:ts && pnpm pack",
     "pack:native": "pnpm build:native && pnpm build:native:ts && pnpm pack",
     "pub": "pnpm publish --access public",
     "save": "node ./scripts/backupbase.js",
