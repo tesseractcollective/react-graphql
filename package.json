@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.8.5beta",
+  "version": "0.8.6beta",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -127,9 +127,7 @@
     "react-dom": "^17.0.0",
     "react-native-web": "^0.16.0",
     "react-scripts": "^4.0.3",
-    "urql": "^2.0.3"
-  },
-  "dependencies": {
+    "urql": "^2.0.3",
     "case": "^1.6.3",
     "graphql": "^15.5.0",
     "graphql-tag": "^2.11.0",
@@ -140,5 +138,8 @@
     "react-native-web-ui-components": "^6.1.1",
     "react-scroll-trigger": "^0.6.10",
     "styled-components": "^5.3.0"
+  },
+  "dependencies": {
+
   }
 }
