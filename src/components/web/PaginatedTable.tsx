@@ -1,6 +1,8 @@
 import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+//@ts-ignore
 import DataTable, { IDataTableColumn } from 'react-data-table-component';
 import Case from 'case';
+//@ts-ignore
 import ScrollTriggerFromLib from 'react-scroll-trigger';
 import type { PaginatedTableActions, PaginatedTableModalConfig } from '../../types/PaginatedTableTypes';
 import _ from 'lodash';
@@ -8,6 +10,7 @@ import useModal from '../../hooks/useModal';
 import { HasuraDataConfig } from '../../types';
 import { useReactGraphql, useOperationStateHelper } from '../../hooks';
 import { bs, buildStyles, IFieldOutputType } from '../../support';
+//@ts-ignore
 import ReactLoading from 'react-loading';
 import { colorsMap } from '../../support/styling/colorsMap';
 import './PaginatedTable.css';

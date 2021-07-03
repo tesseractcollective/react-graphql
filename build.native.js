@@ -15,7 +15,27 @@ require('esbuild').build({
   loader: {".png": "file", ".ttf": "file", ".js": "jsx" },
   minify: false,
   sourcemap: true,
-  external: ['react-native', 'react', 'react-dom', 'react-native-web', 'react-scripts', 'urql', 'jotai', 'graphql', 'graphql-tag'],
+  external: [
+    'react-native',
+    'react',
+    'react-dom',
+    'react-loading',
+    'react-native-web',
+    'react-native-web-ui-components',
+    'react-scripts',
+    'urql',
+    'jotai',
+    'graphql',
+    'graphql-tag',
+    'case',
+    'react-data-table-component',
+    'react-scroll-trigger',
+    'styled-components',
+    'graphql',
+    'graphql-tag',
+    'lodash',
+    'jotai'
+  ],
   plugins: [
     // flow(/node_modules\\react-native-gesture-handler.*\.jsx?$/),
     flow(/node_modules\\react-native.*\.jsx?$/)
