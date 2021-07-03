@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.8.6beta",
+  "version": "0.8.7beta",
   "private": false,
   "main": "./dist/src/index.js",
   "files": [
@@ -11,17 +11,11 @@
   "scripts": {
     "dev:web": "tsc -w --project tsconfig-web.json",
     "dev:native": "tsc -w --project tsconfig-native.json",
-    "build:web": "node build.web.js",
     "build:web:ts": "tsc --project tsconfig-web.json",
-    "build:native": "node build.native.js",
-    "build:native:local": "node build.native.local.js",
-    "build:native:local:ts": "tsc --project tsconfig-native.local.json",
-    "build:web:local": "node build.web.local.js",
-    "build:web:local:ts": "tsc --project tsconfig-web.local.json",
     "build:ts": "tsc --project tsconfig-web.json --emitDeclarationOnly",
     "build:native:ts": "tsc --project tsconfig-native.json --emitDeclarationOnly",
-    "pack:web": "pnpm build:web && pnpm build:ts && pnpm pack",
-    "pack:native": "pnpm build:native && pnpm build:native:ts && pnpm pack",
+    "pack:web": "pnpm build:ts && pnpm pack",
+    "pack:native": "pnpm build:native:ts && pnpm pack",
     "pub": "pnpm publish --access public",
     "save": "node ./scripts/backupbase.js",
     "test": "jest",
@@ -99,6 +93,7 @@
     "@urql/storybook-addon": "^1.0.7",
     "babel-loader": "^8.2.2",
     "babel-plugin-react-native-web": "^0.17.1",
+    "case": "^1.6.3",
     "enzyme": "^3.11.0",
     "esbuild": "^0.11.20",
     "esbuild-plugin-alias": "^0.1.2",
@@ -109,10 +104,11 @@
     "jotai": "^0.16.0",
     "lodash": "^4.17.21",
     "npm-run-all": "^4.1.5",
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-native": "^0.64.1",
-    "react-native-web": "^0.16.5",
+    "react-native-web": "^0.17.1",
+    "react-native-web-ui-components": "^6.1.2",
     "react-scripts": "4.0.3",
     "react-test-renderer": "^17.0.2",
     "ts-jest": "^26.5.3",
@@ -123,23 +119,20 @@
     "wonka": "^4.0.15"
   },
   "peerDependencies": {
-    "react": "^17.0.0",
-    "react-dom": "^17.0.0",
-    "react-native-web": "^0.16.0",
-    "react-scripts": "^4.0.3",
-    "urql": "^2.0.3",
     "case": "^1.6.3",
     "graphql": "^15.5.0",
     "graphql-tag": "^2.11.0",
     "jotai": "^0.16.0",
     "lodash": "^4.17.21",
+    "react": "^17.0.0",
     "react-data-table-component": "^6.11.7",
+    "react-dom": "^17.0.0",
     "react-loading": "^2.0.3",
+    "react-native-web": "^0.17.1",
     "react-native-web-ui-components": "^6.1.1",
+    "react-scripts": "^4.0.3",
     "react-scroll-trigger": "^0.6.10",
-    "styled-components": "^5.3.0"
-  },
-  "dependencies": {
-
+    "styled-components": "^5.3.0",
+    "urql": "^2.0.3"
   }
 }

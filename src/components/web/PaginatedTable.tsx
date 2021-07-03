@@ -13,7 +13,6 @@ import { bs, buildStyles, IFieldOutputType } from '../../support';
 //@ts-ignore
 import ReactLoading from 'react-loading';
 import { colorsMap } from '../../support/styling/colorsMap';
-import './PaginatedTable.css';
 import useWatchScroll from '../support/useWatchScroll';
 
 export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
@@ -39,6 +38,15 @@ const PAGE_SIZE = 50;
 
 const ScrollTrigger: React.ElementType = ScrollTriggerFromLib as React.ElementType;
 
+const paginatedTableStyles = `.rdt_TableBody {
+            flex: 1;
+            overflow-y:auto;
+          }
+
+          .tc-datatable, .tc-datatable>div, rdt {
+            display:flex;
+            flex:1
+          }`;
 export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy extends any, TRecord extends any>(
   props: IPaginatedTableProps<TBoolExp, TRecord>,
 ) {
@@ -153,7 +161,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     onSuccess: () => {
       console.log('🍇🚀 ~ file: PaginatedTable.tsx ~ line 152 ~ useOperationStateHelper ~ keyword', keyword);
       onSuccess?.(keyword);
-      if(queryState.items.length === 0 && !queryState.queryState.error){
+      if (queryState.items.length === 0 && !queryState.queryState.error) {
         setIsCompleted(true);
       }
     },
@@ -191,18 +199,25 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     setIsCompleted(false);
   }, [where]);
 
-  const {positionY: scrollPercentAsDecimal, prevPosY, reComputeHeight} = useWatchScroll(queryState.items.length > 0 ? `.rdt_TableBody`: '');
+  const { positionY: scrollPercentAsDecimal, prevPosY, reComputeHeight } = useWatchScroll(
+    queryState.items.length > 0 ? `.rdt_TableBody` : '',
+  );
 
   useEffect(() => {
-    prevPosY;   
-    if(prevPosY !== scrollPercentAsDecimal && scrollPercentAsDecimal > .9 && !queryState.queryState.fetching && !isCompleted){
+    prevPosY;
+    if (
+      prevPosY !== scrollPercentAsDecimal &&
+      scrollPercentAsDecimal > 0.9 &&
+      !queryState.queryState.fetching &&
+      !isCompleted
+    ) {
       queryState.loadNextPage();
     }
-  }, [scrollPercentAsDecimal,queryState.queryState.fetching, prevPosY, isCompleted]);
+  }, [scrollPercentAsDecimal, queryState.queryState.fetching, prevPosY, isCompleted]);
 
   useEffect(() => {
     //This one wierd useEffect gets the re-render to happen correctly
-    if(queryState.items.length > 0){
+    if (queryState.items.length > 0) {
       reComputeHeight();
     }
   }, [queryState.items.length]);
@@ -245,17 +260,20 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     //This one wierd useEffect gets the re-render to happen correctly
   }, [queryState.items]);
 
-  const isLoadedSuccessfully =
-    columnConfigInternal && (!queryState.queryState.fetching || !!queryState.items?.length);
+  const isLoadedSuccessfully = columnConfigInternal && (!queryState.queryState.fetching || !!queryState.items?.length);
   const isLoadedEmpty = columnConfigInternal && !queryState.queryState.fetching && !queryState.items?.length;
 
   return (
     <div
       className="tc-paginated-table"
-      style={{ ...bs(`${headerConfig.fixedHeader ? 'f f-1 f-rows' : ''}`).single,
-       overflowY: headerConfig.fixedHeader ? 'hidden' : undefined
+      style={{
+        ...bs(`${headerConfig.fixedHeader ? 'f f-1 f-rows' : ''}`).single,
+        overflowY: headerConfig.fixedHeader ? 'hidden' : undefined,
       }}
     >
+      <style>
+        {paginatedTableStyles}
+      </style>
       {renderSearchComponent ? renderSearchComponent : null}
 
       {isSearchEnabled && (
@@ -293,14 +311,14 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         //     if (pageNumber * PAGE_SIZE > usersQueryState.items.length) {
         //     }
         //   }}
-        paginationComponent={() => (
+        paginationComponent={() =>
           null
           // <ScrollTrigger
           //   onEnter={(e: any) => {
           //     usersQueryState.loadNextPage();
           //   }}
           // />
-        )}
+        }
       />
       {Modal ? Modal : null}
       {queryState.queryState.fetching ? (

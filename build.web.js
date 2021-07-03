@@ -8,9 +8,9 @@ require('esbuild')
   .build({
     entryPoints: ['./src/index.ts'],
     bundle: true,
-    target: ['es2017'],
-    format: 'esm',
-    outfile: './dist/src/index.js',
+    target: ['chrome', 'firefox','edge', 'safari'],
+    format: 'iife',
+    outdir: './dist/src/index.js',
     tsconfig: './tsconfig-web.json',
     define: { 'process.env.NODE_ENV': '"production"', __DEV__: false, global: 'window' },
     resolveExtensions: ['.web.tsx', '.web.ts', '.web.jsx', '.web.js', '.tsx', '.ts', '.jsx', '.js'], //This takes into account priority, so it will resolve a .web.tsx of the same file name before a .tsx if it exists
@@ -33,10 +33,7 @@ require('esbuild')
       'react-data-table-component',
       'react-scroll-trigger',
       'styled-components',
-      'graphql',
-      'graphql-tag',
-      'lodash',
-      'jotai'
+      'lodash'
     ],
     plugins: [
       // flow(/node_modules\\react-native-gesture-handler.*\.jsx?$/),

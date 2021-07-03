@@ -1,9 +1,0 @@
-.rdt_TableBody {
-  flex: 1;
-  overflow-y:auto;
-}
-
-.tc-datatable, .tc-datatable>div, rdt {
-  display:flex;
-  flex:1
-}

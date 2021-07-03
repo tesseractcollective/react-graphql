@@ -11,7 +11,11 @@ import {
 import { MutateState } from '../../hooks/useMutate';
 import { HasuraDataConfig } from '../../types/hasuraConfig';
 //@ts-ignore
-import { Select, TextInput, Datepicker as RNWUIDatePicker } from "react-native-web-ui-components";
+import Select from "react-native-web-ui-components/Select";
+//@ts-ignore
+import TextInput from "react-native-web-ui-components/TextInput";
+//@ts-ignore
+import RNWUIDatePicker from "react-native-web-ui-components/Datepicker";
 import { useReactGraphql } from "../../hooks/useReactGraphql";
 import HasuraConfig from "../../../tests/TestHasuraConfig";
 
