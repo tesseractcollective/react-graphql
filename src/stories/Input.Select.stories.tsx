@@ -24,7 +24,9 @@ export const Form: ComponentStory<typeof Input.SelectViaRelationship> = () => {
         state={insertPostState}
         name="group"
         configForRelationship={HasuraConfig.groups}
-        relationshipColumnName="name"
+        relationshipColumnNameForValue="name"
+        relationshipColumnNameForLabel="name"
+        
       />
       {JSON.stringify(insertPostState.item)}
     </View>

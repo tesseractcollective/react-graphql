@@ -3,6 +3,7 @@
   "version": "0.8.7beta",
   "private": false,
   "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "files": [
     "dist",
     "LICENSE",
@@ -10,11 +11,10 @@
   ],
   "scripts": {
     "dev:web": "tsc -w --project tsconfig-web.json",
-    "dev:native": "tsc -w --project tsconfig-native.json",
+    "dev:native": "tsc -w --project tsconfig-native.json",    
     "build:web:ts": "tsc --project tsconfig-web.json",
-    "build:ts": "tsc --project tsconfig-web.json --emitDeclarationOnly",
-    "build:native:ts": "tsc --project tsconfig-native.json --emitDeclarationOnly",
-    "pack:web": "pnpm build:ts && pnpm pack",
+    "build:native:ts": "tsc --project tsconfig-native.json",
+    "pack:web": "pnpm build:web:ts && pnpm pack",
     "pack:native": "pnpm build:native:ts && pnpm pack",
     "pub": "pnpm publish --access public",
     "save": "node ./scripts/backupbase.js",
@@ -69,7 +69,6 @@
       "^react-native$": "react-native-web"
     }
   },
-  "types": "dist/src/index.d.ts",
   "devDependencies": {
     "@babel/core": "^7.14.6",
     "@babel/plugin-transform-runtime": "^7.13.10",

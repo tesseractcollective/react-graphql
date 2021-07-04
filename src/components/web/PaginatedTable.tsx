@@ -14,6 +14,7 @@ import { bs, buildStyles, IFieldOutputType } from '../../support';
 import ReactLoading from 'react-loading';
 import { colorsMap } from '../../support/styling/colorsMap';
 import useWatchScroll from '../support/useWatchScroll';
+import { UseQueryResponse } from 'urql';
 
 export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   graphqlConfig: HasuraDataConfig;
@@ -29,6 +30,7 @@ export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
     noHeader?: boolean;
     fixedHeader?: boolean;
   };
+  dataOverride?: any[];
   renderEmpty?: () => ReactElement;
   columnConfig?: { [selector: string]: Partial<IDataTableColumn> };
   actionConfig?: PaginatedTableActions;
@@ -56,6 +58,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     columnConfig,
     actionConfig,
     renderEmpty,
+    dataOverride,
     headerConfig = {
       noHeader: true,
     },
@@ -151,11 +154,22 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
 
   //GET - Search and List
   const dataSource = useReactGraphql(graphqlConfig);
-  const queryState = dataSource.useInfiniteQueryMany({
-    orderBy,
-    where,
-    pageSize: props.pageSize || PAGE_SIZE,
-  });
+  const queryState = dataOverride
+    ? {
+        items: dataOverride,
+        queryState: {
+          fetching: false,
+          stale: false,
+          error: undefined,
+        },
+        loadNextPage: () => undefined,
+        refresh: () => undefined,
+      }
+    : dataSource.useInfiniteQueryMany({
+        orderBy,
+        where,
+        pageSize: props.pageSize || PAGE_SIZE,
+      });
 
   useOperationStateHelper(queryState.queryState, {
     onSuccess: () => {
@@ -271,9 +285,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         overflowY: headerConfig.fixedHeader ? 'hidden' : undefined,
       }}
     >
-      <style>
-        {paginatedTableStyles}
-      </style>
+      <style>{paginatedTableStyles}</style>
       {renderSearchComponent ? renderSearchComponent : null}
 
       {isSearchEnabled && (
@@ -311,8 +323,8 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         //     if (pageNumber * PAGE_SIZE > usersQueryState.items.length) {
         //     }
         //   }}
-        paginationComponent={() =>
-          null
+        paginationComponent={
+          () => null
           // <ScrollTrigger
           //   onEnter={(e: any) => {
           //     usersQueryState.loadNextPage();
@@ -337,20 +349,19 @@ const paginatedTableColStyle = buildStyles(`h-max-100 o-hidden`);
 function buildExpandProps(cfg: any, cfgOn: string) {
   if (cfg?.action !== 'expand') return {};
 
+  const { hideIcon, ...rest } = cfg;
+
   let nextProps = {
     expandableRows: true,
+    ...rest,
   } as any;
-
-  if (cfg.expandableRowsComponent) {
-    nextProps.expandableRowsComponent = cfg.expandableRowsComponent;
-  }
 
   if (cfgOn === 'clickConfig') {
     nextProps.expandOnRowClicked = true;
-    nextProps.expandableRowsHideExpander = cfg.hideIcon ? true : false;
+    nextProps.expandableRowsHideExpander = hideIcon ? true : false;
   } else if (cfgOn === 'doubleClickConfig') {
     nextProps.expandOnRowDoubleClicked = true;
-    nextProps.expandableRowsHideExpander = cfg.hideIcon ? true : false;
+    nextProps.expandableRowsHideExpander = hideIcon ? true : false;
   }
 
   return nextProps;
