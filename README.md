@@ -20,9 +20,34 @@ pnpm nativemode # for native
 pnpm webmode    # for web
 ```
 
-then go to the corresponding build file (build.native.local.js for native and build.web.local.js for web) and update the outfile to where you want it to write to
+Then run a pack command based on platform:
+```
+pnpm pack:web
+pnpm pack:native
+```
+
+* Find .tgz : Resolve any errors and look for the correct .tgz file in the root of the project.
+* Copy path : Right click and select "copy path"
+* Install via file: In the target project run `pnpm add PASTE_PATH_TO_TGZ`
+
+This will override the existing version of react-graphl in that project with the one you built on disk.
+
+Repeat as needed.
+
+NOTE: You do not need to bump the version!
+
+## Storybook
+
+To run story book:
+
+* Make sure you have installed dependencies via `pnpm i`
+* add `.env.js` file in the root of the project
+* Place this content inside:
 
 ```
-pnpm build:native:local:ts # for native
-pnpm build:web:local:ts    # for web
+module.exports = {
+  STORYBOOK_HASURA_URL: 'https://DOMAIN.APP/v1/graphql',
+  STORYBOOK_HAUSRA_AUTH_KEYNAME: 'x-hasura-admin-secret OR x-collaborator-token OR other key',
+  STORYBOOK_HASURA_AUTH_VALUE: 'TOKEN_OR SECRET',
+};
 ```

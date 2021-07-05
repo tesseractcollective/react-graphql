@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "dist/src",
+    "outDir": "dist/",
     "target": "ES5",
     "lib": [
       "dom",
@@ -15,8 +15,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "emitDeclarationOnly": true,
-    "module": "commonjs",
+    "module": "ES2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
