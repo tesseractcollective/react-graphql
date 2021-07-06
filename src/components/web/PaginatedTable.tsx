@@ -1,6 +1,8 @@
 import React, { ReactElement, useCallback, useEffect, useState } from 'react';
+//@ts-ignore
 import DataTable, { IDataTableColumn } from 'react-data-table-component';
 import Case from 'case';
+//@ts-ignore
 import ScrollTriggerFromLib from 'react-scroll-trigger';
 import type { PaginatedTableActions, PaginatedTableModalConfig } from '../../types/PaginatedTableTypes';
 import _ from 'lodash';
@@ -8,10 +10,11 @@ import useModal from '../../hooks/useModal';
 import { HasuraDataConfig } from '../../types';
 import { useReactGraphql, useOperationStateHelper } from '../../hooks';
 import { bs, buildStyles, IFieldOutputType } from '../../support';
+//@ts-ignore
 import ReactLoading from 'react-loading';
 import { colorsMap } from '../../support/styling/colorsMap';
-import './PaginatedTable.css';
 import useWatchScroll from '../support/useWatchScroll';
+import { UseQueryResponse } from 'urql';
 
 export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   graphqlConfig: HasuraDataConfig;
@@ -27,6 +30,7 @@ export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
     noHeader?: boolean;
     fixedHeader?: boolean;
   };
+  dataOverride?: any[];
   renderEmpty?: () => ReactElement;
   columnConfig?: { [selector: string]: Partial<IDataTableColumn> };
   actionConfig?: PaginatedTableActions;
@@ -36,6 +40,15 @@ const PAGE_SIZE = 50;
 
 const ScrollTrigger: React.ElementType = ScrollTriggerFromLib as React.ElementType;
 
+const paginatedTableStyles = `.rdt_TableBody {
+            flex: 1;
+            overflow-y:auto;
+          }
+
+          .tc-datatable, .tc-datatable>div, rdt {
+            display:flex;
+            flex:1
+          }`;
 export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy extends any, TRecord extends any>(
   props: IPaginatedTableProps<TBoolExp, TRecord>,
 ) {
@@ -45,6 +58,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     columnConfig,
     actionConfig,
     renderEmpty,
+    dataOverride,
     headerConfig = {
       noHeader: true,
     },
@@ -140,17 +154,28 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
 
   //GET - Search and List
   const dataSource = useReactGraphql(graphqlConfig);
-  const queryState = dataSource.useInfiniteQueryMany({
-    orderBy,
-    where,
-    pageSize: props.pageSize || PAGE_SIZE,
-  });
+  const queryState = dataOverride
+    ? {
+        items: dataOverride,
+        queryState: {
+          fetching: false,
+          stale: false,
+          error: undefined,
+        },
+        loadNextPage: () => undefined,
+        refresh: () => undefined,
+      }
+    : dataSource.useInfiniteQueryMany({
+        orderBy,
+        where,
+        pageSize: props.pageSize || PAGE_SIZE,
+      });
 
   useOperationStateHelper(queryState.queryState, {
     onSuccess: () => {
       console.log('🍇🚀 ~ file: PaginatedTable.tsx ~ line 152 ~ useOperationStateHelper ~ keyword', keyword);
       onSuccess?.(keyword);
-      if(queryState.items.length === 0 && !queryState.queryState.error){
+      if (queryState.items.length === 0 && !queryState.queryState.error) {
         setIsCompleted(true);
       }
     },
@@ -188,18 +213,25 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     setIsCompleted(false);
   }, [where]);
 
-  const {positionY: scrollPercentAsDecimal, prevPosY, reComputeHeight} = useWatchScroll(queryState.items.length > 0 ? `.rdt_TableBody`: '');
+  const { positionY: scrollPercentAsDecimal, prevPosY, reComputeHeight } = useWatchScroll(
+    queryState.items.length > 0 ? `.rdt_TableBody` : '',
+  );
 
   useEffect(() => {
-    prevPosY;   
-    if(prevPosY !== scrollPercentAsDecimal && scrollPercentAsDecimal > .9 && !queryState.queryState.fetching && !isCompleted){
+    prevPosY;
+    if (
+      prevPosY !== scrollPercentAsDecimal &&
+      scrollPercentAsDecimal > 0.9 &&
+      !queryState.queryState.fetching &&
+      !isCompleted
+    ) {
       queryState.loadNextPage();
     }
-  }, [scrollPercentAsDecimal,queryState.queryState.fetching, prevPosY, isCompleted]);
+  }, [scrollPercentAsDecimal, queryState.queryState.fetching, prevPosY, isCompleted]);
 
   useEffect(() => {
     //This one wierd useEffect gets the re-render to happen correctly
-    if(queryState.items.length > 0){
+    if (queryState.items.length > 0) {
       reComputeHeight();
     }
   }, [queryState.items.length]);
@@ -242,17 +274,18 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     //This one wierd useEffect gets the re-render to happen correctly
   }, [queryState.items]);
 
-  const isLoadedSuccessfully =
-    columnConfigInternal && (!queryState.queryState.fetching || !!queryState.items?.length);
+  const isLoadedSuccessfully = columnConfigInternal && (!queryState.queryState.fetching || !!queryState.items?.length);
   const isLoadedEmpty = columnConfigInternal && !queryState.queryState.fetching && !queryState.items?.length;
 
   return (
     <div
       className="tc-paginated-table"
-      style={{ ...bs(`${headerConfig.fixedHeader ? 'f f-1 f-rows' : ''}`).single,
-       overflowY: headerConfig.fixedHeader ? 'hidden' : undefined
+      style={{
+        ...bs(`${headerConfig.fixedHeader ? 'f f-1 f-rows' : ''}`).single,
+        overflowY: headerConfig.fixedHeader ? 'hidden' : undefined,
       }}
     >
+      <style>{paginatedTableStyles}</style>
       {renderSearchComponent ? renderSearchComponent : null}
 
       {isSearchEnabled && (
@@ -290,14 +323,14 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         //     if (pageNumber * PAGE_SIZE > usersQueryState.items.length) {
         //     }
         //   }}
-        paginationComponent={() => (
-          null
+        paginationComponent={
+          () => null
           // <ScrollTrigger
           //   onEnter={(e: any) => {
           //     usersQueryState.loadNextPage();
           //   }}
           // />
-        )}
+        }
       />
       {Modal ? Modal : null}
       {queryState.queryState.fetching ? (
@@ -316,20 +349,19 @@ const paginatedTableColStyle = buildStyles(`h-max-100 o-hidden`);
 function buildExpandProps(cfg: any, cfgOn: string) {
   if (cfg?.action !== 'expand') return {};
 
+  const { hideIcon, ...rest } = cfg;
+
   let nextProps = {
     expandableRows: true,
+    ...rest,
   } as any;
-
-  if (cfg.expandableRowsComponent) {
-    nextProps.expandableRowsComponent = cfg.expandableRowsComponent;
-  }
 
   if (cfgOn === 'clickConfig') {
     nextProps.expandOnRowClicked = true;
-    nextProps.expandableRowsHideExpander = cfg.hideIcon ? true : false;
+    nextProps.expandableRowsHideExpander = hideIcon ? true : false;
   } else if (cfgOn === 'doubleClickConfig') {
     nextProps.expandOnRowDoubleClicked = true;
-    nextProps.expandableRowsHideExpander = cfg.hideIcon ? true : false;
+    nextProps.expandableRowsHideExpander = hideIcon ? true : false;
   }
 
   return nextProps;

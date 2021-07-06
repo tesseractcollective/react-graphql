@@ -4,6 +4,7 @@ export interface PaginatedTableExpanderConfig {
   action: 'expand';
   expandableRowsComponent?: React.ReactNode;
   hideIcon?: boolean;
+  expandableRowExpanded?: (row: any) => boolean;
 }
 
 export interface PaginatedTableNavConfig {

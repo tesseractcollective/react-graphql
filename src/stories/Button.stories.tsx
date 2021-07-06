@@ -1,7 +1,6 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-//Pull in our Input component instead
 import { Button } from './Button';
 
 export default {

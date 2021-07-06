@@ -54,7 +54,7 @@ function createVariables(
   });
 
   if (missingPrimaryKeyNames.length) {
-    throw new Error(`When using useDelete you need to ensure you pass in variables that match the primary keys needed for this type.
+    throw new Error(`When using useDelete or useUpdate you need to ensure you pass in variables that match the primary keys needed for this type.
     The operation for this was: ${operationName}.
     We detected the following primary keys from config.primaryKey: ${config.primaryKey}
     The following were not found in the variables but were needed: ${missingPrimaryKeyNames.join(', ')}
