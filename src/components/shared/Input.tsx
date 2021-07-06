@@ -9,18 +9,17 @@ export interface IInputNumberProps {}
 export interface IInputRichTextProps {}
 
 export interface TInput {
-  Text: FunctionComponent<IInputTextProps>;
+  Text: FunctionComponent<IInputTextProps>; //DONE
   Number: FunctionComponent<IInputNumberProps>;
-  Checkbox: FunctionComponent<IInputProps>;
-  Date: FunctionComponent<IInputProps>;
-  DateTime: FunctionComponent<IInputProps>;
-  Image: FunctionComponent<IInputProps>;
-  File: FunctionComponent<IInputProps>;
+  Checkbox: FunctionComponent<IInputProps>;  
+  DateTime: FunctionComponent<IInputProps>; //1 - rnwui
+  Image: FunctionComponent<IInputProps>; //1 - rnwui
+  File: FunctionComponent<IInputProps>; //1 - rnwui
   Markdown: FunctionComponent<IInputProps>;
-  Password: FunctionComponent<IInputProps>;
-  RichText: FunctionComponent<IInputRichTextProps>;
+  Password: FunctionComponent<IInputProps>; 
+  RichText: FunctionComponent<IInputRichTextProps>; // 1
   Select: FunctionComponent<IInputProps>;
-  SelectViaRelationship: FunctionComponent<IInputProps>;
+  SelectViaRelationship: FunctionComponent<IInputProps>; //DONE
   RadioButtonGroup: FunctionComponent<IInputProps>;
   SelectMany: FunctionComponent<IInputProps>;
   List: FunctionComponent<IInputProps>;
@@ -41,9 +40,6 @@ const Input: FunctionComponent<IInputProps> = function Inputs(props) {
   return <View></View>;
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).Date = function Inputs(props) {
-  return <View></View>;
-};
 (Input as FunctionComponent<IInputProps> & TInput).DateTime = function Inputs(props) {
   return <View></View>;
 };
