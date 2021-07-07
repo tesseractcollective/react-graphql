@@ -27,7 +27,6 @@ export interface TInput {
   File: FunctionComponent<IInputProps>; //1 - rnwui
   Markdown: FunctionComponent<IInputProps>;
   Password: FunctionComponent<IInputProps>; 
-  RichText: FunctionComponent<IInputRichTextProps>; // 1
   Select: FunctionComponent<IInputProps>;
   SelectViaRelationship: FunctionComponent<SelectViaRelationshipProps>;
   RadioButtonGroup: FunctionComponent<IInputProps>;
@@ -60,11 +59,6 @@ export interface IInputTextProps extends TextInputProps {
       />
     </View>
   );
-};
-
-(Input as FunctionComponent<IInputProps> & TInput).RichText = function RichText(props) {
-  //TODO: P2: Need to find react-native-web compatible rich text editor, OR a rich text editor for React and react-native separately
-  return <View></View>;
 };
 
 (Input as FunctionComponent<IInputProps> & TInput).DatePicker = function DatePicker(props) {
