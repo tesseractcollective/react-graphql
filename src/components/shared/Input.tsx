@@ -1,5 +1,5 @@
 import React, { FunctionComponent, useEffect, useMemo } from 'react';
-import { View, TextInputBase, Constructor, NativeMethods, TimerMixin, TextInputProps, Text } from 'react-native';
+import { View, TextInputBase, Constructor, NativeMethods, TimerMixin, TextInputProps, Text, ViewProps } from 'react-native';
 import { MutateState } from '../../hooks/useMutate';
 import { HasuraDataConfig } from '../../types/hasuraConfig';
 //@ts-ignore
@@ -112,6 +112,8 @@ export interface SelectViaRelationshipProps {
   relationshipColumnNameForLabel: String;
   relationshipColumnNameForValue: String;
   autoSave?: boolean;
+  menuStyle?: ViewProps | Readonly<ViewProps>;
+  containerStyle?: ViewProps | Readonly<ViewProps>;
 }
 
 (Input as FunctionComponent<IInputProps> & TInput).SelectViaRelationship = function SelectViaRelationship(props) {
@@ -143,7 +145,7 @@ export interface SelectViaRelationshipProps {
   }
 
   const onChange = (e: any) => {
-    const nextVal = e.value || e;    
+    const nextVal = e.value || e;
     if (nextVal && autoSave) {
       state.executeMutation({ [name]: nextVal });
     } else {
@@ -151,9 +153,13 @@ export interface SelectViaRelationshipProps {
     }
   };
 
+  const columnValue = state.item?.[name];
+  const matchingOptionIdx = options.indexOf(columnValue);
+  const value = matchingOptionIdx >= 0 ? options[matchingOptionIdx] : undefined;
+
   return (
-    <View>
-      <Select style={{}} values={options} fitContent onChange={onChange} value={state.item?.[name]} labels={labels} />
+    <View style={props.containerStyle}>
+      <Select menuStyle={props.menuStyle} values={options} fitContent onChange={onChange} value={value} labels={labels} />
     </View>
   );
 };
