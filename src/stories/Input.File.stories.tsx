@@ -12,19 +12,19 @@ import decorators from './decorators';
 
 
 export default {
-  title: 'Inputs/DatePicker',
-  component: Input.DatePicker,
+  title: 'Inputs/File',
+  component: Input.File,
   decorators
-} as ComponentMeta<typeof Input.DatePicker>;
+} as ComponentMeta<typeof Input.File>;
 
 
-export const Form: ComponentStory<typeof Input.DatePicker> = () => {
+export const Form: ComponentStory<typeof Input.File> = () => {
   // const dataApi = useReactGraphql(HasuraConfig.posts);
   // const mutationState = dataApi.useInsert({});
   const [startDate, setStartDate] = useState<Date | null>(null)
   return (
     <View>
-      <Input.DatePicker format="YYYY-MM-DD" placeholder={"select date"} startDate={startDate} setStartDate={setStartDate}/>
+      <Input.File onDrop={(file) => console.log(file)} />
     </View>
   );
 };
