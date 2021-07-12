@@ -4,10 +4,9 @@
     "react": "^17.0.0",
     "react-dom": "^17.0.0",
     "react-native-web": "0.14.13",
+    "react-native-web-ui-components": "^6.1.2",
     "react-scripts": "4.0.3",
-    "urql": "^2.0.3"
-  },
-  "dependencies": {
+    "urql": "^2.0.3",  
     "case": "^1.6.3",
     "react-data-table-component": "^6.11.7",
     "react-scroll-trigger": "^0.6.10",

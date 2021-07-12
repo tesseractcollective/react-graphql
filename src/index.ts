@@ -1,9 +1,6 @@
 export { MutatorButton } from './components/shared/MutatorButton';
 export { MutatorTextInput } from './components/shared/MutatorTextInput';
-export { PaginatedTable } from './components/web/PaginatedTable';
-export type { IPaginatedTableProps } from './components/web/PaginatedTable';
-export { default as Input } from './components/shared/Input';
-export type { InputType } from './components/shared/Input';
+export { PaginatedList } from './components/native/PaginatedList';
 
 export { ReactGraphqlProvider } from './hooks/ReactGraphqlProvider';
 export type { IReactGraphqlProviderProps } from './hooks/ReactGraphqlProvider';
@@ -48,7 +45,7 @@ export type {
   PaginatedTableInvokeConfig,
   PaginatedTableSelectConfig,
   PaginatedTableActions,
-  Order_By,
+  Order_By
 } from './types/PaginatedTableTypes';
 export type { HasuraConfigType, HasuraDataConfig } from './types/hasuraConfig/index';
 export type { UseMutatorProps, Mutator, MutatorState, MutationConfig } from './types/hasuraHooks/index';

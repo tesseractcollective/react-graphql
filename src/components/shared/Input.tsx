@@ -1,15 +1,7 @@
-import React, { FunctionComponent, useEffect, useMemo } from "react";
-import {
-  View,
-  TextInputBase,
-  Constructor,
-  NativeMethods,
-  TimerMixin,
-  TextInputProps,
-  Text,
-} from "react-native";
-import { MutateState } from "../../hooks/useMutate";
-import { HasuraDataConfig } from "../../types/hasuraConfig";
+import React, { FunctionComponent, useEffect, useMemo } from 'react';
+import { View, TextInputBase, Constructor, NativeMethods, TimerMixin, TextInputProps, Text, ViewProps } from 'react-native';
+import { MutateState } from '../../hooks/useMutate';
+import { HasuraDataConfig } from '../../types/hasuraConfig';
 //@ts-ignore
 import Select from "react-native-web-ui-components/Select";
 //@ts-ignore
@@ -202,53 +194,56 @@ export interface SelectViaRelationshipProps {
   relationshipColumnNameForLabel: String;
   relationshipColumnNameForValue: String;
   autoSave?: boolean;
+  menuStyle?: ViewProps | Readonly<ViewProps>;
+  containerStyle?: ViewProps | Readonly<ViewProps>;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).SelectViaRelationship =
-  function SelectViaRelationship(props) {
-    const {
-      state,
-      name,
-      configForRelationship,
-      relationshipColumnNameForLabel,
-      relationshipColumnNameForValue,
-      autoSave,
-    } = props;
+(Input as FunctionComponent<IInputProps> & TInput).SelectViaRelationship = function SelectViaRelationship(props) {
+  const {
+    state,
+    name,
+    configForRelationship,
+    relationshipColumnNameForLabel,
+    relationshipColumnNameForValue,
+    autoSave,
+  } = props;
 
-    const dataApi = useReactGraphql(configForRelationship);
-    const queryState = dataApi.useInfiniteQueryMany({
-      pageSize: 1000,
-    });
+  const dataApi = useReactGraphql(configForRelationship);
+  const queryState = dataApi.useInfiniteQueryMany({
+    pageSize: 1000,
+  });
 
-    const options = useMemo(() => {
-      return (
-        queryState.items?.map?.(
-          (itm: any) => itm?.[relationshipColumnNameForValue as any]
-        ) || []
-      );
-    }, [queryState.items.length]);
+  const options = useMemo(() => {
+    return queryState.items?.map?.((itm: any) => itm?.[relationshipColumnNameForValue as any])|| [];
+  }, [queryState.items.length]);
 
-    const labels = useMemo(() => {
-      return (
-        queryState.items?.map?.(
-          (itm: any) => itm?.[relationshipColumnNameForLabel as any]
-        ) || []
-      );
-    }, [queryState.items?.length]);
+  const labels = useMemo(() => {
+    return queryState.items?.map?.((itm: any) => itm?.[relationshipColumnNameForLabel as any]) || [];
+  }, [queryState.items?.length]);
 
-    if (!queryState.items?.length) {
-      //For some reason Select doesn't update when values changes, so this will ensure the values are there before render and the component works
-      return <View></View>;
+  if (!queryState.items?.length) {
+    //For some reason Select doesn't update when values changes, so this will ensure the values are there before render and the component works
+    return <View></View>;
+  }
+
+  const onChange = (e: any) => {
+    const nextVal = e.value || e;
+    if (nextVal && autoSave) {
+      state.executeMutation({ [name]: nextVal });
+    } else {
+      state.setItemValue(name, nextVal);
     }
 
-    const onChange = (e: any) => {
-      const nextVal = e.value || e;
-      if (nextVal && autoSave) {
-        state.executeMutation({ [name]: nextVal });
-      } else {
-        state.setItemValue(name, nextVal);
-      }
-    };
+  const columnValue = state.item?.[name];
+  const matchingOptionIdx = options.indexOf(columnValue);
+  const value = matchingOptionIdx >= 0 ? options[matchingOptionIdx] : undefined;
+
+  return (
+    <View style={props.containerStyle}>
+      <Select menuStyle={props.menuStyle} values={options} fitContent onChange={onChange} value={value} labels={labels} />
+    </View>
+  );
+};
 
     return (
       <View>
