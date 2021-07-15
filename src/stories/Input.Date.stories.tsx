@@ -10,21 +10,27 @@ import HasuraConfig from '../../tests/TestHasuraConfig';
 import decorators from './decorators';
 // import { createClient, Provider as UrqlProvider } from 'urql';
 
-
 export default {
   title: 'Inputs/DatePicker',
   component: Input.DatePicker,
-  decorators
+  decorators,
 } as ComponentMeta<typeof Input.DatePicker>;
 
-
 export const Form: ComponentStory<typeof Input.DatePicker> = () => {
-  // const dataApi = useReactGraphql(HasuraConfig.posts);
-  // const mutationState = dataApi.useInsert({});
-  const [startDate, setStartDate] = useState<Date | null>(null)
+  const dataApi = useReactGraphql(HasuraConfig.posts);
+  const mutationState = dataApi.useInsert({});
+
   return (
-    <View>
-      <Input.DatePicker format="YYYY-MM-DD" placeholder={"select date"} startDate={startDate} setStartDate={setStartDate}/>
-    </View>
+    <div>
+      <div >
+        <View>
+          <Input.DatePicker format="YYYY-MM-DD" placeholder={'select date'} state={mutationState} name="body"  />
+        </View>
+        <View >
+          <Input.DatePicker format="YYYY-MM-DD" placeholder={'select date'} state={mutationState} name="body" />
+        </View>
+      </div>
+      <div id="root-portal"> below</div>
+    </div>
   );
 };
