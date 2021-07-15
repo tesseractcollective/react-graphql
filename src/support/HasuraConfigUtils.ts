@@ -43,8 +43,12 @@ export function buildHasuraConfig(schema: JsonObject, config: HasuraConfigType):
 
     tableConfig.schema = schemaConverted;
 
-    const fields = getFragmentFields(tableConfig.fieldFragment, schemaConverted);
-    tableConfig.fields = fields;
+    try{
+      const fields = getFragmentFields(tableConfig.fieldFragment, schemaConverted);
+      tableConfig.fields = fields;
+    } catch(err){
+      console.log('react-graphql: ERR: failed to parse fields against schema.  Please ensure your schema.json file matches your fragment definitions. You most likely need to re-run the generator, or update your fragments.')
+    }
   });
   return config;
 }
