@@ -79,6 +79,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
     useInfiniteQueryMany: function <TData>(props?: {
       where?: { [key: string]: any };
       orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
+      distinctOn?: string;
       pageSize?: number;
       middleware?: QueryMiddleware[];
       listKey?: string;
@@ -88,6 +89,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       return useInfiniteQueryMany<TData>({
         where: props?.where,
         orderBy: props?.orderBy,
+        distinctOn: props?.distinctOn,
         sharedConfig: config,
         pageSize: props?.pageSize,
         middleware: props?.middleware || [createInfiniteQueryMany],

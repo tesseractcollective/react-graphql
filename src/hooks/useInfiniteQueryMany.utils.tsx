@@ -29,7 +29,8 @@ export function createInfiniteQueryMany(
     variables['orderBy'] ? `$orderBy: [${name}_order_by!]` : null,
     typeof variables['limit'] === 'number' ? `$limit: Int` : null,
     typeof variables['offset'] === 'number' ? `$offset: Int` : null,
-    variables['userId'] ? `$userId: uuid` : null,
+    variables['userId'] ? `$userId: uuid` : null
+    
   ]
     .filter((x) => !!x)
     .join(', ');
@@ -41,6 +42,7 @@ export function createInfiniteQueryMany(
     variables['orderBy'] ? `order_by: $orderBy` : null,
     typeof variables['limit'] === 'number' ? `limit: $limit` : null,
     typeof variables['offset'] === 'number' ? `offset: $offset` : null,
+    variables['distinctOn'] ? `distinct_on: ${variables['distinctOn']}` : null,
   ]
     .filter((x) => !!x)
     .join(', ');
@@ -56,7 +58,12 @@ export function createInfiniteQueryMany(
   }
   ${frag}`;
 
-  const document = buildDocument(queryStr, operationStr, variables, 'useInifniteQueryMany', 'query');
+  const newVariables = {...variables};
+  if(newVariables.distinctOn){
+    delete newVariables.distinctOn;
+  }
 
-  return { document, operationName, variables: state.variables ?? {} };
+  const document = buildDocument(queryStr, operationStr, newVariables, 'useInifniteQueryMany', 'query');
+
+  return { document, operationName, variables: newVariables ?? {} };
 }
