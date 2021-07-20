@@ -1,5 +1,5 @@
 import React, { ReactElement, useState } from 'react';
-import { FlatList, ListRenderItem, RefreshControl, ScrollViewProps, Text } from 'react-native';
+import { FlatList, ListRenderItem, RefreshControl, Text, FlatListProps } from 'react-native';
 // import {useIsFocused} from '@react-navigation/core';
 import { useReactGraphql } from '../../hooks/useReactGraphql';
 import { keyExtractor } from '../../support/HasuraConfigUtils';
@@ -22,7 +22,7 @@ export interface PaginationListProps<T> {
   listKey?: string;
 }
 
-export function PaginatedList<T extends { [key: string]: any }>(props: PaginationListProps<T> & ScrollViewProps) {
+export function PaginatedList<T extends { [key: string]: any }>(props: PaginationListProps<T> & FlatListProps<T>) {
   const {
     config,
     renderItem,
@@ -33,6 +33,7 @@ export function PaginatedList<T extends { [key: string]: any }>(props: Paginatio
     pullToRefresh = true,
     middleware,
     listKey,
+    onEndReachedThreshold,
     ...rest
   } = props;
 
@@ -71,7 +72,6 @@ export function PaginatedList<T extends { [key: string]: any }>(props: Paginatio
         <Text>{error.message}</Text>
       ) : (
         <FlatList
-          {...rest}
           refreshControl={
             pullToRefresh ? (
               <RefreshControl refreshing={fetching && !isManualRefresh} onRefresh={handleRefresh} />
@@ -80,8 +80,9 @@ export function PaginatedList<T extends { [key: string]: any }>(props: Paginatio
           data={items as any[]}
           renderItem={renderItem}
           keyExtractor={(item: T) => keyExtractor(config, item)}
-          onEndReachedThreshold={1}
+          onEndReachedThreshold={onEndReachedThreshold || .9}
           onEndReached={loadNextPage}
+          {...rest}
         />
       )}
     </>

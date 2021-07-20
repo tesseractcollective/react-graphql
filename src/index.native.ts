@@ -1,6 +1,7 @@
 export { MutatorButton } from './components/shared/MutatorButton';
 export { MutatorTextInput } from './components/shared/MutatorTextInput';
 export { PaginatedList } from './components/native/PaginatedList';
+export type { PaginationListProps } from './components/native/PaginatedList';
 
 export { ReactGraphqlProvider } from './hooks/ReactGraphqlProvider';
 export type { IReactGraphqlProviderProps } from './hooks/ReactGraphqlProvider';
