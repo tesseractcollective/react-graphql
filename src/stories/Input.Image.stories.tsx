@@ -8,23 +8,23 @@ import { Pressable, View } from 'react-native';
 import { useReactGraphql } from '../hooks/useReactGraphql';
 import HasuraConfig from '../../tests/TestHasuraConfig';
 import decorators from './decorators';
+// import { createClient, Provider as UrqlProvider } from 'urql';
 
 
 export default {
-  title: 'Inputs/Select',
-  component: Input.Select,
+  title: 'Inputs/Image',
+  component: Input.Image,
   decorators
-} as ComponentMeta<typeof Input.Select>;
+} as ComponentMeta<typeof Input.Image>;
 
 
-export const Image: ComponentStory<typeof Input.Select> = () => {
+export const Image: ComponentStory<typeof Input.Image> = () => {
   const dataApi = useReactGraphql(HasuraConfig.posts);
   const mutationState = dataApi.useInsert({});
-  const motorcycles = ['bmw', 'honda', 'yamaha']
-
   return (
     <View>
-      <Input.Select placeholder={"type here"} items={motorcycles} state={mutationState} name={"body"} />
+      <Input.Image state={mutationState}
+        name="files" onDrop={(file) => console.log(file)} />
     </View>
   );
 };
