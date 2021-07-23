@@ -7,6 +7,7 @@ export interface IUseOperationStateHelperOptions {
   successString?: string;
   successRender?: (data: any) => ReactElement;
   onSuccess?: (data: any) => void;
+  //TODO: confirmBeforeMutation?: { title: string, description: string, okButtonText: string = 'Ok', cancelButtonText?: string, showCloseIcon: boolean }
   errorToastMessage?: string;
   errorString?: string;
   errorRender?: (error: CombinedError) => ReactElement;
