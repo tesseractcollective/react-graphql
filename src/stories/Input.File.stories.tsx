@@ -21,10 +21,12 @@ export default {
 export const Form: ComponentStory<typeof Input.File> = () => {
   // const dataApi = useReactGraphql(HasuraConfig.posts);
   // const mutationState = dataApi.useInsert({});
-  const [startDate, setStartDate] = useState<Date | null>(null)
+  const dataApi = useReactGraphql(HasuraConfig.posts);
+  const mutationState = dataApi.useInsert({});
   return (
     <View>
-      <Input.File onDrop={(file) => console.log(file)} />
+      <Input.File state={mutationState}
+        name="files" onDrop={(file) => console.log(file)} />
     </View>
   );
 };

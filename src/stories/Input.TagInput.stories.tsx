@@ -11,20 +11,20 @@ import decorators from './decorators';
 
 
 export default {
-  title: 'Inputs/Select',
-  component: Input.Select,
+  title: 'Inputs/TagInput',
+  component: Input.TagInput,
   decorators
-} as ComponentMeta<typeof Input.Select>;
+} as ComponentMeta<typeof Input.TagInput>;
 
 
-export const Image: ComponentStory<typeof Input.Select> = () => {
+export const Image: ComponentStory<typeof Input.TagInput> = () => {
   const dataApi = useReactGraphql(HasuraConfig.posts);
   const mutationState = dataApi.useInsert({});
   const motorcycles = ['bmw', 'honda', 'yamaha']
 
   return (
     <View>
-      <Input.Select placeholder={"type here"} items={motorcycles} state={mutationState} name={"body"} />
+      <Input.TagInput tags={motorcycles} state={mutationState} name={"body"} />
     </View>
   );
 };
