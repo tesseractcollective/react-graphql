@@ -1,4 +1,4 @@
-import React, { FunctionComponent, useEffect, useMemo, useState, ReactNode } from "react";
+import React, { FunctionComponent, useEffect, useMemo, useState, ReactNode } from 'react';
 import {
   View,
   TextInputBase,
@@ -8,30 +8,29 @@ import {
   TextInputProps,
   Text,
   ViewProps,
-} from "react-native";
-import { MutateState } from "../../hooks/useMutate";
-import { HasuraDataConfig } from "../../types/hasuraConfig";
+} from 'react-native';
+import { MutateState } from '../../hooks/useMutate';
+import { HasuraDataConfig } from '../../types/hasuraConfig';
 //@ts-ignore
-import Select from "react-native-web-ui-components/Select";
+import Select from 'react-native-web-ui-components/Select';
 //@ts-ignore
-import Autocomplete from "react-native-web-ui-components/Autocomplete";
+import Autocomplete from 'react-native-web-ui-components/Autocomplete';
 //@ts-ignore
-import Radiobox from "react-native-web-ui-components/Radiobox";
+import Radiobox from 'react-native-web-ui-components/Radiobox';
 //@ts-ignore
-import RNWUITagInput from "react-native-web-ui-components/TagInput";
+import RNWUITagInput from 'react-native-web-ui-components/TagInput';
 //@ts-ignore
-import TextInput from "react-native-web-ui-components/TextInput";
+import TextInput from 'react-native-web-ui-components/TextInput';
 //@ts-ignore
-import RNWUIDatePicker from "react-native-web-ui-components/Datepicker";
+import RNWUIDatePicker from 'react-native-web-ui-components/Datepicker';
 //@ts-ignore
-import RNWUICheckbox from "react-native-web-ui-components/Checkbox";
+import RNWUICheckbox from 'react-native-web-ui-components/Checkbox';
 //@ts-ignore
-import RNWUIDropzone from "react-native-web-ui-components/Dropzone";
-import { useReactGraphql } from "../../hooks/useReactGraphql";
-import HasuraConfig from "../../../tests/TestHasuraConfig";
+import RNWUIDropzone from 'react-native-web-ui-components/Dropzone';
+import { useReactGraphql } from '../../hooks/useReactGraphql';
+import HasuraConfig from '../../../tests/TestHasuraConfig';
 
 //TODO: Translations: All labels and placeholders and errors can check against translations
-
 
 //TODO: P1 Add all propTypes from each react-native-web-ui-component to our matching component, catch them on rest, and spread them back onto RNWUiC
 
@@ -75,12 +74,10 @@ export interface IInputTextProps extends TextInputProps {
   readonly: boolean;
   hasError: boolean;
   className: string;
-  onRef: (TextInputRef: React.Ref<TextInput>)=> void;
+  onRef: (TextInputRef: React.Ref<TextInput>) => void;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).Text = function InputText(
-  props
-) {
+(Input as FunctionComponent<IInputProps> & TInput).Text = function InputText(props) {
   const { state, name, disabled, ...rest } = props;
   //TODO: take in optional Prop for display as text when not focused
   //  > If this is true then we display text until the user clicks on it
@@ -94,91 +91,83 @@ export interface IInputTextProps extends TextInputProps {
     <TextInput
       value={state.item?.[name]?.toString?.()}
       editable={!disabled}
-      onChangeText={(text: string) =>
-        state.setItemValue(name, text)
-      }
+      onChangeText={(text: string) => state.setItemValue(name, text)}
       {...rest}
     />
   );
 };
 
 export interface IInputAutoCompleteProps extends IInputProps {
-  // items: any[];
-  // highlightMatches: boolean;
-  // autocompleteId: boolean;
-  // themeTextStyle: any;
-  // themeInputStyle: any;
-  // onPress: () => void;
-  // text: string;
-  // active: boolean;
-  // index: number;
-  // item: any;
+  items: any[];
+  highlightMatches: boolean;
+  autocompleteId: boolean;
+  themeTextStyle: any;
+  themeInputStyle: any;
+  onPress: () => void;
+  text: string;
+  active: boolean;
+  index: number;
+  item: any;
+  style: any;
+  activeStyle: any;
+  numberOfLines: number;
+  // exclude
   // value: any;
-  // style: any;
-  // activeStyle: any;
-  // numberOfLines: number;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).AutoComplete =
-  function AutoComplete(props) {
-    const { state, name, items } = props;
-
-    return (
-      <View>
-        <Autocomplete
-          items={items}
-          value={state.item?.[name]?.toString?.()}
-          onChangeText={(text:string) => state.setItemValue(name, text)}
-          onSelect={(text:string) => state.setItemValue(name, text)}
-        />
-      </View>
-    );
-  };
-
-export interface IInputTagInputProps extends IInputProps {
-  // tags: any[];
-  // themeInputStyle: any;
-  //   allowNew: boolean;
-  //   buildNew: () => void;
-  //   onChange:() => void;
-  //   onFocus: () => void;
-  //   onBlur: () => void;
-  //   readonly: boolean;
-  //   getItemValue: () => void;
-  //   style: any;
-  //   tagStyle: any;
-  //   tagContainerStyle: any;
-  //   inputStyle: any;
-  //   Tag: String | {[name: string]: any};
-  //   Input: ReactNode;
-  //   autoFocus: boolean;
-  //   text: number |string;
-  //   value: any;
-}
-
-(Input as FunctionComponent<IInputProps> & TInput).TagInput = function TagInput(
-  props
-) {
-  const { state, name, tags } = props;
-
-  const _onChange = (e: any[]) => {
-    state.setItemValue(name, e);
-  }
+(Input as FunctionComponent<IInputProps> & TInput).AutoComplete = function AutoComplete(props) {
+  const { state, name, items, ...rest } = props;
 
   return (
     <View>
-      <RNWUITagInput
-        items={tags}
-        value={state.item?.[name]}
-        onChange={_onChange}
+      <Autocomplete
+        items={items}
+        value={state.item?.[name]?.toString?.()}
+        onChangeText={(text: string) => state.setItemValue(name, text)}
+        onSelect={(text: string) => state.setItemValue(name, text)}
+        {...rest}
       />
     </View>
   );
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).RichText = function RichText(
-  props
-) {
+export interface IInputTagInputProps extends IInputProps {
+  tags: any[];
+  themeInputStyle: any;
+  allowNew: boolean;
+  buildNew: () => void;
+  onFocus: () => void;
+  onBlur: () => void;
+  readonly: boolean;
+  getItemValue: () => void;
+  style: any;
+  tagStyle: any;
+  tagContainerStyle: any;
+  inputStyle: any;
+  Tag: String | { [name: string]: any };
+  Input: ReactNode;
+  autoFocus: boolean;
+  text: number | string;
+  //exclude
+  // value: any;
+  // onChange:() => void;
+}
+
+(Input as FunctionComponent<IInputProps> & TInput).TagInput = function TagInput(props) {
+  const { state, name, tags, ...rest } = props;
+
+  const _onChange = (e: any[]) => {
+    state.setItemValue(name, e);
+  };
+
+  return (
+    <View>
+      <RNWUITagInput items={tags} value={state.item?.[name]} onChange={_onChange} {...rest} />
+    </View>
+  );
+};
+
+(Input as FunctionComponent<IInputProps> & TInput).RichText = function RichText(props) {
   //TODO: P2: update /src/components/web/RichText.tsx
   return null;
 };
@@ -199,41 +188,33 @@ export interface IInputDateProps extends IInputProps {
   format?: string;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).DatePicker =
-  function DatePicker(props) {
-    const { state, name, disabled } = props;
+(Input as FunctionComponent<IInputProps> & TInput).DatePicker = function DatePicker(props) {
+  const { state, name, disabled } = props;
 
-    return (
-      <RNWUIDatePicker
-        disabled={disabled}
-        placeholder={props.placeholder}
-        format={props.format}
-        date={state.item?.[name] || ""}
-        onDateChange={(date: any) => state.setItemValue(name, new Date(date))}
-      />
-    );
-  };
+  return (
+    <RNWUIDatePicker
+      disabled={disabled}
+      placeholder={props.placeholder}
+      format={props.format}
+      date={state.item?.[name] || ''}
+      onDateChange={(date: any) => state.setItemValue(name, new Date(date))}
+    />
+  );
+};
 
 export interface IInputCheckboxProps extends IInputProps {
   disabled?: boolean;
   text?: string;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).Checkbox = function Inputs(
-  props
-) {
+(Input as FunctionComponent<IInputProps> & TInput).Checkbox = function Inputs(props) {
   const { disabled, text, state, name } = props;
   const onPress = (checked: boolean) => {
     state.setItemValue(name, checked);
   };
   return (
     <View>
-      <RNWUICheckbox
-        checked={state.item?.[name]}
-        disabled={disabled}
-        text={text}
-        onPress={onPress}
-      />
+      <RNWUICheckbox checked={state.item?.[name]} disabled={disabled} text={text} onPress={onPress} />
     </View>
   );
 };
@@ -248,9 +229,7 @@ export interface IInputFileProps extends IInputProps {
   // cancelText: PropTypes.string,
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).Image = function Inputs(
-  props
-) {
+(Input as FunctionComponent<IInputProps> & TInput).Image = function Inputs(props) {
   const { onDrop, text, accept, state, name } = props;
   const _onDrop = (file: { type: String; name: String }) => {
     if (name) {
@@ -264,25 +243,23 @@ export interface IInputFileProps extends IInputProps {
       <RNWUIDropzone
         onDrop={_onDrop}
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          color: "grey",
-          cursor: "pointer",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'grey',
+          cursor: 'pointer',
         }}
-        accept={accept ? accept : [".jpg", ".jpeg", ".svg", ".png", ".gif"]}
+        accept={accept ? accept : ['.jpg', '.jpeg', '.svg', '.png', '.gif']}
       >
-        <Text style={{ color: "grey" }}>
-          {text ? text : "Click or drag and drop a file here " + `(${accept?.join?.(', ')})`}
+        <Text style={{ color: 'grey' }}>
+          {text ? text : 'Click or drag and drop a file here ' + `(${accept?.join?.(', ')})`}
         </Text>
       </RNWUIDropzone>
     </View>
   );
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).File = function Inputs(
-  props
-) {
+(Input as FunctionComponent<IInputProps> & TInput).File = function Inputs(props) {
   const { onDrop, text, accept, state, name } = props;
   const _onDrop = (file: { type: String; name: String }) => {
     if (name) {
@@ -296,30 +273,16 @@ export interface IInputFileProps extends IInputProps {
       <RNWUIDropzone
         onDrop={_onDrop}
         style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          color: "grey",
-          cursor: "pointer",
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          color: 'grey',
+          cursor: 'pointer',
         }}
-        accept={
-          accept
-            ? accept
-            : [
-                ".pdf",
-                ".txt",
-                ".doc",
-                ".docx",
-                ".xls",
-                ".xlsx",
-                ".json",
-                ".csv",
-                ".xml",
-              ]
-        }
+        accept={accept ? accept : ['.pdf', '.txt', '.doc', '.docx', '.xls', '.xlsx', '.json', '.csv', '.xml']}
       >
-        <Text style={{ color: "grey" }}>
-          {text ? text : "Click or drag and drop a file here " + `(${accept?.join?.(', ')})`}
+        <Text style={{ color: 'grey' }}>
+          {text ? text : 'Click or drag and drop a file here ' + `(${accept?.join?.(', ')})`}
         </Text>
       </RNWUIDropzone>
     </View>
@@ -331,9 +294,7 @@ export interface IInputSelectProps extends IInputProps {
   placeholder?: string;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).Select = function Inputs(
-  props
-) {
+(Input as FunctionComponent<IInputProps> & TInput).Select = function Inputs(props) {
   const { items, state, name, placeholder } = props;
 
   return (
@@ -359,110 +320,99 @@ export interface SelectViaRelationshipProps {
   containerStyle?: ViewProps | Readonly<ViewProps>;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).SelectViaRelationship =
-  function SelectViaRelationship(props) {
-    const {
-      state,
-      name,
-      configForRelationship,
-      relationshipColumnNameForLabel,
-      relationshipColumnNameForValue,
-      autoSave,
-    } = props;
+(Input as FunctionComponent<IInputProps> & TInput).SelectViaRelationship = function SelectViaRelationship(props) {
+  const {
+    state,
+    name,
+    configForRelationship,
+    relationshipColumnNameForLabel,
+    relationshipColumnNameForValue,
+    autoSave,
+  } = props;
 
-    const [value, setValue] = useState<string>("");
+  const [value, setValue] = useState<string>('');
 
-    const dataApi = useReactGraphql(configForRelationship);
-    const queryState = dataApi.useInfiniteQueryMany({
-      pageSize: 1000,
+  const dataApi = useReactGraphql(configForRelationship);
+  const queryState = dataApi.useInfiniteQueryMany({
+    pageSize: 1000,
+  });
+
+  const optionsLabelToValueMap: { [key: string]: string } = useMemo(() => {
+    return queryState.items.reduce((all: any, next: any) => {
+      all[next?.[relationshipColumnNameForLabel as any]] = next?.[relationshipColumnNameForValue as any];
+      return all;
+    }, {}) as { [key: string]: string };
+  }, [queryState.items.length]);
+
+  const optionsValueToLabelMap: { [key: string]: string } = useMemo(() => {
+    return queryState.items.reduce((all: any, next: any) => {
+      all[next?.[relationshipColumnNameForValue as any]] = next?.[relationshipColumnNameForLabel as any];
+
+      return all;
+    }, {}) as { [key: string]: string };
+  }, [queryState.items.length]);
+
+  const options = useMemo(() => {
+    return queryState.items?.map?.((itm: any) => {
+      return {
+        value: itm?.[relationshipColumnNameForValue as any],
+        label: itm?.[relationshipColumnNameForLabel as any],
+      };
     });
+  }, [queryState.items.length]);
 
-    const optionsLabelToValueMap: { [key: string]: string } = useMemo(() => {
-      return queryState.items.reduce((all: any, next: any) => {
-        all[next?.[relationshipColumnNameForLabel as any]] =
-          next?.[relationshipColumnNameForValue as any];
-        return all;
-      }, {}) as { [key: string]: string };
-    }, [queryState.items.length]);
-
-    const optionsValueToLabelMap: { [key: string]: string } = useMemo(() => {
-      return queryState.items.reduce((all: any, next: any) => {
-        all[next?.[relationshipColumnNameForValue as any]] =
-          next?.[relationshipColumnNameForLabel as any];
-
-        return all;
-      }, {}) as { [key: string]: string };
-    }, [queryState.items.length]);
-
-    const options = useMemo(() => {
-      return queryState.items?.map?.((itm: any) => {
-        return {
-          value: itm?.[relationshipColumnNameForValue as any],
-          label: itm?.[relationshipColumnNameForLabel as any],
-        };
-      });
-    }, [queryState.items.length]);
-
-    const onChange = (e: any) => {
-      const selectedLabel = e.value || e;
-      const selectedValue = optionsLabelToValueMap[selectedLabel];
-      if (selectedValue && autoSave) {
-        state.executeMutation({ [name]: selectedValue });
-      } else {
-        state.setItemValue(name, selectedValue);
-      }
-      setValue(e);
-    };
-
-    useEffect(() => {
-      if (
-        !queryState.queryState.fetching &&
-        state.item?.[name] &&
-        state.item?.[name] !== value
-      ) {
-        const labelForValue =
-          optionsValueToLabelMap[state.item?.[name] as string];
-
-        if (labelForValue) {
-          setValue(labelForValue);
-        }
-      }
-    }, [queryState.queryState.fetching, optionsValueToLabelMap]);
-
-    if (!queryState.items?.length) {
-      //For some reason Select doesn't update when values changes, so this will ensure the values are there before render and the component works
-      return <View></View>;
+  const onChange = (e: any) => {
+    const selectedLabel = e.value || e;
+    const selectedValue = optionsLabelToValueMap[selectedLabel];
+    if (selectedValue && autoSave) {
+      state.executeMutation({ [name]: selectedValue });
+    } else {
+      state.setItemValue(name, selectedValue);
     }
-
-    //TODO: P3: BONUS: Try to get the popup to show the list of items without having to type first
-
-    return (
-      <View style={props.containerStyle}>
-        <Autocomplete
-          items={options}
-          onChangeText={(e: any) => {
-            setValue(e);
-          }}
-          value={value}
-          valueLabel={optionsValueToLabelMap[value]}
-          onSelect={onChange}
-          getItemValue={(itm: any) => itm.value}
-          getItemLabel={(itm: any) => itm.label}
-        />
-      </View>
-    );
+    setValue(e);
   };
+
+  useEffect(() => {
+    if (!queryState.queryState.fetching && state.item?.[name] && state.item?.[name] !== value) {
+      const labelForValue = optionsValueToLabelMap[state.item?.[name] as string];
+
+      if (labelForValue) {
+        setValue(labelForValue);
+      }
+    }
+  }, [queryState.queryState.fetching, optionsValueToLabelMap]);
+
+  if (!queryState.items?.length) {
+    //For some reason Select doesn't update when values changes, so this will ensure the values are there before render and the component works
+    return <View></View>;
+  }
+
+  //TODO: P3: BONUS: Try to get the popup to show the list of items without having to type first
+
+  return (
+    <View style={props.containerStyle}>
+      <Autocomplete
+        items={options}
+        onChangeText={(e: any) => {
+          setValue(e);
+        }}
+        value={value}
+        valueLabel={optionsValueToLabelMap[value]}
+        onSelect={onChange}
+        getItemValue={(itm: any) => itm.value}
+        getItemLabel={(itm: any) => itm.label}
+      />
+    </View>
+  );
+};
 
 export interface IInputRadioButtonGroupProps extends IInputProps {
   items: string[];
 }
 
-(Input as FunctionComponent & TInput).RadioButtonGroup = function Inputs(
-  props
-) {
-  
+(Input as FunctionComponent & TInput).RadioButtonGroup = function Inputs(props) {
   const { items, state, name } = props;
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
 
   useEffect(() => {
     state.setItemValue(name, value);
@@ -470,102 +420,93 @@ export interface IInputRadioButtonGroupProps extends IInputProps {
 
   const renderRadioBox = () =>
     items.map((item) => {
-      return (
-        <Radiobox
-          checked={value === item}
-          value={value}
-          onPress={() => setValue(item)}
-          text={item}
-        />
-      );
+      return <Radiobox checked={value === item} value={value} onPress={() => setValue(item)} text={item} />;
     });
 
   return <View>{renderRadioBox()}</View>;
 };
 
 export interface IInputCheckboxManyProps extends IInputProps {
-  items: string[] | {[key: string]: any}[];
+  items: string[] | { [key: string]: any }[];
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).CheckboxMany =
-  function Inputs(props) {
-    //TODO: Takes in a list of options
-    //TODO: connect all currently selected to state
-    //TODO: BONUS: Add a prop 'pinSelected?: boolean'
-    //When this prop is true the list needs to be sorted to show checked items first and they are pinned so that scrolling doesn't hide them
-    const { disabled, items, state, name } = props;
-    const [values, setValues] = useState<any>([]);
+(Input as FunctionComponent<IInputProps> & TInput).CheckboxMany = function Inputs(props) {
+  //TODO: Takes in a list of options
+  //TODO: connect all currently selected to state
+  //TODO: BONUS: Add a prop 'pinSelected?: boolean'
+  //When this prop is true the list needs to be sorted to show checked items first and they are pinned so that scrolling doesn't hide them
+  const { disabled, items, state, name } = props;
+  const [values, setValues] = useState<any>([]);
 
-    //TODO: Delete this before commit
-    // //data is always singular, unless it's an array, or an object pretending to be an array.
-    // //10,000
-    // const bands = [{email: '', bandName: '', artist: ''}, ...];
+  //TODO: Delete this before commit
+  // //data is always singular, unless it's an array, or an object pretending to be an array.
+  // //10,000
+  // const bands = [{email: '', bandName: '', artist: ''}, ...];
 
-    // //(10,000 + 9,999, + 9,998....)
-    // // const bandCounts = [{artist: '', count: 0}];
+  // //(10,000 + 9,999, + 9,998....)
+  // // const bandCounts = [{artist: '', count: 0}];
 
-    // const bandCounts = {
-    // // [bandName]: count
-    // };
+  // const bandCounts = {
+  // // [bandName]: count
+  // };
 
-    // bandCounts[band.artist] //band.artist = 'queen'
-    // bandCounts.queen //band.artist = 'queen'
+  // bandCounts[band.artist] //band.artist = 'queen'
+  // bandCounts.queen //band.artist = 'queen'
 
-    // //10,000
-    // bands.forEach((band) => {
-    //   if(bandCounts[band.artist]){
-    //     bandCounts[band.artist] += 1;
-    //   } else {
-    //     bandCounts[band.artist] = 1;
-    //   }
-    // })
+  // //10,000
+  // bands.forEach((band) => {
+  //   if(bandCounts[band.artist]){
+  //     bandCounts[band.artist] += 1;
+  //   } else {
+  //     bandCounts[band.artist] = 1;
+  //   }
+  // })
 
-    useEffect(() => {
-      state.setItemValue(name, values);
-    }, [values]);
+  useEffect(() => {
+    state.setItemValue(name, values);
+  }, [values]);
 
-    const pushToArr = (item: string | {[key: string]: any}) => {
-      if (values.includes(item)) {
-        setValues(values.filter((word: any) => word !== item));
-      } else {
-        setValues([...values, item]);
-      }
-    };
-
-    const renderCheckboxMany = () =>
-      items.map((item) => {
-        return (
-          <RNWUICheckbox
-            checked={values.includes(item)}
-            disabled={disabled}
-            text={item}
-            onPress={() => {
-              pushToArr(item);
-            }}
-          />
-        );
-      });
-
-    return <View>{renderCheckboxMany()}</View>;
+  const pushToArr = (item: string | { [key: string]: any }) => {
+    if (values.includes(item)) {
+      setValues(values.filter((word: any) => word !== item));
+    } else {
+      setValues([...values, item]);
+    }
   };
 
+  const renderCheckboxMany = () =>
+    items.map((item) => {
+      return (
+        <RNWUICheckbox
+          checked={values.includes(item)}
+          disabled={disabled}
+          text={item}
+          onPress={() => {
+            pushToArr(item);
+          }}
+        />
+      );
+    });
+
+  return <View>{renderCheckboxMany()}</View>;
+};
 
 //TODO: P2 - build this JsonList
 export interface IJsonListProps extends IInputProps {
-  renderItem: (item: {[key: string]: any}, setItemValue: (key:string, value: any) => void) => ReactNode;
-  defaultItemValues: {[key: string]: any};
+  renderItem: (item: { [key: string]: any }, setItemValue: (key: string, value: any) => void) => ReactNode;
+  defaultItemValues: { [key: string]: any };
 }
 
-
-{/* <Inputs.JsonList
+{
+  /* <Inputs.JsonList
   state={mutateState}
   name={"amounts"}
   renderItem={(item, setItemValue)=> {
     return <div>
       <Select items={amountTypes} value={item.amountType} onSelect={(selected)=> setItemValue('amountType', selected)}/>
     </div>
-  }}/> */}
-
+  }}/> */
+}
 
 //TODO: P2 useMutate to support _append, _prepend, and other update options
 //TODO: P2 PaginatedTable to support "nestedJsonField" as data prop
@@ -583,4 +524,3 @@ export type InputType = FunctionComponent<IInputProps> & TInput;
 export default Input as InputType;
 
 export { Input };
-
