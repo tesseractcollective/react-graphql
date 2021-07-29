@@ -59,7 +59,7 @@ export interface TInput {
   CheckboxMany: FunctionComponent<IInputCheckboxManyProps>;
 }
 
-const Input: FunctionComponent<IInputProps> = function Inputs(props) {
+const InputBase: FunctionComponent<IInputProps> = function Inputs(props) {
   return <View></View>;
 } as InputType;
 
@@ -68,16 +68,16 @@ export interface IInputTextProps extends TextInputProps {
   state: MutateState;
   name: string;
   disabled?: boolean;
-  style: any;
-  multiline: boolean;
-  numberOfLines: number;
-  readonly: boolean;
-  hasError: boolean;
-  className: string;
-  onRef: (TextInputRef: React.Ref<TextInput>) => void;
+  style?: any;
+  multiline?: boolean;
+  numberOfLines?: number;
+  readonly?: boolean;
+  hasError?: boolean;
+  className?: string;
+  onRef?: (TextInputRef: React.Ref<TextInput>) => void;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).Text = function InputText(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).Text = function InputText(props) {
   const { state, name, disabled, ...rest } = props;
   //TODO: take in optional Prop for display as text when not focused
   //  > If this is true then we display text until the user clicks on it
@@ -99,23 +99,23 @@ export interface IInputTextProps extends TextInputProps {
 
 export interface IInputAutoCompleteProps extends IInputProps {
   items: any[];
-  highlightMatches: boolean;
-  autocompleteId: boolean;
-  themeTextStyle: any;
-  themeInputStyle: any;
-  onPress: () => void;
-  text: string;
-  active: boolean;
-  index: number;
-  item: any;
-  style: any;
-  activeStyle: any;
-  numberOfLines: number;
+  highlightMatches?: boolean;
+  autocompleteId?: boolean;
+  themeTextStyle?: any;
+  themeInputStyle?: any;
+  onPress?: () => void;
+  text?: string;
+  active?: boolean;
+  index?: number;
+  item?: any;
+  style?: any;
+  activeStyle?: any;
+  numberOfLines?: number;
   // exclude
   // value: any;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).AutoComplete = function AutoComplete(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).AutoComplete = function AutoComplete(props) {
   const { state, name, items, ...rest } = props;
 
   return (
@@ -133,27 +133,27 @@ export interface IInputAutoCompleteProps extends IInputProps {
 
 export interface IInputTagInputProps extends IInputProps {
   tags: any[];
-  themeInputStyle: any;
-  allowNew: boolean;
-  buildNew: () => void;
-  onFocus: () => void;
-  onBlur: () => void;
-  readonly: boolean;
-  getItemValue: () => void;
-  style: any;
-  tagStyle: any;
-  tagContainerStyle: any;
-  inputStyle: any;
-  Tag: String | { [name: string]: any };
-  Input: ReactNode;
-  autoFocus: boolean;
-  text: number | string;
+  themeInputStyle?: any;
+  allowNew?: boolean;
+  buildNew?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  readonly?: boolean;
+  getItemValue?: () => void;
+  style?: any;
+  tagStyle?: any;
+  tagContainerStyle?: any;
+  inputStyle?: any;
+  Tag?: String | { [name: string]: any };
+  Input?: ReactNode;
+  autoFocus?: boolean;
+  text?: number | string;
   //exclude
   // value: any;
   // onChange:() => void;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).TagInput = function TagInput(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).TagInput = function TagInput(props) {
   const { state, name, tags, ...rest } = props;
 
   const _onChange = (e: any[]) => {
@@ -167,7 +167,7 @@ export interface IInputTagInputProps extends IInputProps {
   );
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).RichText = function RichText(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).RichText = function RichText(props) {
   //TODO: P2: update /src/components/web/RichText.tsx
   return null;
 };
@@ -176,7 +176,7 @@ export interface IInputDateProps extends IInputProps {
   format?: string;
 }
 
-// (Input as FunctionComponent<IInputProps> & TInput).Rating = function Rating(
+// (InputBase as FunctionComponent<IInputProps> & TInput).Rating = function Rating(
 //   props
 // ) {
 //   //TODO:Jeremy . Does not exist in lib
@@ -188,14 +188,14 @@ export interface IInputDateProps extends IInputProps {
   format?: string;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).DatePicker = function DatePicker(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).DatePicker = function DatePicker(props) {
   const { state, name, disabled } = props;
 
   return (
     <RNWUIDatePicker
       disabled={disabled}
       placeholder={props.placeholder}
-      format={props.format}
+      format={props.format || 'MM/DD/YYYY'}
       date={state.item?.[name] || ''}
       onDateChange={(date: any) => state.setItemValue(name, new Date(date))}
     />
@@ -207,7 +207,7 @@ export interface IInputCheckboxProps extends IInputProps {
   text?: string;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).Checkbox = function Inputs(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).Checkbox = function Inputs(props) {
   const { disabled, text, state, name } = props;
   const onPress = (checked: boolean) => {
     state.setItemValue(name, checked);
@@ -229,7 +229,7 @@ export interface IInputFileProps extends IInputProps {
   // cancelText: PropTypes.string,
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).Image = function Inputs(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).Image = function Inputs(props) {
   const { onDrop, text, accept, state, name } = props;
   const _onDrop = (file: { type: String; name: String }) => {
     if (name) {
@@ -259,7 +259,7 @@ export interface IInputFileProps extends IInputProps {
   );
 };
 
-(Input as FunctionComponent<IInputProps> & TInput).File = function Inputs(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).File = function Inputs(props) {
   const { onDrop, text, accept, state, name } = props;
   const _onDrop = (file: { type: String; name: String }) => {
     if (name) {
@@ -294,7 +294,7 @@ export interface IInputSelectProps extends IInputProps {
   placeholder?: string;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).Select = function Inputs(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).Select = function Inputs(props) {
   const { items, state, name, placeholder } = props;
 
   return (
@@ -320,7 +320,7 @@ export interface SelectViaRelationshipProps {
   containerStyle?: ViewProps | Readonly<ViewProps>;
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).SelectViaRelationship = function SelectViaRelationship(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).SelectViaRelationship = function SelectViaRelationship(props) {
   const {
     state,
     name,
@@ -410,7 +410,7 @@ export interface IInputRadioButtonGroupProps extends IInputProps {
   items: string[];
 }
 
-(Input as FunctionComponent & TInput).RadioButtonGroup = function Inputs(props) {
+(InputBase as FunctionComponent & TInput).RadioButtonGroup = function Inputs(props) {
   const { items, state, name } = props;
   const [value, setValue] = useState('');
 
@@ -430,7 +430,7 @@ export interface IInputCheckboxManyProps extends IInputProps {
   items: string[] | { [key: string]: any }[];
 }
 
-(Input as FunctionComponent<IInputProps> & TInput).CheckboxMany = function Inputs(props) {
+(InputBase as FunctionComponent<IInputProps> & TInput).CheckboxMany = function Inputs(props) {
   //TODO: Takes in a list of options
   //TODO: connect all currently selected to state
   //TODO: BONUS: Add a prop 'pinSelected?: boolean'
@@ -521,6 +521,7 @@ export interface IJsonListProps extends IInputProps {
 
 export type InputType = FunctionComponent<IInputProps> & TInput;
 
-export default Input as InputType;
+const Input = InputBase as InputType;
+export default Input;
 
 export { Input };

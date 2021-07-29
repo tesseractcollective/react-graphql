@@ -20,6 +20,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "declaration": true,
+    "emitDeclarationOnly": true,
     "declarationMap": true,
     "typeRoots": [
       "types/**/*.d.ts",

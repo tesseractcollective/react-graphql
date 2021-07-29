@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { extrapolateStyles } from "./extrapolateStyles";
+import { extrapolateStyles } from './extrapolateStyles';
 import { colorsMap } from './colorsMap';
 import shadowStyles from './shadow-styles';
 
@@ -258,7 +258,7 @@ const position = {
 
 const positionStyles = extrapolateStyles(position, 'position');
 
-const positionSpacingStyles = {};
+const positionSpacingStyles:{[key: string] : any} = {};
 
 _.times(500, (n) => (positionSpacingStyles[`bottom-${n}`] = { bottom: n }));
 _.times(500, (n) => (positionSpacingStyles[`bottom--${n}`] = { bottom: -n }));
@@ -283,15 +283,14 @@ positionSpacingStyles['fixed-0'] = {
   position: 'fixed',
 };
 
-const heightStyles = { 'h-null': { height: null } };
+const heightStyles:{[key: string] : any} = { 'h-null': { height: null } };
 
 _.times(1024, (n) => (heightStyles[`h-${n}`] = { height: n }));
 _.times(1024, (n) => (heightStyles[`h-min-${n}`] = { minHeight: n }));
 _.times(100, (n) => (heightStyles[`h-${n}p`] = { height: `${n}%` }));
 _.times(1024, (n) => (heightStyles[`h-max-${n}`] = { maxHeight: n }));
 
-
-const widthStyles = { 'w-null': { width: null } };
+const widthStyles:{[key: string] : any} = { 'w-null': { width: null } };
 
 _.times(4096, (n) => (widthStyles[`w-${n}`] = { width: n }));
 _.times(1024, (n) => (widthStyles[`w-min-${n}`] = { minWidth: n }));
@@ -300,7 +299,7 @@ _.times(100, (n) => (widthStyles[`w-${n}p`] = { width: `${n}%` }));
 
 _.times(100, (n) => (widthStyles[`o-${n}`] = { opacity: n / 100 }));
 
-const zIndexStyles = {};
+const zIndexStyles:{[key: string] : any} = {};
 
 _.times(100, (n) => (zIndexStyles[`z-${n}`] = { zIndex: n }));
 
@@ -334,7 +333,7 @@ const paddingTopStyles = extrapolateStyles(padding, 'paddingTop', 'pt-');
 const paddingBottomStyles = extrapolateStyles(padding, 'paddingBottom', 'pb-');
 const paddingLeftStyles = extrapolateStyles(padding, 'paddingLeft', 'pl-');
 const paddingRightStyles = extrapolateStyles(padding, 'paddingRight', 'pr-');
-const paddingHorizontalStyles = {};
+const paddingHorizontalStyles:{[key: string] : any} = {};
 _.forEach(
   padding,
   (psize, k) =>
@@ -343,7 +342,7 @@ _.forEach(
       paddingRight: psize,
     }),
 );
-const paddingVerticalStyles = {};
+const paddingVerticalStyles:{[key: string] : any} = {};
 _.forEach(
   padding,
   (psize, k) =>
@@ -390,7 +389,7 @@ const marginBottomStyles = extrapolateStyles(margins, 'marginBottom', 'mb-');
 const marginLeftStyles = extrapolateStyles(margins, 'marginLeft', 'ml-');
 const marginRightStyles = extrapolateStyles(margins, 'marginRight', 'mr-');
 
-const marginHorizontalStyles = {};
+const marginHorizontalStyles:{[key: string] : any} = {};
 _.forEach(
   margins,
   (psize, k) =>
@@ -407,7 +406,7 @@ _.forEach(
       marginRight: -psize,
     }),
 );
-const marginVerticalStyles = {};
+const marginVerticalStyles:{[key: string] : any} = {};
 _.forEach(
   margins,
   (psize, k) =>
@@ -456,7 +455,7 @@ const align = {
 
 const alignItemsStyles = extrapolateStyles(align, 'alignItems', 'f-');
 
-const comboAlignmentStyles = {
+const comboAlignmentStyles:{[key: string] : any} = {
   'f-center-center': {
     display: 'flex',
     justifyContent: 'center',
@@ -640,7 +639,7 @@ const alignSelf = {
 
 const alignSelfStyles = extrapolateStyles(alignSelf, 'alignSelf', 'f-');
 
-const flexStyles = {};
+const flexStyles:{[key: string] : any} = {};
 _.times(100, (n) => (flexStyles[`f-${n}`] = { flex: n }));
 _.times(100, (n) => (flexStyles[`f-grow-${n}`] = { flexGrow: n }));
 _.times(100, (n) => (flexStyles[`f-s-${n}`] = { flexShrink: n }));
@@ -657,7 +656,7 @@ const gridAutoFlow = {
 const gridAutoFlowStyles = extrapolateStyles(gridAutoFlow, 'grid-auto-flow', 'g-af');
 const gridGapStyles = extrapolateStyles(margins, 'grid-gap', 'g-g-');
 
-const gridTemplateColumnStyles = {
+const gridTemplateColumnStyles:{[key: string] : any} = {
   /*custom templates go here*/
   g: { display: 'grid' },
   'g-tc-7-grow-4': {

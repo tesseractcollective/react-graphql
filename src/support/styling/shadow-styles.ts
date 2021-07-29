@@ -51,6 +51,7 @@ const shadows = {
     shadowRadius: null,
   },
 };
-shadows.sh = shadows['sh-default'];
 
-module.exports = shadows;
+export const sh = shadows['sh-default'];
+
+export default shadows;
