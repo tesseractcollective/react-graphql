@@ -1,5 +1,12 @@
 {
-  "name": "@tesseractcollective/react-native-graphql",  
+  "name": "@tesseractcollective/react-native-graphql",
+  "module": "./dist/react-graphql.es.js",
+  "types": "./dist/src/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/react-graphql.es.js"
+    }
+  },
   "peerDependencies": {
     "case": "^1.6.3",
     "graphql": "^15.5.0",
