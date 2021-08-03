@@ -2,24 +2,35 @@ import reactRefresh from '@vitejs/plugin-react-refresh';
 import { defineConfig } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
+import ts from 'rollup-plugin-typescript2';
 
 export default defineConfig({
-  plugins: [reactRefresh(), tsconfigPaths()],
+  plugins: [reactRefresh(), 
+    // tsconfigPaths()
+    {
+      apply: 'build',
+      ...ts({
+        tsconfig: './tsconfig-web.build.json',
+        useTsconfigDeclarationDir: true
+      }),
+    },
+  ],
+  esbuild: false,
   build: {
     lib: {
       entry: path.resolve(__dirname, 'src/index'),
       name: 'react-graphql',
-      fileName: (format) => `react-graphql.${format}.js`,
+      fileName: (format) => `react-graphql.${format}.js`
     },
-    sourcemap: 'inline',
     emptyOutDir: true,
+    minify: false,
+    watch: {},
+    sourcemap: true,
     rollupOptions: {
       external: [
-        'react-data-table-component',
         'react',
         'react-dom',
         'urql',
-        'react-scroll-trigger',
         'react-loading',
       ],
     },
