@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import * as H from 'history'
 
 export interface PaginatedTableExpanderConfig {
   action: 'expand';
@@ -9,19 +10,25 @@ export interface PaginatedTableExpanderConfig {
 
 export interface PaginatedTableNavConfig {
   action: 'nav';
-  to: string;
+  to?: string | ((row: any) => string);
+  toRowId?: boolean | string;
+  history: H.History<H.LocationState>;
+  shallowParams?: {
+    mode: 'merge' | 'replace' | 'remove';
+    buildParams: (row: any) => { [key: string]: any };
+  };
 }
 
 export interface PaginatedTableModalConfig {
   action: 'modal';
-  modalComponent?: ReactElement;
+  modalComponent?: (row:any) => ReactElement;
   onCancel?: () => void;
   onSuccess?: () => void;
 }
 
 export interface PaginatedTableInvokeConfig {
   action: 'invoke';
-  function: () => void;
+  function: (row:any) => void;
 }
 
 export interface PaginatedTableSelectConfig {
@@ -64,5 +71,5 @@ export enum Order_By {
   /** in descending order, nulls first */
   DescNullsFirst = 'desc_nulls_first',
   /** in descending order, nulls last */
-  DescNullsLast = 'desc_nulls_last'
+  DescNullsLast = 'desc_nulls_last',
 }

@@ -3,8 +3,11 @@ import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 import DataTable, { IDataTableColumn } from 'react-data-table-component';
 import Case from 'case';
 //@ts-ignore
-import ScrollTriggerFromLib from 'react-scroll-trigger';
-import type { PaginatedTableActions, PaginatedTableModalConfig } from '../../types/PaginatedTableTypes';
+import type {
+  PaginatedTableActions,
+  PaginatedTableModalConfig,
+  PaginatedTableNavConfig,
+} from '../../types/PaginatedTableTypes';
 import _ from 'lodash';
 import useModal from '../../hooks/useModal';
 import { HasuraDataConfig } from '../../types';
@@ -14,7 +17,7 @@ import { bs, buildStyles, IFieldOutputType } from '../../support';
 import ReactLoading from 'react-loading';
 import { colorsMap } from '../../support/styling/colorsMap';
 import useWatchScroll from '../support/useWatchScroll';
-import { UseQueryResponse } from 'urql';
+import queryString from 'query-string';
 
 export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   graphqlConfig: HasuraDataConfig;
@@ -38,8 +41,6 @@ export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
 
 const PAGE_SIZE = 50;
 
-const ScrollTrigger: React.ElementType = ScrollTriggerFromLib as React.ElementType;
-
 const paginatedTableStyles = `.rdt_TableBody {
             flex: 1;
             overflow-y:auto;
@@ -49,9 +50,12 @@ const paginatedTableStyles = `.rdt_TableBody {
             display:flex;
             flex:1
           }`;
-export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy extends any, TRecord extends any>(
-  props: IPaginatedTableProps<TBoolExp, TRecord>,
-) {
+
+export function PaginatedTable<
+  TBoolExp extends { [key: string]: any },
+  TOrderBy extends any,
+  TRecord extends Record<string, any>,
+>(props: IPaginatedTableProps<TBoolExp, TRecord>) {
   const {
     searchConfig,
     graphqlConfig,
@@ -121,7 +125,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     }
     //TODO: map over the custom config and add any missing keys
     //Respect the order they are in the config
-    setColumnConfigInternal(_columnConfig ?? defaultColumns);
+    setColumnConfigInternal((_columnConfig ?? defaultColumns) as any);
   }, [columnConfig]);
 
   useEffect(() => {
@@ -165,7 +169,7 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
         loadNextPage: () => undefined,
         refresh: () => undefined,
       }
-    : dataSource.useInfiniteQueryMany({
+    : dataSource.useInfiniteQueryMany<TRecord>({
         orderBy,
         where,
         pageSize: props.pageSize || PAGE_SIZE,
@@ -213,9 +217,11 @@ export function PaginatedTable<TBoolExp extends { [key: string]: any }, TOrderBy
     setIsCompleted(false);
   }, [where]);
 
-  const { positionY: scrollPercentAsDecimal, prevPosY, reComputeHeight } = useWatchScroll(
-    queryState.items.length > 0 ? `.rdt_TableBody` : '',
-  );
+  const {
+    positionY: scrollPercentAsDecimal,
+    prevPosY,
+    reComputeHeight,
+  } = useWatchScroll(queryState.items.length > 0 ? `.rdt_TableBody` : '');
 
   useEffect(() => {
     prevPosY;
@@ -367,22 +373,64 @@ function buildExpandProps(cfg: any, cfgOn: string) {
   return nextProps;
 }
 
-function buildNavProps(cfg: any, cfgOn: string) {
+function buildNavProps(cfg: PaginatedTableNavConfig, cfgOn: string) {
   if (cfg?.action !== 'nav') return {};
   let nextProps = {} as any;
+  const history = cfg.history;
 
   const actionName = cfgOn === 'clickConfig' ? 'onRowClicked' : 'onRowDoubleClicked';
-  nextProps[actionName] = () => (window.location.href = cfg.to);
+  if (!!cfg.to) {
+    nextProps[actionName] = (row: any) => {
+      if (typeof cfg.to === 'string') {
+        history.push(cfg.to);
+      } else if (!!cfg.to) {
+        history.push(cfg.to(row));
+      }
+    };
+  }
+  if (!!cfg.shallowParams) {
+    nextProps[actionName] = (row: any) => {
+      if (!!cfg.shallowParams) {
+        const currentParams = queryString.parse(window.location.search);
+        let nextParams: { [key: string]: any } = {};
+        if (cfg.shallowParams.mode === 'merge') {
+          nextParams = { ...currentParams, ...cfg.shallowParams.buildParams(row) };
+        } else if (cfg.shallowParams.mode === 'remove') {
+          nextParams = { ...currentParams };
+          for (let key in cfg.shallowParams.buildParams(row)) {
+            delete nextParams[key];
+          }
+        } else if (cfg.shallowParams.mode === 'replace') {
+          nextParams = cfg.shallowParams.buildParams(row);
+        }
+        const queryStr = queryString.stringify(nextParams);
+        history.push(window.location.pathname + '?' + queryStr);
+      }
+    };
+  }
+  if (cfg.toRowId) {
+    nextProps[actionName] = (row: any) => {
+      const currentParams = queryString.parse(window.location.search);
+      let nextParams: { [key: string]: any } = {};
+      if (typeof cfg.toRowId === 'string') {
+        nextParams = { ...currentParams, id: row[cfg.toRowId] };
+      } else {
+        nextParams = { ...currentParams, id: row.id };
+      }
+      const queryStr = queryString.stringify(nextParams);
+      history.push(window.location.pathname + '?' + queryStr);
+    };
+  }
 
   return nextProps;
 }
 
-function buildModalProps(cfg: any, cfgOn: string, showModal?: () => void) {
+function buildModalProps(cfg: any, cfgOn: string, showModal?: (row: any) => void) {
   if (cfg?.action !== 'modal' || !showModal) return {};
   let nextProps = { ...cfg } as any;
 
   const actionName = cfgOn === 'clickConfig' ? 'onRowClicked' : 'onRowDoubleClicked';
-  nextProps[actionName] = () => showModal();
+  nextProps[actionName] = (row: any) => showModal(row);
 
   return nextProps;
 }
