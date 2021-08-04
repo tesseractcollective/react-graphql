@@ -20,6 +20,7 @@ export { useReactGraphql } from './hooks/useReactGraphql';
 export { useUrqlQuery } from './hooks/useUrqlQuery';
 export { useMutateExisting } from './hooks/useMutateExisting';
 export type { UseMutationExistingState } from './hooks/useMutateExisting';
+export { useCascadingSelect } from './hooks/useCascadingSelect';
 // export * from './components'
 
 export {

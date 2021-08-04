@@ -1,5 +1,5 @@
 {
-  "version": "0.8.13",
+  "version": "0.8.14",
   "private": false,
   "files": [
     "dist",
@@ -7,11 +7,12 @@
     "README.md"
   ],
   "scripts": {
-    "dev:web": "tsc -w --project tsconfig-web.json",
+    "dev:web": "vite build",
     "dev:native": "tsc -w --project tsconfig-native.json",
-    "build:web:ts": "tsc --project tsconfig-web.json",
+    "build:web": "vite build && ttsc --project tsconfig-web.build.json",
+    "build:web:ts": "ttsc --project tsconfig-web.build.json",
     "build:native:ts": "tsc --project tsconfig-native.json",
-    "pack:web": "rm -rf ./dist && cp -f ./src/index.web.ts ./src/index.ts && vite build && pnpm build:web:ts && pnpm pack",
+    "pack:web": "pnpm run build:web && pnpm pack",
     "pack:native": "rm -rf ./dist && cp -f ./src/index.native.ts ./src/index.ts && pnpm build:native:ts && pnpm pack",
     "test:copy": "cp -rf ./dist ../purco/admin_ui/node_modules/@tesseractcollective/react-graphql/dist",
     "pub": "pnpm publish --access public",
