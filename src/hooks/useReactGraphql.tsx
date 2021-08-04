@@ -11,6 +11,17 @@ import { IUseOperationStateHelperOptions } from './useOperationStateHelper';
 import { useQueryOne } from './useQueryOne';
 import { createQueryOne } from './useQueryOne.utils';
 
+export interface UseInfiniteQueryManyProps {
+  where?: { [key: string]: any };
+  orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
+  distinctOn?: string;
+  pageSize?: number;
+  middleware?: QueryMiddleware[];
+  listKey?: string;
+  urqlContext?: Partial<OperationContext>;
+  resultHelperOptions?: IUseOperationStateHelperOptions;
+}
+
 export function useReactGraphql(config: HasuraDataConfig) {
   return {
     useInsert: (props?: {
@@ -76,16 +87,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
         mutationResultHelperOptions: props?.mutationResultHelperOptions,
       }),
 
-    useInfiniteQueryMany: function <TData>(props?: {
-      where?: { [key: string]: any };
-      orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
-      distinctOn?: string;
-      pageSize?: number;
-      middleware?: QueryMiddleware[];
-      listKey?: string;
-      urqlContext?: Partial<OperationContext>;
-      resultHelperOptions?: IUseOperationStateHelperOptions;
-    }) {
+    useInfiniteQueryMany: function <TData>(props?: UseInfiniteQueryManyProps) {
       return useInfiniteQueryMany<TData>({
         where: props?.where,
         orderBy: props?.orderBy,

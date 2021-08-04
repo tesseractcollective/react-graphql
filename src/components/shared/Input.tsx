@@ -27,7 +27,7 @@ import RNWUIDatePicker from 'react-native-web-ui-components/Datepicker';
 import RNWUICheckbox from 'react-native-web-ui-components/Checkbox';
 //@ts-ignore
 import RNWUIDropzone from 'react-native-web-ui-components/Dropzone';
-import { useReactGraphql } from '../../hooks/useReactGraphql';
+import { UseInfiniteQueryManyProps, useReactGraphql } from '../../hooks/useReactGraphql';
 import HasuraConfig from '../../../tests/TestHasuraConfig';
 
 //TODO: Translations: All labels and placeholders and errors can check against translations
@@ -309,7 +309,7 @@ export interface IInputSelectProps extends IInputProps {
   );
 };
 
-export interface SelectViaRelationshipProps {
+export interface SelectViaRelationshipProps extends UseInfiniteQueryManyProps {
   state: MutateState;
   name: string;
   configForRelationship: HasuraDataConfig;
@@ -318,6 +318,7 @@ export interface SelectViaRelationshipProps {
   autoSave?: boolean;
   menuStyle?: ViewProps | Readonly<ViewProps>;
   containerStyle?: ViewProps | Readonly<ViewProps>;
+  where?: any;
 }
 
 (InputBase as FunctionComponent<IInputProps> & TInput).SelectViaRelationship = function SelectViaRelationship(props) {
@@ -328,6 +329,7 @@ export interface SelectViaRelationshipProps {
     relationshipColumnNameForLabel,
     relationshipColumnNameForValue,
     autoSave,
+    ...rest
   } = props;
 
   const [value, setValue] = useState<string>('');
@@ -335,6 +337,7 @@ export interface SelectViaRelationshipProps {
   const dataApi = useReactGraphql(configForRelationship);
   const queryState = dataApi.useInfiniteQueryMany({
     pageSize: 1000,
+    ...rest,
   });
 
   const optionsLabelToValueMap: { [key: string]: string } = useMemo(() => {
@@ -475,7 +478,7 @@ export interface IInputCheckboxManyProps extends IInputProps {
   };
 
   const renderCheckboxMany = () =>
-    items.map((item) => {
+    items.map((item:any) => {
       return (
         <RNWUICheckbox
           checked={values.includes(item)}
