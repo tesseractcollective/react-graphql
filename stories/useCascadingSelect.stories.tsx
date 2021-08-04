@@ -1,10 +1,10 @@
 import { ComponentMeta, ComponentStory } from '@storybook/react';
 import React, { useState } from 'react';
 import { Text, View } from 'react-native';
-import ENV from '../../.env.js';
-import HasuraConfig from '../../tests/TestHasuraConfig';
-import Input from '../components/shared/Input';
-import useCascadingSelect from '../hooks/useCascadingSelect';
+import ENV from '../.env.js';
+import HasuraConfig from '../tests/TestHasuraConfig';
+import { Input } from '../src';
+import {useCascadingSelect} from '../src';
 import decorators from './decorators';
 //@ts-ignore
 import Autocomplete from 'react-native-web-ui-components/Autocomplete';

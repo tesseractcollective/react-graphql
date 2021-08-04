@@ -3,28 +3,27 @@ import React, { useState } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
 //Pull in our Input component instead
-import Input from '../components/shared/Input';
+import Carousel from '../src/components/shared/Carousel';
 import { Pressable, View } from 'react-native';
-import { useReactGraphql } from '../hooks/useReactGraphql';
-import HasuraConfig from '../../tests/TestHasuraConfig';
+import { useReactGraphql } from '../src';
+import HasuraConfig from '../tests/TestHasuraConfig';
 import decorators from './decorators';
 // import { createClient, Provider as UrqlProvider } from 'urql';
 
 
 export default {
-  title: 'Inputs/Image',
-  component: Input.Image,
+  title: 'Carousel/Carousel',
+  component: Carousel.Carousel,
   decorators
-} as ComponentMeta<typeof Input.Image>;
+} as ComponentMeta<typeof Carousel.Carousel>;
 
 
-export const Image: ComponentStory<typeof Input.Image> = () => {
+export const Form: ComponentStory<typeof Carousel.Carousel> = () => {
   const dataApi = useReactGraphql(HasuraConfig.posts);
   const mutationState = dataApi.useInsert({});
   return (
     <View>
-      <Input.Image state={mutationState}
-        name="files" onDrop={(file) => console.log(file)} />
+      <Carousel.Carousel state={mutationState} name="body"/>
     </View>
   );
 };

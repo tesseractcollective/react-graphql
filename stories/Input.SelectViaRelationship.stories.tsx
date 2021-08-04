@@ -2,9 +2,9 @@ import { ComponentMeta, ComponentStory } from '@storybook/react';
 import React from 'react';
 import { Text, View } from 'react-native';
 import ENV from '../../.env.js';
-import HasuraConfig from '../../tests/TestHasuraConfig';
-import Input from '../components/shared/Input';
-import { useReactGraphql } from '../hooks/useReactGraphql';
+import HasuraConfig from '../tests/TestHasuraConfig';
+import { Input } from '../src'
+import { useReactGraphql } from '../src'
 import decorators from './decorators';
 
 export default {

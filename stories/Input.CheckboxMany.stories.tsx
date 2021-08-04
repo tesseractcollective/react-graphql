@@ -3,27 +3,27 @@ import React, { useState } from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
 //Pull in our Input component instead
-import Carousel from '../components/shared/Carousel';
+import { Input } from '../src'
 import { Pressable, View } from 'react-native';
-import { useReactGraphql } from '../hooks/useReactGraphql';
-import HasuraConfig from '../../tests/TestHasuraConfig';
+import { useReactGraphql } from '../src'
+import HasuraConfig from '../tests/TestHasuraConfig';
 import decorators from './decorators';
 // import { createClient, Provider as UrqlProvider } from 'urql';
 
 
 export default {
-  title: 'Carousel/Carousel',
-  component: Carousel.Carousel,
+  title: 'Inputs/CheckboxMany',
+  component: Input.CheckboxMany,
   decorators
-} as ComponentMeta<typeof Carousel.Carousel>;
+} as ComponentMeta<typeof Input.CheckboxMany>;
 
 
-export const Form: ComponentStory<typeof Carousel.Carousel> = () => {
+export const CheckboxMany: ComponentStory<typeof Input.CheckboxMany> = () => {
   const dataApi = useReactGraphql(HasuraConfig.posts);
   const mutationState = dataApi.useInsert({});
   return (
     <View>
-      <Carousel.Carousel state={mutationState} name="body"/>
+      <Input.CheckboxMany state={mutationState} name={"body"} items={['cat', 'dog', 'cow']}/>
     </View>
   );
 };

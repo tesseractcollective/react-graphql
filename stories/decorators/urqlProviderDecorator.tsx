@@ -1,4 +1,4 @@
-import ENV from '../../../.env.js';
+import ENV from '../../.env.js';
 import React, { useState } from 'react';
 import { createClient, Provider as UrqlProvider } from 'urql';
 
