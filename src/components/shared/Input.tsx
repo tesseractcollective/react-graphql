@@ -366,7 +366,7 @@ export interface SelectViaRelationshipProps extends UseInfiniteQueryManyProps {
 
   const onChange = (e: any) => {
     const selectedLabel = e.value || e;
-    const selectedValue = optionsLabelToValueMap[selectedLabel];
+    const selectedValue = optionsValueToLabelMap[selectedLabel];
     if (selectedValue && autoSave) {
       state.executeMutation({ [name]: selectedValue });
     } else {

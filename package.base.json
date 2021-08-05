@@ -1,5 +1,5 @@
 {
-  "version": "0.8.14",
+  "version": "0.8.16",
   "private": false,
   "files": [
     "dist",
@@ -12,7 +12,7 @@
     "build:web": "vite build && ttsc --project tsconfig-web.build.json",
     "build:web:ts": "ttsc --project tsconfig-web.build.json",
     "build:native:ts": "tsc --project tsconfig-native.json",
-    "pack:web": "pnpm run build:web && pnpm pack",
+    "pack:web": "cp -f ./src/index.web.ts ./src/index.ts && pnpm run build:web && pnpm pack",
     "pack:native": "rm -rf ./dist && cp -f ./src/index.native.ts ./src/index.ts && pnpm build:native:ts && pnpm pack",
     "test:copy": "cp -rf ./dist ../purco/admin_ui/node_modules/@tesseractcollective/react-graphql/dist",
     "pub": "pnpm publish --access public",
