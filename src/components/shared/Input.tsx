@@ -316,8 +316,12 @@ export interface SelectViaRelationshipProps extends UseInfiniteQueryManyProps {
   relationshipColumnNameForLabel: String;
   relationshipColumnNameForValue: String;
   autoSave?: boolean;
-  menuStyle?: ViewProps | Readonly<ViewProps>;
-  containerStyle?: ViewProps | Readonly<ViewProps>;
+  styles?: {
+    containerStyle?: ViewProps | Readonly<ViewProps>;
+    menuStyle?: ViewProps | Readonly<ViewProps>;
+    itemStyle?: ViewProps | Readonly<ViewProps>;
+    itemActiveStyle?: ViewProps | Readonly<ViewProps>;
+  };
   where?: any;
 }
 
@@ -329,6 +333,7 @@ export interface SelectViaRelationshipProps extends UseInfiniteQueryManyProps {
     relationshipColumnNameForLabel,
     relationshipColumnNameForValue,
     autoSave,
+    styles,
     ...rest
   } = props;
 
@@ -366,7 +371,7 @@ export interface SelectViaRelationshipProps extends UseInfiniteQueryManyProps {
 
   const onChange = (e: any) => {
     const selectedLabel = e.value || e;
-    const selectedValue = optionsValueToLabelMap[selectedLabel];
+    const selectedValue = optionsLabelToValueMap[selectedLabel];
     if (selectedValue && autoSave) {
       state.executeMutation({ [name]: selectedValue });
     } else {
@@ -391,9 +396,10 @@ export interface SelectViaRelationshipProps extends UseInfiniteQueryManyProps {
   }
 
   //TODO: P3: BONUS: Try to get the popup to show the list of items without having to type first
+  
 
   return (
-    <View style={props.containerStyle}>
+    <View style={props.styles?.containerStyle}>
       <Autocomplete
         items={options}
         onChangeText={(e: any) => {
@@ -404,6 +410,9 @@ export interface SelectViaRelationshipProps extends UseInfiniteQueryManyProps {
         onSelect={onChange}
         getItemValue={(itm: any) => itm.value}
         getItemLabel={(itm: any) => itm.label}
+        itemStyle={props.styles?.itemStyle}
+        menuStyle={props.styles?.menuStyle}
+        itemActiveStyle={props.styles?.itemActiveStyle}
       />
     </View>
   );
@@ -478,7 +487,7 @@ export interface IInputCheckboxManyProps extends IInputProps {
   };
 
   const renderCheckboxMany = () =>
-    items.map((item:any) => {
+    items.map((item: any) => {
       return (
         <RNWUICheckbox
           checked={values.includes(item)}
