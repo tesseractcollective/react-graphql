@@ -19,7 +19,7 @@ import { JsonObject } from "type-fest";
 import { IUseOperationStateHelperOptions, useOperationStateHelper } from "./useOperationStateHelper";
 
 
-interface IUseMutateProps {
+export interface IUseMutateProps {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
   initialItem?: JsonObject;
