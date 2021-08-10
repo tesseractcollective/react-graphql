@@ -86,7 +86,7 @@ export function createDeleteMutation(
   const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.delete_by_pk);
 
   const variables = createVariables(state, config, operationName, true);
-  const variablesForDeleting = {...variables};
+  const variablesForDeleting = { ...variables };
   delete variablesForDeleting.item;
   const variableDefinitionsString = createVariableDefinitionsString(variablesForDeleting, 'Any!', config);
   const pkArgs = createPkArgsString(config);
@@ -155,6 +155,49 @@ export function createUpdateMutation(
 
   const mutationStr = `mutation ${name}Mutation${variablesStr} {
     ${operationName}(pk_columns: {${pkArgs}} _set:$item ) {
+      ...${fragmentName}
+    }
+  }
+  ${frag}`;
+
+  let document = buildDocument(mutationStr, operationName, variables, 'createUploadMutation', 'mutation');
+
+  return { document, operationName, variables };
+}
+
+// '_delete_at_path' | '_delete_elem' | '_delete_key' 
+
+//Add to start, add to end, edit (replace all), delete by path, delete by index
+type JsonOperationTypes = "insert-first" | "insert-last" | "update" | "delete";
+
+const localOperationToHasuraMap = {
+  "insert-first": '_prepend',
+  "insert-last": '_append',
+  "update": '_set',
+  "delete": '_delete_elem'
+}
+
+export function createUpdateJsonbMutation(
+  state: QueryPreMiddlewareState,
+  config: HasuraDataConfig,
+  jsonOperation: JsonOperationTypes = 'insert-first',
+): QueryPostMiddlewareState {
+  const name = config.typename;
+  const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.update_core);
+
+  const operationName = config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;  
+
+  const objectType = `${name}_set_input!`;
+  const variables = createVariables(state, config, operationName, true);
+  const variableDefinitionsString = createVariableDefinitionsString(variables, objectType, config);
+  const pkArgs = createPkArgsString(config);
+
+  const variablesStr = variableDefinitionsString ? `(${variableDefinitionsString})` : '';
+
+  let frag = buildFragment(fragment, operationName, variables);
+
+  const mutationStr = `mutation ${name}Mutation${variablesStr} {
+    ${operationName}(pk_columns: {${pkArgs}} ${localOperationToHasuraMap[jsonOperation]}:$item ) {
       ...${fragmentName}
     }
   }
