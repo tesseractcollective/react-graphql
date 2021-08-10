@@ -16,6 +16,9 @@ export interface HasuraDataConfig {
     fieldSimpleMap: { [key: string]: IFieldOutputType } 
     fieldTypeMap: { [key: string]: GraphQLOutputType}
   };
+  jsonb?: {
+    columnName: string;
+  };
   overrides?: {
     operationNames?: {
       query_many?: string;

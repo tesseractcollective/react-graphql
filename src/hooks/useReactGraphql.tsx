@@ -5,7 +5,13 @@ import { QueryMiddleware } from '../types/hookMiddleware';
 import { useInfiniteQueryMany } from './useInfiniteQueryMany';
 import { createInfiniteQueryMany } from './useInfiniteQueryMany.utils';
 import { useMutate } from './useMutate';
-import { createDeleteMutation, createInsertMutation, createUpdateMutation } from './useMutate.utils';
+import { useMutateJsonb } from './useMutateJsonb';
+import {
+  createDeleteMutation,
+  createInsertMutation,
+  createUpdateJsonbMutation,
+  createUpdateMutation,
+} from './useMutate.utils';
 import { useMutateExisting } from './useMutateExisting';
 import { IUseOperationStateHelperOptions } from './useOperationStateHelper';
 import { useQueryOne } from './useQueryOne';
@@ -85,6 +91,60 @@ export function useReactGraphql(config: HasuraDataConfig) {
         queryMiddleware: props?.queryMiddleware || [createQueryOne],
         queryVariables: props?.initialVariables || {},
         mutationResultHelperOptions: props?.mutationResultHelperOptions,
+      }),
+
+    useInsertJsonb: (props?: {
+      initialVariables?: JsonObject;
+      initialItem?: JsonObject;
+      middleware?: QueryMiddleware[];
+      listKey?: string;
+      firstOrLast?: 'insert-first' | 'insert-last';
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+      columnName?: string;
+    }) =>
+      useMutateJsonb({
+        sharedConfig: config,
+        middleware: props?.middleware || [createUpdateJsonbMutation],
+        initialItem: props?.initialItem,
+        initialVariables: props?.initialVariables,
+        operationEventType: props?.firstOrLast ?? 'insert-first',
+        listKey: props?.listKey,
+        resultHelperOptions: props?.resultHelperOptions,
+        columnName: props?.columnName,
+      }),
+
+    useDeleteJsonb: (props: {
+      variables: JsonObject;
+      middleware?: QueryMiddleware[];
+      listKey?: string;
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+      columnName?: string;
+    }) =>
+      useMutateJsonb({
+        sharedConfig: config,
+        middleware: props.middleware || [createUpdateJsonbMutation],
+        initialVariables: props.variables,
+        operationEventType: 'delete',
+        listKey: props.listKey,
+        resultHelperOptions: props?.resultHelperOptions,
+        columnName: props?.columnName,
+      }),
+
+    useUpdateJsonb: (props?: {
+      initialItem?: JsonObject;
+      initialVariables?: JsonObject;
+      middleware?: QueryMiddleware[];
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+      columnName?: string;
+    }) =>
+      useMutateJsonb({
+        sharedConfig: config,
+        middleware: props?.middleware || [createUpdateJsonbMutation],
+        initialItem: props?.initialItem,
+        initialVariables: props?.initialVariables,
+        operationEventType: 'update',
+        resultHelperOptions: props?.resultHelperOptions,
+        columnName: props?.columnName,
       }),
 
     useInfiniteQueryMany: function <TData>(props?: UseInfiniteQueryManyProps) {
