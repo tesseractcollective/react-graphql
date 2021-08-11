@@ -1,6 +1,6 @@
 import React, { ReactElement, useCallback, useEffect, useState } from 'react';
 //@ts-ignore
-import DataTable, { IDataTableColumn } from 'react-data-table-component';
+import DataTable, { IDataTableColumn, IDataTableProps } from 'react-data-table-component';
 import Case from 'case';
 //@ts-ignore
 import type {
@@ -24,6 +24,7 @@ export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   searchConfig?: {
     keywordSearchColumns?: Array<keyof TRecord>;
     where?: TBoolExp;
+    orderBy?: any;
     renderSearchComponent?: ReactElement;
     searchPlaceholder?: string;
     onSuccess?: (keywords?: string) => void;
@@ -37,6 +38,7 @@ export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
   renderEmpty?: () => ReactElement;
   columnConfig?: { [selector: string]: Partial<IDataTableColumn> };
   actionConfig?: PaginatedTableActions;
+  dataTableProps?: IDataTableProps<TRecord>;
 }
 
 const PAGE_SIZE = 50;
@@ -66,12 +68,13 @@ export function PaginatedTable<
     headerConfig = {
       noHeader: true,
     },
+    dataTableProps = {},    
   } = props;
 
   const { keywordSearchColumns, renderSearchComponent, onSuccess } = searchConfig || {};
 
   const [keyword, setKeyword] = useState<string>();
-  const [orderBy, setorderBy] = useState<TOrderBy[]>();
+  const [orderBy, setorderBy] = useState<TOrderBy[]>(searchConfig?.orderBy);
   const [where, setWhere] = useState<TBoolExp | undefined>(searchConfig?.where);
   const [columnConfigInternal, setColumnConfigInternal] = useState<IDataTableColumn[]>([]);
   const [isCompleted, setIsCompleted] = useState<boolean>(false);
@@ -131,6 +134,10 @@ export function PaginatedTable<
   useEffect(() => {
     setWhere(searchConfig?.where);
   }, [searchConfig?.where]);
+
+  useEffect(() => {
+    setorderBy(searchConfig?.orderBy);
+  }, [searchConfig?.orderBy]);
 
   const modalComponent =
     (actionConfig?.clickConfig as PaginatedTableModalConfig)?.modalComponent ||
@@ -325,6 +332,7 @@ export function PaginatedTable<
         overflowY={true}
         customStyles={{}}
         noDataComponent={renderEmpty}
+        {...dataTableProps}
         //   onChangePage={(pageNumber, totalRows) => {
         //     if (pageNumber * PAGE_SIZE > usersQueryState.items.length) {
         //     }

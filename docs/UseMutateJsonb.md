@@ -1,13 +1,17 @@
-## 1. Setup API
+## Setup API
 
 ```
   const claimApi = useReactGraphql(config.claim)
 ```
 
-## 2. Add to start of jsonb array
+# JSONB ARRAYS
+
+If the root of your jsonb column is an array, you will interact with it like this:
+
+## ADD to start of jsonb array
 
 ```
-  const insertJsonbState = claimApi.useInsertJsonb({
+  const jsonbState = claimApi.useInsertJsonb({
     columnName: 'journal',
     operationEventType: 'insert-first',
     initialVariables: { /* PRIMARY KEY for parent table /*}
@@ -15,14 +19,14 @@
 
   ...
 
-  insertJsonbState.executeMutation(newItemToPrepend);
+  jsonbState.executeMutation(newItemToPrepend);
 
 ```
 
-## 3. Add to end of jsonb array
+## ADD to end of jsonb array
 
 ```
-  const insertJsonbState = claimApi.useInsertJsonb({
+  const jsonbState = claimApi.useInsertJsonb({
     columnName: 'journal',
     operationEventType: 'insert-last',
     initialVariables: { /* PRIMARY KEY for parent table /*}
@@ -30,30 +34,35 @@
 
   ...
 
-  insertJsonbState.executeMutation(newItemToPrepend);
+  jsonbState.executeMutation(newItemToPrepend);
   
 ```
 
-
-## 3. Delete row from jsonb array
+## DELETE row from jsonb array
 
 ```
-  const insertJsonbState = claimApi.useDeleteJsonb({
-    columnName: 'journal',    
+  const jsonbState = claimApi.useRemoveItemFromJsonbArray({
+    columnName: 'journal',
     initialVariables: { /* PRIMARY KEY for parent table /*}
   })
 
   ...
+  jsonbState.setItem(2); //Pass in the index of the item to delete here.
+  jsonbState.executeMutation();
 
-  insertJsonbState.executeMutation({index: /*index number to delete*/});
+  OR
+
+  jsonbState.executeMutation(1); //Pass in the index of the item to delete here.
   
 ```
 
 
-## 4. Update jsonb object, or edit or replace item in array
+## EDIT row from jsonb array
+
+You can't actually edit one row, you need to replace all of them
 
 ```
-  const insertJsonbState = claimApi.useUpdateJsonb({
+  const jsonbState = claimApi.useUpdateJsonb({
     columnName: 'journal',    
     initialVariables: { /* PRIMARY KEY for parent table /*}
   });
@@ -64,7 +73,65 @@
 
   ...
 
-  insertJsonbState.executeMutation({ ...currentParentRow.journal,  ...AnyChanges});
-  insertJsonbState.executeMutation([ ...currentParentRow.journal,  ...RowChanges]);
+  jsonbState.executeMutation([ ...currentParentRow.journal,  ...RowChanges]);
+
+```
+
+
+# JSONB OBJECTS
+
+If the root of your jsonb column is an object, you will interact with it like this:
+
+
+## DELETE key from jsonb object
+
+```
+  const jsonbState = claimApi.useRemoveKeyFromJsonbObject({
+    columnName: 'journal', 
+    initialVariables: { /* PRIMARY KEY for parent table /*}
+  })
+
+  ...
+  jsonbState.setItem("firstName"); //Pass in the key to delete from the object
+  jsonbState.executeMutation();
+
+  OR
+
+  jsonbState.executeMutation("firstName"); //Pass in the index of the item to delete here.
+  
+```
+
+
+## CREATE or UPDATE One or more key on jsonb object
+
+No, this is not a typo. If we're working an object then insert uses `_append` underneath which will over-write the existing object key.
+
+```
+  const jsonbState = claimApi.useInsertJsonb({
+    columnName: 'journal',    
+    initialVariables: { /* PRIMARY KEY for parent table /*}
+  });
+
+  ...
+
+  jsonbState.executeMutation({ "keyToUpdate": "new value" });
+  
+```
+
+## 6. Relepace the entire object
+
+```
+  const jsonbState = claimApi.useUpdateJsonb({
+    columnName: 'journal',    
+    initialVariables: { /* PRIMARY KEY for parent table /*}
+  });
+
+  const currentParentRow = claimApi.useQueryOne({    
+    initialVariables: { /* PRIMARY KEY for parent table /*}
+  })
+
+  ...
+
+  jsonbState.executeMutation({ ...currentParentRow.journal,  ...AnyChanges});
   
 ```

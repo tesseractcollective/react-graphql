@@ -113,7 +113,24 @@ export function useReactGraphql(config: HasuraDataConfig) {
         columnName: props?.columnName,
       }),
 
-    useDeleteJsonb: (props: {
+    useRemoveKeyFromJsonbObject: (props: {
+      variables: JsonObject;
+      middleware?: QueryMiddleware[];
+      listKey?: string;
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+      columnName?: string;
+    }) =>
+      useMutateJsonb({
+        sharedConfig: config,
+        middleware: props.middleware || [createUpdateJsonbMutation],
+        initialVariables: props.variables,
+        operationEventType: 'delete_jsonb_key',
+        listKey: props.listKey,
+        resultHelperOptions: props?.resultHelperOptions,
+        columnName: props?.columnName,
+      }),
+
+    useRemoveItemFromJsonbArray: (props: {
       variables: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;

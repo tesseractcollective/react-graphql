@@ -44,7 +44,10 @@ export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
       item,
     };
 
-    return stateFromQueryMiddleware({ variables: variablesWithItem }, middleware, sharedConfig);
+    return stateFromQueryMiddleware({ variables: variablesWithItem, meta: {
+      jsonbColumnName: _columnName,
+      operationEventType
+    } }, middleware, sharedConfig);
   };
 
   const [mutationCfg, setMutationCfg] = useState(computeConfig(variables, item));
@@ -70,20 +73,7 @@ export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
         //for _append and _prepend this should be an object that is added to the existing array
         //for _set: this will replace the entire jsonb
         //_delete_elem -> This expects a number to know which index number to delete at
-        const vars =
-          operationEventType === 'delete'
-            ? {
-                item: {
-                  [_columnName]: mutationCfg.variables.index,
-                },
-              }
-            : {
-                item: {
-                  [_columnName]: mutationCfg.variables,
-                },
-              };
-
-        const resp = await executeMutation(vars);
+        const resp = await executeMutation(mutationCfg.variables);
         const successItem = resp?.data?.[mutationCfg.operationName];
 
         if (successItem) {
@@ -114,16 +104,6 @@ export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
   }, []);
 
   const setItemValue = useCallback((key: string, value: any) => {
-    if (operationEventType === 'delete') {
-      if (key !== 'index') {
-        console.error('When deleting jsonb the only item key you can set is "index".  You tried to set: ' + key);
-        return;
-      }
-      if (typeof value !== 'number') {
-        console.error('When deleting jsonb you can only set an item value = to a number. You gave RG: ' + value);
-        return;
-      }
-    }
     setItem((original) => ({
       ...original,
       [key]: value,
@@ -140,10 +120,15 @@ export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
         ...variables,
         ..._variables,
       };
-      const newItem = {
-        ...item,
-        ..._itemValues,
-      };
+      let newItem;
+      if(operationEventType === 'delete' && _itemValues){
+        newItem = _itemValues;
+      } else {
+        newItem = {
+          ...item,
+          ..._itemValues,
+        };
+      }
 
       // you need to do both because setVariables triggers the
       // useEffect to compute the new config on the next render
@@ -171,6 +156,7 @@ export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
     executeMutation: wrappedExecuteMutation,
     item,
     setItemValue,
+    setItem,
     variables,
     setVariable,
   };

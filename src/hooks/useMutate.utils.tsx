@@ -2,7 +2,7 @@ import { getFieldTypeMap } from '../support/graphqlHelpers';
 import { JsonObject } from 'type-fest';
 import { getFieldFragmentInfo } from '../support/HasuraConfigUtils';
 import { HasuraDataConfig } from '../types/hasuraConfig';
-import { QueryPostMiddlewareState, QueryPreMiddlewareState } from '../types/hookMiddleware';
+import { OperationTypes, QueryPostMiddlewareState, QueryPreMiddlewareState } from '../types/hookMiddleware';
 import { buildFragment } from './support/buildFragment';
 import { buildDocument } from './support/buildDocument';
 
@@ -165,29 +165,46 @@ export function createUpdateMutation(
   return { document, operationName, variables };
 }
 
-// '_delete_at_path' | '_delete_elem' | '_delete_key' 
+// '_delete_at_path' | '_delete_elem' | '_delete_key'
 
 //Add to start, add to end, edit (replace all), delete by path, delete by index
-type JsonOperationTypes = "insert-first" | "insert-last" | "update" | "delete";
 
 const localOperationToHasuraMap = {
-  "insert-first": '_prepend',
-  "insert-last": '_append',
-  "update": '_set',
-  "delete": '_delete_elem'
-}
+  'insert-first': '_prepend',
+  'insert-last': '_append',
+  update: '_set',
+  delete: '_delete_elem',
+  delete_jsonb_key: '_delete_key',
+};
 
 export function createUpdateJsonbMutation(
   state: QueryPreMiddlewareState,
   config: HasuraDataConfig,
-  jsonOperation: JsonOperationTypes = 'insert-first',
 ): QueryPostMiddlewareState {
+  if (!state.meta) {
+    throw new Error('Using jsonbMutations requires middleware that passes in state.meta');
+  }
+
+  const { jsonbColumnName, operationEventType } = state.meta;
+
+  // jsonbOperation: OperationTypes = 'insert-first',
+  // jsonbColumnName: string
   const name = config.typename;
   const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.update_core);
 
-  const operationName = config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;  
+  const operationName = config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;
 
-  const objectType = `${name}_set_input!`;
+  const item = state.variables.item;
+  const itemIsString = typeof item === "string";
+  const itemIsNumber = typeof item === "number";
+
+  let objectType;
+  if(operationEventType === 'delete') {
+    objectType = itemIsString ? 'string' : 'number';
+  } else {
+    objectType = `jsonb`;
+  }
+
   const variables = createVariables(state, config, operationName, true);
   const variableDefinitionsString = createVariableDefinitionsString(variables, objectType, config);
   const pkArgs = createPkArgsString(config);
@@ -196,8 +213,10 @@ export function createUpdateJsonbMutation(
 
   let frag = buildFragment(fragment, operationName, variables);
 
+  const jsonbOperationName = localOperationToHasuraMap[operationEventType || 'insert-first'];
+
   const mutationStr = `mutation ${name}Mutation${variablesStr} {
-    ${operationName}(pk_columns: {${pkArgs}} ${localOperationToHasuraMap[jsonOperation]}:$item ) {
+    ${operationName}(pk_columns: {${pkArgs}} ${jsonbOperationName}:{ ${jsonbColumnName} : $item } ) {
       ...${fragmentName}
     }
   }
@@ -205,5 +224,5 @@ export function createUpdateJsonbMutation(
 
   let document = buildDocument(mutationStr, operationName, variables, 'createUploadMutation', 'mutation');
 
-  return { document, operationName, variables };
+  return { document, operationName, variables, meta: state.meta };
 }

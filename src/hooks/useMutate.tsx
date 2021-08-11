@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { HasuraDataConfig } from "../types/hasuraConfig";
 import {
+  OperationTypes,
   QueryMiddleware,
   QueryPostMiddlewareState,
 } from "../types/hookMiddleware";
@@ -24,7 +25,7 @@ export interface IUseMutateProps {
   middleware: QueryMiddleware[];
   initialItem?: JsonObject;
   initialVariables?: JsonObject;
-  operationEventType: "insert-first" | "insert-last" | "update" | "delete";
+  operationEventType: OperationTypes
   listKey?: string;
   resultHelperOptions?: IUseOperationStateHelperOptions
 }
@@ -41,6 +42,7 @@ export interface MutateState {
     context?: Partial<OperationContext>
   ) => void;
   setItemValue: (key: string, value: any) => void;
+  setItem: (newValue: JsonObject) => void;
   item?: JsonObject;
   setVariable: (name: string, value: any) => void;
   variables: JsonObject;  
@@ -176,6 +178,7 @@ export function useMutate<T extends JsonObject>(
     executeMutation: wrappedExecuteMutation,
     item,
     setItemValue,
+    setItem,
     variables,
     setVariable,
   };
