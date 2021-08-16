@@ -115,7 +115,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useRemoveKeyFromJsonbObject: (props: {
-      initialVariables?: JsonObject;
+      key?: string;
       variables: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
@@ -126,6 +126,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
         sharedConfig: config,
         middleware: props.middleware || [createUpdateJsonbMutation],
         initialVariables: props.variables,
+        key: props.key,
         operationEventType: 'delete_jsonb_key',
         listKey: props.listKey,
         resultHelperOptions: props?.resultHelperOptions,
