@@ -5,6 +5,7 @@ import { QueryMiddleware } from '../types/hookMiddleware';
 import { useInfiniteQueryMany } from './useInfiniteQueryMany';
 import { createInfiniteQueryMany } from './useInfiniteQueryMany.utils';
 import { useMutate } from './useMutate';
+import { useDeleteJsonb } from './useDeleteJsonb';
 import { useMutateJsonb } from './useMutateJsonb';
 import {
   createDeleteMutation,
@@ -114,13 +115,14 @@ export function useReactGraphql(config: HasuraDataConfig) {
       }),
 
     useRemoveKeyFromJsonbObject: (props: {
+      initialVariables?: JsonObject;
       variables: JsonObject;
       middleware?: QueryMiddleware[];
       listKey?: string;
       resultHelperOptions?: IUseOperationStateHelperOptions;
       columnName?: string;
     }) =>
-      useMutateJsonb({
+      useDeleteJsonb({
         sharedConfig: config,
         middleware: props.middleware || [createUpdateJsonbMutation],
         initialVariables: props.variables,

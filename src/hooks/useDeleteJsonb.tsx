@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { HasuraDataConfig } from '../types/hasuraConfig';
-import { QueryMiddleware, QueryPostMiddlewareState } from '../types/hookMiddleware';
+import { OperationTypes, QueryMiddleware, QueryPostMiddlewareState } from '../types/hookMiddleware';
 import { OperationContext, useMutation, UseMutationState } from 'urql';
 import { stateFromQueryMiddleware } from '../support/middlewareHelpers';
 import { useMonitorResult } from './support/monitorResult';
@@ -8,20 +8,29 @@ import { mutationEventAtom } from './support/mutationEventAtom';
 import { useAtom } from 'jotai';
 import { keyExtractor } from '../support/HasuraConfigUtils';
 import { print } from 'graphql';
-import { JsonObject } from 'type-fest';
+import { JsonObject, JsonValue } from 'type-fest';
 import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useOperationStateHelper';
 import { IUseMutateProps, MutateState } from './useMutate';
 
-interface IUseMutateJsonbProps extends IUseMutateProps {
+interface IUseMutateJsonbProps {
   columnName?: string;
+  sharedConfig: HasuraDataConfig;
+  middleware: QueryMiddleware[];
+  key?: string;
+  initialVariables?: JsonObject;
+  operationEventType: OperationTypes;
+  listKey?: string;
+  resultHelperOptions?: IUseOperationStateHelperOptions;
 }
 
-export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps): MutateState {
-  const { sharedConfig, middleware, initialVariables, initialItem, listKey, operationEventType, columnName } = props;
+
+
+export function useDeleteJsonb<T extends JsonObject>(props: IUseMutateJsonbProps): DeleteJsonBMutateState {
+  const { sharedConfig, middleware, initialVariables, key, listKey, operationEventType, columnName } = props;
   //MutationConfig is what we internally refer to the middlewareState as
 
   const [variables, setVariables] = useState<JsonObject>(initialVariables || {});
-  const [item, setItem] = useState<JsonObject | undefined>(initialItem);
+  const [item, setItem] = useState<string | undefined>(key);
   const [needsExecuteMutation, setNeedsExecuteMutation] = useState<boolean>();
   const [executeContext, setExecuteContext] = useState<Partial<OperationContext> | null>();
   const [_, setMutationEvent] = useAtom(mutationEventAtom);
@@ -38,7 +47,7 @@ export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
   if (!_columnName) {
     throw new Error('Column name required as paramter, or on config.jsonb.columnName for useMutateJsonb');
   }
-  const computeConfig = (variables: JsonObject, item?: JsonObject) => {
+  const computeConfig = (variables: JsonObject, item?: JsonValue) => {
     const variablesWithItem = {
       ...variables,
       item,
@@ -110,15 +119,9 @@ export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
     }));
   }, []);
 
-  const setItemValue = useCallback((key: string, value: any) => {
-    setItem((original) => ({
-      ...original,
-      [key]: value,
-    }));
-  }, []);
 
   const wrappedExecuteMutation = (
-    _itemValues?: JsonObject,
+    _itemValues?: string,
     _variables?: JsonObject,
     context?: Partial<OperationContext>,
   ) => {
@@ -127,11 +130,7 @@ export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
         ...variables,
         ..._variables,
       };
-      const itm = typeof item === 'object' ? item : {};
-      const newItem = {
-        ...itm,
-        ..._itemValues,
-      };
+      const newItem = _itemValues;
       setMutationCfg(computeConfig(newVariables, newItem));
       setVariables(newVariables);
       setItem(newItem);
@@ -157,10 +156,26 @@ export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
     mutationState: mutationResult,
     mutationConfig: mutationCfg,
     executeMutation: wrappedExecuteMutation,
-    item,
-    setItemValue,
-    setItem,
+    key: item,
+    setKey:setItem,
     variables,
     setVariable,
   };
+}
+
+export interface DeleteJsonBMutateState {
+  resultItem?: any;
+  mutating: boolean;
+  error?: Error;
+  mutationState: UseMutationState;
+  mutationConfig: QueryPostMiddlewareState;
+  executeMutation: (
+    itemValues?: string,
+    variables?: JsonObject,
+    context?: Partial<OperationContext>
+  ) => void;
+  setKey: (newValue: string) => void;
+  key?: string;
+  setVariable: (name: string, value: any) => void;
+  variables: JsonObject;  
 }
