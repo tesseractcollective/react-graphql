@@ -88,11 +88,11 @@ If the root of your jsonb column is an object, you will interact with it like th
 ```
   const jsonbState = claimApi.useRemoveKeyFromJsonbObject({
     columnName: 'journal', 
-    initialVariables: { /* PRIMARY KEY for parent table /*}
+    key: "KEY",
   })
 
   ...
-  jsonbState.setItem("firstName"); //Pass in the key to delete from the object
+  jsonbState.setKey("firstName"); //Pass in the key to delete from the object
   jsonbState.executeMutation();
 
   OR
