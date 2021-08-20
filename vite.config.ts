@@ -22,6 +22,15 @@ export default defineConfig({
         'react-scroll-trigger',
         'react-loading',
       ],
+      output: {
+        globals: {
+          react: 'React',
+          'react-data-table-component': 'DataTable',
+          'urql': 'urql',
+          'react-loading': 'ReactLoading',
+          'react-dom': 'ReactDom'
+        }
+      }
     },
   },
   resolve: {

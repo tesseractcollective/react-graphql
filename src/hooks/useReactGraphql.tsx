@@ -2,20 +2,21 @@ import { JsonObject } from 'type-fest';
 import { OperationContext, RequestPolicy } from 'urql';
 import { HasuraDataConfig } from '../types/hasuraConfig';
 import { QueryMiddleware } from '../types/hookMiddleware';
-import { useInfiniteQueryMany } from './useInfiniteQueryMany';
+import { IUseInfiniteQueryManyResults, useInfiniteQueryMany } from './useInfiniteQueryMany';
 import { createInfiniteQueryMany } from './useInfiniteQueryMany.utils';
-import { useMutate } from './useMutate';
-import { useDeleteJsonb } from './useDeleteJsonb';
+import { MutateState, useMutate } from './useMutate';
+import { DeleteJsonBMutateState, useDeleteJsonb } from './useDeleteJsonb';
 import { useMutateJsonb } from './useMutateJsonb';
 import {
+  createDeleteJsonbMutation,
   createDeleteMutation,
   createInsertMutation,
   createUpdateJsonbMutation,
   createUpdateMutation,
 } from './useMutate.utils';
-import { useMutateExisting } from './useMutateExisting';
+import { useMutateExisting, UseMutationExistingState } from './useMutateExisting';
 import { IUseOperationStateHelperOptions } from './useOperationStateHelper';
-import { useQueryOne } from './useQueryOne';
+import { QueryState, useQueryOne } from './useQueryOne';
 import { createQueryOne } from './useQueryOne.utils';
 
 export interface UseInfiniteQueryManyProps {
@@ -29,16 +30,77 @@ export interface UseInfiniteQueryManyProps {
   resultHelperOptions?: IUseOperationStateHelperOptions;
 }
 
-export function useReactGraphql(config: HasuraDataConfig) {
+export interface UseReactGraphqlApi {
+  useInsert: (props?: {
+    initialVariables?: JsonObject;
+    initialItem?: JsonObject;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    firstOrLast?: 'insert-first' | 'insert-last';
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+  }) => MutateState;
+  useDelete: (props: {
+    variables: JsonObject;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+  }) => MutateState;
+  useUpdate: (props?: {
+    initialItem?: JsonObject;
+    initialVariables?: JsonObject;
+    middleware?: QueryMiddleware[];
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+  }) => MutateState;
+  useUpdateExisting: (props?: {
+    initialVariables: JsonObject;
+    queryMiddleware?: QueryMiddleware[];
+    mutationMiddleware?: QueryMiddleware[];
+    listKey?: string;
+    mutationResultHelperOptions?: IUseOperationStateHelperOptions;
+  }) => UseMutationExistingState;
+  useInsertJsonb: (props?: {
+    initialVariables?: JsonObject;
+    initialItem?: JsonObject;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    firstOrLast?: 'insert-first' | 'insert-last';
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    columnName?: string;
+  }) => MutateState;
+  useRemoveKeyFromJsonbObject: (props: {
+    key?: string;
+    variables: JsonObject;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    columnName?: string;
+  }) => DeleteJsonBMutateState;
+  useRemoveItemFromJsonbArray: (props: {
+    variables: JsonObject;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    columnName?: string;
+  }) => MutateState;
+  useUpdateJsonb: (props?: {
+    initialItem?: JsonObject;
+    initialVariables?: JsonObject;
+    middleware?: QueryMiddleware[];
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    columnName?: string;
+  }) => MutateState;
+  useInfiniteQueryMany: <T>(props?: UseInfiniteQueryManyProps) => IUseInfiniteQueryManyResults<T>;
+  useQueryOne: (props: {
+    variables: JsonObject;
+    middleware?: QueryMiddleware[];
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    urqlContext?: Partial<OperationContext>;
+  }) => QueryState;
+}
+
+export function useReactGraphql(config: HasuraDataConfig): UseReactGraphqlApi {
   return {
-    useInsert: (props?: {
-      initialVariables?: JsonObject;
-      initialItem?: JsonObject;
-      middleware?: QueryMiddleware[];
-      listKey?: string;
-      firstOrLast?: 'insert-first' | 'insert-last';
-      resultHelperOptions?: IUseOperationStateHelperOptions;
-    }) =>
+    useInsert: (props?) =>
       useMutate({
         sharedConfig: config,
         middleware: props?.middleware || [createInsertMutation],
@@ -49,12 +111,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
         resultHelperOptions: props?.resultHelperOptions,
       }),
 
-    useDelete: (props: {
-      variables: JsonObject;
-      middleware?: QueryMiddleware[];
-      listKey?: string;
-      resultHelperOptions?: IUseOperationStateHelperOptions;
-    }) =>
+    useDelete: (props) =>
       useMutate({
         sharedConfig: config,
         middleware: props.middleware || [createDeleteMutation],
@@ -64,12 +121,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
         resultHelperOptions: props?.resultHelperOptions,
       }),
 
-    useUpdate: (props?: {
-      initialItem?: JsonObject;
-      initialVariables?: JsonObject;
-      middleware?: QueryMiddleware[];
-      resultHelperOptions?: IUseOperationStateHelperOptions;
-    }) =>
+    useUpdate: (props?) =>
       useMutate({
         sharedConfig: config,
         middleware: props?.middleware || [createUpdateMutation],
@@ -79,13 +131,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
         resultHelperOptions: props?.resultHelperOptions,
       }),
 
-    useUpdateExisting: (props?: {
-      initialVariables: JsonObject;
-      queryMiddleware?: QueryMiddleware[];
-      mutationMiddleware?: QueryMiddleware[];
-      listKey?: string;
-      mutationResultHelperOptions?: IUseOperationStateHelperOptions;
-    }) =>
+    useUpdateExisting: (props?) =>
       useMutateExisting({
         sharedConfig: config,
         mutationMiddleware: props?.mutationMiddleware || [createUpdateMutation],
@@ -94,37 +140,22 @@ export function useReactGraphql(config: HasuraDataConfig) {
         mutationResultHelperOptions: props?.mutationResultHelperOptions,
       }),
 
-    useInsertJsonb: (props?: {
-      initialVariables?: JsonObject;
-      initialItem?: JsonObject;
-      middleware?: QueryMiddleware[];
-      listKey?: string;
-      firstOrLast?: 'insert-first' | 'insert-last';
-      resultHelperOptions?: IUseOperationStateHelperOptions;
-      columnName?: string;
-    }) =>
+    useInsertJsonb: (props?) =>
       useMutateJsonb({
         sharedConfig: config,
         middleware: props?.middleware || [createUpdateJsonbMutation],
         initialItem: props?.initialItem,
         initialVariables: props?.initialVariables,
-        operationEventType: props?.firstOrLast ?? 'insert-first',
+        operationEventType: props?.firstOrLast ?? 'insert-last',
         listKey: props?.listKey,
         resultHelperOptions: props?.resultHelperOptions,
         columnName: props?.columnName,
       }),
 
-    useRemoveKeyFromJsonbObject: (props: {
-      key?: string;
-      variables: JsonObject;
-      middleware?: QueryMiddleware[];
-      listKey?: string;
-      resultHelperOptions?: IUseOperationStateHelperOptions;
-      columnName?: string;
-    }) =>
+    useRemoveKeyFromJsonbObject: (props) =>
       useDeleteJsonb({
         sharedConfig: config,
-        middleware: props.middleware || [createUpdateJsonbMutation],
+        middleware: props.middleware || [createDeleteJsonbMutation],
         initialVariables: props.variables,
         key: props.key,
         operationEventType: 'delete_jsonb_key',
@@ -133,13 +164,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
         columnName: props?.columnName,
       }),
 
-    useRemoveItemFromJsonbArray: (props: {
-      variables: JsonObject;
-      middleware?: QueryMiddleware[];
-      listKey?: string;
-      resultHelperOptions?: IUseOperationStateHelperOptions;
-      columnName?: string;
-    }) =>
+    useRemoveItemFromJsonbArray: (props) =>
       useMutateJsonb({
         sharedConfig: config,
         middleware: props.middleware || [createUpdateJsonbMutation],
@@ -150,13 +175,7 @@ export function useReactGraphql(config: HasuraDataConfig) {
         columnName: props?.columnName,
       }),
 
-    useUpdateJsonb: (props?: {
-      initialItem?: JsonObject;
-      initialVariables?: JsonObject;
-      middleware?: QueryMiddleware[];
-      resultHelperOptions?: IUseOperationStateHelperOptions;
-      columnName?: string;
-    }) =>
+    useUpdateJsonb: (props?) =>
       useMutateJsonb({
         sharedConfig: config,
         middleware: props?.middleware || [createUpdateJsonbMutation],

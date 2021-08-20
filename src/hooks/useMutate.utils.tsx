@@ -198,12 +198,7 @@ export function createUpdateJsonbMutation(
   const itemIsString = typeof item === "string";
   const itemIsNumber = typeof item === "number";
 
-  let objectType;
-  if(operationEventType === 'delete') {
-    objectType = itemIsString ? 'string' : 'number';
-  } else {
-    objectType = `jsonb`;
-  }
+  let objectType = `jsonb`;
 
   const variables = createVariables(state, config, operationName, true);
   const variableDefinitionsString = createVariableDefinitionsString(variables, objectType, config);
@@ -217,6 +212,43 @@ export function createUpdateJsonbMutation(
 
   const mutationStr = `mutation ${name}Mutation${variablesStr} {
     ${operationName}(pk_columns: {${pkArgs}} ${jsonbOperationName}:{ ${jsonbColumnName} : $item } ) {
+      ...${fragmentName}
+    }
+  }
+  ${frag}`;
+
+  let document = buildDocument(mutationStr, operationName, variables, 'createUploadMutation', 'mutation');
+
+  return { document, operationName, variables, meta: state.meta };
+}
+
+export function createDeleteJsonbMutation(
+  state: QueryPreMiddlewareState,
+  config: HasuraDataConfig,
+): QueryPostMiddlewareState {
+  if (!state.meta) {
+    throw new Error('Using jsonbMutations requires middleware that passes in state.meta');
+  }
+
+  const { jsonbColumnName, operationEventType } = state.meta;
+
+  const name = config.typename;
+  const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.update_core);
+
+  const operationName = config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;
+
+  let objectType = 'String';
+
+  const variables = createVariables(state, config, operationName, true);
+  const variableDefinitionsString = createVariableDefinitionsString(variables, objectType, config);
+  const pkArgs = createPkArgsString(config);
+
+  const variablesStr = variableDefinitionsString ? `(${variableDefinitionsString})` : '';
+
+  let frag = buildFragment(fragment, operationName, variables);
+
+  const mutationStr = `mutation ${name}Mutation${variablesStr} {
+    ${operationName}(pk_columns: {${pkArgs}} _delete_key:{ ${jsonbColumnName} : $item } ) {
       ...${fragmentName}
     }
   }

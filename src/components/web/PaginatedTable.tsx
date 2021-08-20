@@ -11,7 +11,7 @@ import type {
 import _ from 'lodash';
 import useModal from '../../hooks/useModal';
 import { HasuraDataConfig } from '../../types';
-import { useReactGraphql, useOperationStateHelper } from '../../hooks';
+import { useReactGraphql, useOperationStateHelper, IUseInfiniteQueryManyResults } from '../../hooks';
 import { bs, buildStyles, IFieldOutputType } from '../../support';
 //@ts-ignore
 import ReactLoading from 'react-loading';
@@ -34,7 +34,7 @@ export interface IPaginatedTableProps<TBoolExp extends any, TRecord> {
     noHeader?: boolean;
     fixedHeader?: boolean;
   };
-  dataOverride?: any[];
+  dataOverride?: IUseInfiniteQueryManyResults<TRecord>;
   renderEmpty?: () => ReactElement;
   columnConfig?: { [selector: string]: Partial<IDataTableColumn> };
   actionConfig?: PaginatedTableActions;
@@ -68,7 +68,7 @@ export function PaginatedTable<
     headerConfig = {
       noHeader: true,
     },
-    dataTableProps = {},    
+    dataTableProps = {},
   } = props;
 
   const { keywordSearchColumns, renderSearchComponent, onSuccess } = searchConfig || {};
@@ -112,19 +112,31 @@ export function PaginatedTable<
         },
       };
     });
+
     let _columnConfig;
     if (columnConfig) {
-      _columnConfig = defaultColumns.map((defaultColumn) => {
-        const customConfig = columnConfig[defaultColumn.selector];
-        if (customConfig) {
-          const newCustomConfig = Object.assign({}, defaultColumn, customConfig);
-          if (customConfig.selector && !defaultColumn.sortable) {
+      _columnConfig = _.map(columnConfig, (colConfig, customColumnSelector) => {
+        //move object keys to array proprs
+        colConfig.selector = customColumnSelector;
+        if(!colConfig.name) colConfig.name = customColumnSelector;
+
+        //Merge with default
+        const defaultColumnConfig = defaultColumns.find((defaultCol) => defaultCol.selector === customColumnSelector);
+        if(defaultColumnConfig){
+          const newCustomConfig = Object.assign({}, defaultColumnConfig, colConfig);
+          if (colConfig.selector && !defaultColumnConfig.sortable) {
             newCustomConfig.sortable = true;
           }
           return newCustomConfig;
         }
-        return defaultColumn;
+
+        //This is a new column not specified in the fragment
+        return colConfig;
       });
+      _columnConfig = [
+        ...defaultColumns,
+        ..._columnConfig
+      ]
     }
     //TODO: map over the custom config and add any missing keys
     //Respect the order they are in the config
@@ -166,16 +178,7 @@ export function PaginatedTable<
   //GET - Search and List
   const dataSource = useReactGraphql(graphqlConfig);
   const queryState = dataOverride
-    ? {
-        items: dataOverride,
-        queryState: {
-          fetching: false,
-          stale: false,
-          error: undefined,
-        },
-        loadNextPage: () => undefined,
-        refresh: () => undefined,
-      }
+    ? dataOverride
     : dataSource.useInfiniteQueryMany<TRecord>({
         orderBy,
         where,
@@ -372,11 +375,10 @@ function buildExpandProps(cfg: any, cfgOn: string) {
 
   if (cfgOn === 'clickConfig') {
     nextProps.expandOnRowClicked = true;
-    nextProps.expandableRowsHideExpander = hideIcon ? true : false;
   } else if (cfgOn === 'doubleClickConfig') {
     nextProps.expandOnRowDoubleClicked = true;
-    nextProps.expandableRowsHideExpander = hideIcon ? true : false;
   }
+  nextProps.expandableRowsHideExpander = hideIcon ? true : false;
 
   return nextProps;
 }

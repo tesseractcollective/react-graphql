@@ -9,7 +9,7 @@ import { useMonitorResult } from './support/monitorResult';
 import { useAtom } from 'jotai';
 import { mutationEventAtom, IMutationEvent } from './support/mutationEventAtom';
 import { JsonArray, JsonObject } from 'type-fest';
-import { OperationContext, RequestPolicy } from 'urql';
+import { OperationContext, RequestPolicy, UseQueryState } from 'urql';
 import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useOperationStateHelper';
 
 export interface IUseInfiniteQueryMany {
@@ -24,11 +24,31 @@ export interface IUseInfiniteQueryMany {
   resultHelperOptions?: IUseOperationStateHelperOptions;
 }
 
+export interface IUseInfiniteQueryManyResults<TRecord> {
+  queryState: UseQueryState<any, object>;
+  items: TRecord[];
+  localError: string;
+  refresh: () => void;
+  loadNextPage: () => void;
+  requeryKeepInfinite: () => void;
+}
+
 const defaultPageSize = 50;
 const defaultUrqlContext: Partial<OperationContext> = { requestPolicy: 'cache-and-network' };
 
-export function useInfiniteQueryMany<TData extends any>(props: IUseInfiniteQueryMany) {
-  const { sharedConfig, middleware, where, orderBy, distinctOn, pageSize, listKey, urqlContext = defaultUrqlContext } = props;
+export function useInfiniteQueryMany<TData extends any>(
+  props: IUseInfiniteQueryMany,
+): IUseInfiniteQueryManyResults<TData> {
+  const {
+    sharedConfig,
+    middleware,
+    where,
+    orderBy,
+    distinctOn,
+    pageSize,
+    listKey,
+    urqlContext = defaultUrqlContext,
+  } = props;
 
   const limit = pageSize ?? defaultPageSize;
 
@@ -45,7 +65,7 @@ export function useInfiniteQueryMany<TData extends any>(props: IUseInfiniteQuery
     orderBy,
     limit,
     offset,
-    distinctOn
+    distinctOn,
   });
   const [itemsMap, setItemsMap] = useState<Map<string, TData>>(new Map());
   const [shouldClearItems, setShouldClearItems] = useState(false);
