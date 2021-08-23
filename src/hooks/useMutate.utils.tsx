@@ -36,7 +36,9 @@ function createVariables(
   operationName: string,
   includePks: boolean = false,
 ): JsonObject {
-  const variables: JsonObject = {};
+  const variables: JsonObject = {
+    ...state.variables
+  };
 
   const missingPrimaryKeyNames: string[] = [];
   config.primaryKey.forEach((key) => {
@@ -48,7 +50,7 @@ function createVariables(
       missingPrimaryKeyNames.push(key);
     }
 
-    if (valueFromItem) {
+    if (valueFromItem && includePks) {
       variables[key] = valueFromItem;
     }
   });
@@ -62,16 +64,6 @@ function createVariables(
     The current middleware state was: ${JSON.stringify(state, null, 2)}
     `);
   }
-
-  Object.keys(state.variables).forEach((key) => {
-    const variable = state.variables[key];
-    const itemAlreadyExists = !!variable;
-    if (key === 'item' && itemAlreadyExists) {
-      variables.item = variable;
-    } else {
-      variables[key] = variable;
-    }
-  });
 
   return variables;
 }
