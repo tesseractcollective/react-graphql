@@ -8,7 +8,7 @@ interface UseModalProps {
 
 export default function useModal(props: UseModalProps) {
   const [shown, setShown] = useState<boolean>(false);
-  const [selectedRow, setSelectedRow] = useState();
+  const [selectedRow, setSelectedRow] = useState<any | null>();
 
   const showModal = useCallback((row: any) => {
     setShown(true);
@@ -17,6 +17,7 @@ export default function useModal(props: UseModalProps) {
 
   const hideModal = useCallback(() => {
     setShown(false);
+    setSelectedRow(null);
   }, [setShown]);
 
   return {

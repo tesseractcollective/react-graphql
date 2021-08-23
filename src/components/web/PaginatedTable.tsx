@@ -114,11 +114,14 @@ export function PaginatedTable<
     });
 
     let _columnConfig;
+    let _columnConfigSet = new Set();
     if (columnConfig) {
       _columnConfig = _.map(columnConfig, (colConfig, customColumnSelector) => {
         //move object keys to array proprs
-        colConfig.selector = customColumnSelector;
+        colConfig.selector = colConfig.selector || customColumnSelector;
         if(!colConfig.name) colConfig.name = customColumnSelector;
+
+        _columnConfigSet.add(colConfig.selector);
 
         //Merge with default
         const defaultColumnConfig = defaultColumns.find((defaultCol) => defaultCol.selector === customColumnSelector);
@@ -133,8 +136,9 @@ export function PaginatedTable<
         //This is a new column not specified in the fragment
         return colConfig;
       });
+
       _columnConfig = [
-        ...defaultColumns,
+        ...defaultColumns.filter(defCol => !_columnConfigSet.has(defCol.selector)),
         ..._columnConfig
       ]
     }
