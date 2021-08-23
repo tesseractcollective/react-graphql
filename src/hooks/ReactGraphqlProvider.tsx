@@ -6,7 +6,7 @@ import UIProvider from 'react-native-web-ui-components/UIProvider';
 
 /** 
   @param client an Urql Client to prevent duplicate copies of urql being used.  
-  @param theme an Urql Client to prevent duplicate copies of urql being used.  
+  @param theme an Urql Client to prevent duplicate copies of urql being used.  See: https://github.com/CareLuLu/react-native-web-ui-components/blob/master/src/UIProvider/style.js for shape
 */
 export type IReactGraphqlProviderProps = {
   client: Client;
