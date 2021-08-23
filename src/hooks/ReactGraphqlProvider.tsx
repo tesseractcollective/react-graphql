@@ -4,8 +4,13 @@ import { Client, Provider as UrqlProvider } from 'urql';
 //@ts-ignore
 import UIProvider from 'react-native-web-ui-components/UIProvider';
 
+/** 
+  @param client an Urql Client to prevent duplicate copies of urql being used.  
+  @param theme an Urql Client to prevent duplicate copies of urql being used.  
+*/
 export type IReactGraphqlProviderProps = {
   client: Client;
+  theme: any;
 };
 
 export const ReactGraphqlProvider: FunctionComponent<IReactGraphqlProviderProps> = function ReactGraphqlProvider(
@@ -13,7 +18,7 @@ export const ReactGraphqlProvider: FunctionComponent<IReactGraphqlProviderProps>
 ) {
   return (
     <UIProvider
-      theme={theme}
+      theme={props.theme || theme}
       history={{
         location: { pathname: '/hi' },
         push: () => {},
