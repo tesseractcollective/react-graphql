@@ -1,3 +1,4 @@
+import { JsonArray, JsonObject } from 'type-fest';
 import {
   DocumentNode,
   GraphQLFieldMap,
@@ -95,6 +96,7 @@ export function getFieldTypeMap(document: DocumentNode, schema: GraphQLSchema): 
 export function getFragmentFields(
   document: DocumentNode,
   schema: GraphQLSchema,
+  metadata?: JsonObject
 ): { fieldTypeMap: { [key: string]: GraphQLOutputType }; fieldSimpleMap: { [key: string]: any } } {
   const fieldTypeMap: { [key: string]: GraphQLOutputType } = {};
 
@@ -117,6 +119,8 @@ export function getFragmentFields(
           const fieldName = field.name.value;
           const graphQlField = allFields[fieldName];
           fieldTypeMap[fieldName] = graphQlField.type;
+
+          // const isRelationship = metadata ? metadata. : null;
           // // in the caller
           let fieldType = graphQlField.type;
           let isNonNull = false;
@@ -156,6 +160,62 @@ export function getFragmentFields(
   }
   return { fieldTypeMap, fieldSimpleMap };
 }
+
+function convertMetaDataToMap(metaData: JsonArray): Record<string, string> {
+  const metaDataMap: Record<string,string> = {};
+
+  metaData.forEach((metaDataTable:any) => {
+    const tableName = metaDataTable?.table?.name;
+    metaDataTable?.object_relationship?.((relationship:any)=> {
+      const sourceFieldNameAsArrOrStr = relationship.using?.foreign_key_constraint_on;
+      const sourceFieldName:string = Array.isArray(sourceFieldNameAsArrOrStr) ?     sourceFieldNameAsArrOrStr.join('.') : sourceFieldNameAsArrOrStr;
+      const sourceFieldNameFromManual = relationship.using?.manual_configuration;
+
+      const sourceColumns = sourceFieldName ?? Object.keys(sourceFieldNameFromManual?.column_mapping).join('.');
+
+      const targetTable = sourceFieldNameFromManual?.remote_table?.name ?? relationship.name;
+      const targetField = Object.keys(sourceFieldNameFromManual?.column_mapping).map(x=> sourceFieldNameFromManual?.column_mapping[x]).join('.');
+      
+      metaDataMap[`${tableName}.${sourceColumns}`] = `${targetTable}:${targetField}`;
+    });
+
+    metaDataTable?.array_relationship?.((relationship:any)=> {
+      const sourceFieldNameAsArrOrStr = relationship.using?.foreign_key_constraint_on;
+      const sourceFieldName:string = Array.isArray(sourceFieldNameAsArrOrStr) ? sourceFieldNameAsArrOrStr.join('.') : sourceFieldNameAsArrOrStr;
+      const sourceFieldNameFromManual = relationship.using?.manual_configuration;
+
+      const sourceColumns = sourceFieldName ?? Object.keys(sourceFieldNameFromManual?.column_mapping).join('.');
+
+      const targetTable = sourceFieldNameFromManual?.remote_table?.name ?? relationship.name;
+      const targetField = Object.keys(sourceFieldNameFromManual?.column_mapping).map(x=> sourceFieldNameFromManual?.column_mapping[x]).join('.');
+      
+      metaDataMap[`${tableName}.${sourceColumns}`] = `${targetTable}:${targetField}`;
+    })
+  });
+
+  return metaDataMap;
+}
+
+// function getInArrayRelationship(metaData: Record<string, string>, sourceTypeName: string, sourceFieldName: string): {
+//   sourceTypeName: string;
+//   sourceFieldName: string;
+//   targetTypeName: string;
+//   targetTypeFieldName: string
+// } | null {
+//   const myMeta = metaData.
+
+//   return null;
+// }
+
+// function getInObjectRelationship(): {
+//   name: string, 
+//   sourceFieldName: string;
+//   targetTypeName: string;
+//   targetTypeFieldName: string
+// } | null  {
+
+//   return null;
+// }
 
 export function hasVariableDefinition(document: DocumentNode, name: string) {
   return getVariableDefinition(document, name) !== undefined;
