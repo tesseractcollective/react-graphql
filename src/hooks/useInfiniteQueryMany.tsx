@@ -155,11 +155,11 @@ export function useInfiniteQueryMany<TData extends any>(
             newItemsMap.set(itemKey, item);
           });
         setItemsMap(newItemsMap);
-        console.log(
-          '🚀 ~ file: useInfiniteQueryMany.tsx ~ line 138 ~ useEffect ~ newItemsMap',
-          newItemsMap?.size + ' items found',
-          newItemsMap?.size && newItemsMap.get(newItemsMap.keys().next().value),
-        );
+        // console.log(
+        //   '🚀 ~ file: useInfiniteQueryMany.tsx ~ line 138 ~ useEffect ~ newItemsMap',
+        //   newItemsMap?.size + ' items found',
+        //   newItemsMap?.size && newItemsMap.get(newItemsMap.keys().next().value),
+        // );
         setMeta({
           detectedPks: newDetectedPks ?? meta.detectedPks,
           firstQueryCompleted: true,
