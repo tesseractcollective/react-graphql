@@ -3,7 +3,7 @@ import * as H from 'history'
 
 export interface PaginatedTableExpanderConfig {
   action: 'expand';
-  expandableRowsComponent?: React.ReactNode;
+  expandableRowsComponent?: (row: any)=> React.ReactNode;
   expandableRowsComponentProps?: any;
   hideIcon?: boolean;
   expandableRowExpanded?: (row: any) => boolean;

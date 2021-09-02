@@ -4,10 +4,11 @@
 // PaginatedList (many)
 // Form (insert & updates)
 
+import _ from 'lodash';
 import { buildClientSchema, DocumentNode, IntrospectionQuery } from 'graphql';
-import { JsonObject } from 'type-fest';
+import { JsonObject, JsonArray } from 'type-fest';
 import { HasuraConfigType, HasuraDataConfig } from '../types/hasuraConfig';
-import { getFragmentFields, getFragmentName } from './graphqlHelpers';
+import { buildRelationshipMapFromMetadata, getFragmentFields, getFragmentName } from './graphqlHelpers';
 
 export const keyExtractor = (config: HasuraDataConfig, item: { [key: string]: any }): string => {
   return config.primaryKey.map((key) => item[key]).join(':');
@@ -35,19 +36,33 @@ export const getFieldFragmentInfo = (
 //   });
 // }
 
-export function buildHasuraConfig(schema: JsonObject, config: HasuraConfigType): HasuraConfigType {
+export function buildHasuraConfig(
+  schema: JsonObject,
+  config: HasuraConfigType,
+  metadata?: JsonArray,
+): HasuraConfigType {
   const schemaConverted = buildClientSchema(schema as unknown as IntrospectionQuery);
-
+  const relationshipLookup = metadata
+    ? buildRelationshipMapFromMetadata(
+        metadata,
+        _.map(config, (val, key) => val),
+      )
+    : null;
+  console.log('🚀 ~ file: HasuraConfigUtils.ts ~ line 46 ~ relationshipLookup', relationshipLookup);
   Object.values(config).forEach((tableConfig) => {
     if (!tableConfig.fieldFragment) return;
 
     tableConfig.schema = schemaConverted;
 
-    try{
-      const fields = getFragmentFields(tableConfig.fieldFragment, schemaConverted);
+    try {
+      const fields = getFragmentFields(tableConfig.fieldFragment, schemaConverted, relationshipLookup);
       tableConfig.fields = fields;
-    } catch(err){
-      console.log('react-graphql: ERR: failed to parse fields against schema.  Please ensure your schema.json file matches your fragment definitions. You most likely need to re-run the generator, or update your fragments.')
+      console.log('fields', fields);
+    } catch (err) {
+      console.log(
+        err,
+        'react-graphql: ERR: failed to parse fields against schema.  Please ensure your schema.json file matches your fragment definitions. You most likely need to re-run the generator, or update your fragments.',
+      );
     }
   });
   return config;
