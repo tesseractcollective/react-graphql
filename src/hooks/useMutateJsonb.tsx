@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { HasuraDataConfig } from '../types/hasuraConfig';
-import { QueryMiddleware, QueryPostMiddlewareState } from '../types/hookMiddleware';
+import { OperationTypes, QueryMiddleware, QueryPostMiddlewareState } from '../types/hookMiddleware';
 import { OperationContext, useMutation, UseMutationState } from 'urql';
 import { stateFromQueryMiddleware } from '../support/middlewareHelpers';
 import { useMonitorResult } from './support/monitorResult';
@@ -12,16 +12,23 @@ import { JsonObject } from 'type-fest';
 import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useOperationStateHelper';
 import { IUseMutateProps, MutateState } from './useMutate';
 
-interface IUseMutateJsonbProps extends IUseMutateProps {
+interface IUseMutateJsonbProps {
   columnName?: string;
+  sharedConfig: HasuraDataConfig;
+  middleware: QueryMiddleware[];
+  initialItem?: JsonObject;
+  initialVariables?: JsonObject;
+  operationEventType: OperationTypes;
+  listKey?: string;
+  resultHelperOptions?: IUseOperationStateHelperOptions
 }
 
-export function useMutateJsonb<T extends JsonObject>(props: IUseMutateJsonbProps): MutateState {
+export function useMutateJsonb<TResultData extends JsonObject, TVariables extends JsonObject, TItem extends JsonObject>(props: IUseMutateJsonbProps): MutateState<JsonObject, JsonObject> {
   const { sharedConfig, middleware, initialVariables, initialItem, listKey, operationEventType, columnName } = props;
   //MutationConfig is what we internally refer to the middlewareState as
 
   const [variables, setVariables] = useState<JsonObject>(initialVariables || {});
-  const [item, setItem] = useState<JsonObject | undefined>(initialItem);
+  const [item, setItem] = useState<JsonObject>(initialItem || {});
   const [needsExecuteMutation, setNeedsExecuteMutation] = useState<boolean>();
   const [executeContext, setExecuteContext] = useState<Partial<OperationContext> | null>();
   const [_, setMutationEvent] = useAtom(mutationEventAtom);

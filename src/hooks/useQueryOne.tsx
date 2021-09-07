@@ -10,10 +10,10 @@ import { JsonObject } from 'type-fest';
 import _ from 'lodash';
 import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useOperationStateHelper';
 
-interface IUseQueryOne {
+interface IUseQueryOne<TVariables> {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
-  variables: JsonObject;
+  variables: Partial<TVariables>;
   resultHelperOptions?: IUseOperationStateHelperOptions;
   urqlContext?: Partial<OperationContext>;
 }
@@ -32,7 +32,7 @@ export interface QueryState {
 
 const defaultUrqlContext: Partial<OperationContext> = { requestPolicy: 'cache-and-network' };
 
-export function useQueryOne<TData extends JsonObject, TVariables extends JsonObject>(props: IUseQueryOne): QueryState {
+export function useQueryOne<TData extends JsonObject, TVariables extends JsonObject>(props: IUseQueryOne<TVariables>): QueryState {
   const { sharedConfig, middleware, variables, urqlContext = defaultUrqlContext } = props;
 
   const [item, setItem] = useState<TData | null>();

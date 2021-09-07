@@ -20,43 +20,43 @@ import { JsonObject } from "type-fest";
 import { IUseOperationStateHelperOptions, useOperationStateHelper } from "./useOperationStateHelper";
 
 
-export interface IUseMutateProps {
+export interface IUseMutateProps<TVariables, TItem> {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
-  initialItem?: JsonObject;
-  initialVariables?: JsonObject;
+  initialItem?: Partial<TItem>;
+  initialVariables?: Partial<TVariables>;
   operationEventType: OperationTypes
   listKey?: string;
   resultHelperOptions?: IUseOperationStateHelperOptions
 }
 
-export interface MutateState {
-  resultItem?: any;
+export interface MutateState<TResultData = any, TVariables = any, TItem = any> {
+  resultItem?: TResultData;
   mutating: boolean;
   error?: Error;
   mutationState: UseMutationState;
   mutationConfig: QueryPostMiddlewareState;
   executeMutation: (
-    itemValues?: JsonObject,
-    variables?: JsonObject,
+    itemValues?: Partial<TItem>,
+    variables?: Partial<TVariables>,
     context?: Partial<OperationContext>
   ) => void;
   setItemValue: (key: string, value: any) => void;
-  setItem: (newValue: JsonObject) => void;
-  item?: JsonObject;
+  setItem: (newValue: Partial<TItem>) => void;
+  item: Partial<TItem>;
   setVariable: (name: string, value: any) => void;
-  variables: JsonObject;  
+  variables: Partial<TVariables>;  
 }
 
-export function useMutate<T extends JsonObject>(
-  props: IUseMutateProps
-): MutateState {
+export function useMutate<TResultData extends JsonObject, TVariables extends JsonObject, TItem extends JsonObject>(
+  props: IUseMutateProps<TVariables,TItem>
+): MutateState<TResultData, TVariables,TItem> {
   const { sharedConfig, middleware, initialVariables, initialItem, listKey } =
     props;
   //MutationConfig is what we internally refer to the middlewareState as
 
-  const [variables, setVariables] = useState<JsonObject>(initialVariables || {});
-  const [item, setItem] = useState<JsonObject | undefined>(initialItem);
+  const [variables, setVariables] = useState<Partial<TVariables>>(initialVariables || {});
+  const [item, setItem] = useState<Partial<TItem>>(initialItem || {});
   const [needsExecuteMutation, setNeedsExecuteMutation] = useState<boolean>();
   const [executeContext, setExecuteContext] =
     useState<Partial<OperationContext> | null>();
@@ -66,7 +66,7 @@ export function useMutate<T extends JsonObject>(
   if (!sharedConfig || !middleware?.length) {
     throw new Error("sharedConfig and at least one middleware required");
   }
-  const computeConfig = (variables: JsonObject, item?: JsonObject) => {
+  const computeConfig = (variables: Partial<TVariables>, item?: Partial<TItem>) => {
     const variablesWithItem = {
       ...variables,
       item,
@@ -130,7 +130,7 @@ export function useMutate<T extends JsonObject>(
     }));
   }, []);
 
-  const setItemValue = useCallback((key: string, value: any) => {
+  const setItemValue = useCallback((key: any, value: any) => {
     setItem((original) => ({
       ...original,
       [key]: value,
@@ -138,26 +138,34 @@ export function useMutate<T extends JsonObject>(
   }, []);
 
   const wrappedExecuteMutation = (
-    _itemValues?: JsonObject,
-    _variables?: JsonObject,
+    _itemValues?: Partial<TItem>,
+    _variables?: Partial<TVariables>,
     context?: Partial<OperationContext>
   ) => {
-    if (_variables || _itemValues) {
-      const newVariables = {
+    let newVariables;
+    let newItem;
+    if (_variables ) {
+      newVariables = {
         ...variables,
         ..._variables,
       };
-      const newItem = {
+      setVariables(newVariables);
+
+    }
+    if( _itemValues) {
+      newItem = {
         ...item,
         ..._itemValues,
       };
+      setItem(newItem);
+    }
+
+    if(newVariables || newItem) {
 
       // you need to do both because setVariables triggers the
       // useEffect to compute the new config on the next render
       // cycle
-      setMutationCfg(computeConfig(newVariables, newItem));
-      setVariables(newVariables);
-      setItem(newItem);
+      setMutationCfg(computeConfig(newVariables || {}, newItem || {}));
     }
     if (context) {
       setExecuteContext(context);
