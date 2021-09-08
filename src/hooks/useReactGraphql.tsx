@@ -39,12 +39,12 @@ export interface UseReactGraphqlApi {
     firstOrLast?: 'insert-first' | 'insert-last';
     resultHelperOptions?: IUseOperationStateHelperOptions;
   }) => MutateState<TData, TVariables, TItem>;
-  useDelete: <TData extends JsonObject = any, TVariables extends JsonObject  = any, TItem extends JsonObject  = any>(props: {
+  useDelete: <TData extends JsonObject = any, TVariables extends JsonObject  = any>(props: {
     variables: TVariables;
     middleware?: QueryMiddleware[];
     listKey?: string;
     resultHelperOptions?: IUseOperationStateHelperOptions;
-  }) => MutateState<TData, TVariables, TItem>;
+  }) => MutateState<TData, TVariables, any>;
   useUpdate: <TData extends JsonObject = any, TVariables extends JsonObject  = any, TItem extends JsonObject  = any>(props?: {
     initialItem?: Partial<TItem>;
     initialVariables?: Partial<TVariables>;
@@ -119,13 +119,13 @@ export function useReactGraphql(config: HasuraDataConfig): UseReactGraphqlApi {
       })
     },
 
-    useDelete: function<TData extends JsonObject = any, TVariables extends JsonObject  = any, TItem extends JsonObject  = any>(props:  {
+    useDelete: function<TData extends JsonObject = any, TVariables extends JsonObject  = any>(props:  {
       variables: TVariables;
       middleware?: QueryMiddleware[];
       listKey?: string;
       resultHelperOptions?: IUseOperationStateHelperOptions;
     }){
-      return useMutate<TData, TVariables, TItem>({
+      return useMutate<TData, TVariables, any>({
         sharedConfig: config,
         middleware: props.middleware || [createDeleteMutation],
         initialVariables: props.variables,
