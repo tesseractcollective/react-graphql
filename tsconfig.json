@@ -46,8 +46,11 @@
   },
   "include": [
     "src/hooks/*.{ts|tsx|js|jsx}",
+    "src/hooks/**/*.{ts|tsx|js|jsx}",
     "src/support/*.{ts|tsx|js|jsx}",
+    "src/support/**/*.{ts|tsx|js|jsx}",
     "src/types/*.{ts|tsx|js|jsx}",
+    "src/types/**/*.{ts|tsx|js|jsx}",
     "src/index.ts"
   ],
   "exclude": [

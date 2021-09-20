@@ -16,6 +16,7 @@ export { useUrqlQuery } from './hooks/useUrqlQuery';
 export { useMutateExisting } from './hooks/useMutateExisting';
 export type { UseMutationExistingState } from './hooks/useMutateExisting';
 export { useCascadingSelect } from './hooks/useCascadingSelect';
+export { usePaginatedList } from './hooks/ui/usePaginatedList';
 // export * from './components'
 
 export {
@@ -44,7 +45,7 @@ export type {
   PaginatedTableInvokeConfig,
   PaginatedTableSelectConfig,
   PaginatedTableActions,
-  Order_By
+  Order_By,
 } from './types/PaginatedTableTypes';
 export type { HasuraConfigType, HasuraDataConfig } from './types/hasuraConfig/index';
 export type { UseMutatorProps, Mutator, MutatorState, MutationConfig } from './types/hasuraHooks/index';

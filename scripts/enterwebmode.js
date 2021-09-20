@@ -6,7 +6,6 @@ const baseEnvs = require('../package.json');
 const fileContent = require(`../package.web.json`);
 const name = fileContent.name;
 delete fileContent.name;
-delete fileContent.main;
 const newFile = { name, ...baseEnvs, ...fileContent };
 //copy the json inside the env.json file
 fs.writeFileSync('package.json', JSON.stringify(newFile, undefined, 2));
