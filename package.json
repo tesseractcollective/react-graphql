@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "private": false,
   "files": [
     "dist",
@@ -103,7 +103,6 @@
   },
   "module": "./dist/react-graphql.es.js",
   "types": "./dist/src/index.d.ts",
-  "main": "./src/index.ts",
   "exports": {
     ".": {
       "import": "./dist/react-graphql.es.js"
