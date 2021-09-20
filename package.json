@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "private": false,
   "files": [
     "dist",
@@ -11,7 +11,7 @@
     "dev": "pnpm devmode",
     "build": "pnpm webmode && vite build && ttsc --project tsconfig-web.build.json",
     "tsc": "ttsc --project tsconfig-web.build.json",
-    "pack": "pnpm run build && pnpm pack",
+    "pack": "pnpm pack",
     "pub": "pnpm publish --access public",
     "test": "jest",
     "test:watch": "jest --watch",
