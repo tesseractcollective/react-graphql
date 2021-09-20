@@ -37,11 +37,21 @@ function createVariables(
   includePks: boolean = false,
 ): JsonObject {
   const variables: JsonObject = {
-    ...state.variables
+    ...state.variables,
   };
 
+  updateVariablesFromItemIfRequested(config, state, includePks, variables);
+
+  return variables;
+}
+
+export function findMissingPrimaryKeys(
+  config: HasuraDataConfig,
+  state: QueryPreMiddlewareState,
+  includePks: boolean
+): string[] | null {
   const missingPrimaryKeyNames: string[] = [];
-  config.primaryKey.forEach((key) => {
+  config.primaryKey.map((key) => {
     const item: any = state.variables.item;
     const valueFromItem = item && item[key];
     const valueFromVariables = state.variables && state.variables[key];
@@ -51,21 +61,26 @@ function createVariables(
     }
 
     if (valueFromItem && includePks) {
+      state.variables[key] = valueFromItem;
+    }
+  });
+  return missingPrimaryKeyNames.length ? missingPrimaryKeyNames : null;
+}
+
+function updateVariablesFromItemIfRequested(
+  config: HasuraDataConfig,
+  state: QueryPreMiddlewareState,
+  includePks: boolean,
+  variables: JsonObject,
+) {
+  config.primaryKey.forEach((key) => {
+    const item: any = state.variables.item;
+    const valueFromItem = item && item[key];
+
+    if (valueFromItem && includePks) {
       variables[key] = valueFromItem;
     }
   });
-
-  if (missingPrimaryKeyNames.length) {
-    throw new Error(`When using useDelete or useUpdate you need to ensure you pass in variables that match the primary keys needed for this type.
-    The operation for this was: ${operationName}.
-    We detected the following primary keys from config.primaryKey: ${config.primaryKey}
-    The following were not found in the variables but were needed: ${missingPrimaryKeyNames.join(', ')}
-    This was for the config: ${config.typename}
-    The current middleware state was: ${JSON.stringify(state, null, 2)}
-    `);
-  }
-
-  return variables;
 }
 
 export function createDeleteMutation(
@@ -187,8 +202,8 @@ export function createUpdateJsonbMutation(
   const operationName = config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;
 
   const item = state.variables.item;
-  const itemIsString = typeof item === "string";
-  const itemIsNumber = typeof item === "number";
+  const itemIsString = typeof item === 'string';
+  const itemIsNumber = typeof item === 'number';
 
   let objectType = `jsonb`;
 

@@ -22,6 +22,7 @@ export interface IUseInfiniteQueryMany {
   listKey?: string;
   urqlContext?: Partial<OperationContext>;
   resultHelperOptions?: IUseOperationStateHelperOptions;
+  pause?: boolean;
 }
 
 export interface IUseInfiniteQueryManyResults<TRecord> {
@@ -32,6 +33,7 @@ export interface IUseInfiniteQueryManyResults<TRecord> {
   loadNextPage: () => void;
   requeryKeepInfinite: () => void;
   sharedConfig: HasuraDataConfig;
+  totalItems?: number;
 }
 
 const defaultPageSize = 50;
@@ -49,6 +51,7 @@ export function useInfiniteQueryMany<TData extends any>(
     pageSize,
     listKey,
     urqlContext = defaultUrqlContext,
+    pause
   } = props;
 
   const limit = pageSize ?? defaultPageSize;
@@ -96,7 +99,7 @@ export function useInfiniteQueryMany<TData extends any>(
   }, [externalVariables, offset]);
 
   // Setup the initial query Config so it's for sure ready before we get to urql
-  const [queryState, reExecuteQuery] = useUrqlQuery<TData>(queryCfg, undefined, urqlContext);
+  const [queryState, reExecuteQuery] = useUrqlQuery<TData>(queryCfg, undefined, urqlContext, pause);  
 
   useEffect(() => {
     if (needsReQuery) {
@@ -111,7 +114,7 @@ export function useInfiniteQueryMany<TData extends any>(
   useEffect(() => {
     if (queryState.data) {
       const data: { [key: string]: JsonArray } = queryState.data;
-      const keys = Object.keys(data);
+      const keys = Object.keys(data).filter(key=> !key.endsWith('_aggregate'));
       if (keys.length === 1) {
         const key = keys[0];
         //only single response category so use single layer items
@@ -214,7 +217,7 @@ export function useInfiniteQueryMany<TData extends any>(
 
   const loadNextPage = () => {
     if (!queryState.fetching) {
-      if (items?.length && items?.length % limit === 0) {
+      if (items.length && items.length % limit === 0) {
         setOffset(offset + limit);
       }
     }
@@ -239,7 +242,8 @@ export function useInfiniteQueryMany<TData extends any>(
     refresh,
     loadNextPage,
     requeryKeepInfinite,
-    sharedConfig
+    sharedConfig,
+    totalItems: queryState?.data?.[sharedConfig.typename + '_aggregate']?.aggregate?.count
   };
 
   function computeConfig() {

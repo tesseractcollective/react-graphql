@@ -48,7 +48,6 @@ export function buildHasuraConfig(
         _.map(config, (val, key) => val),
       )
     : null;
-  console.log('🚀 ~ file: HasuraConfigUtils.ts ~ line 46 ~ relationshipLookup', relationshipLookup);
   Object.values(config).forEach((tableConfig) => {
     if (!tableConfig.fieldFragment) return;
 
@@ -57,7 +56,6 @@ export function buildHasuraConfig(
     try {
       const fields = getFragmentFields(tableConfig.fieldFragment, schemaConverted, relationshipLookup);
       tableConfig.fields = fields;
-      console.log('fields', fields);
     } catch (err) {
       console.log(
         err,

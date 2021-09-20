@@ -16,6 +16,7 @@ export interface HasuraDataConfig {
     labelField?:string;
     defaultWhere?: any;
   }
+  excludeAggregate?: any;
   fields?: { 
     fieldSimpleMap: { [key: string]: IFieldOutputType } 
     fieldTypeMap: { [key: string]: GraphQLOutputType}
