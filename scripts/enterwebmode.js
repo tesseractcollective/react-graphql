@@ -2,7 +2,7 @@
 const fs = require('fs');
 
 //read the content of the json file
-const baseEnvs = require('../package.base.json');
+const baseEnvs = require('../package.json');
 const fileContent = require(`../package.web.json`);
 const name = fileContent.name;
 delete fileContent.name;
