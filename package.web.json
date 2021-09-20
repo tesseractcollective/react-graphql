@@ -1,8 +1,8 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "module": "./dist/react-graphql.es.js",
-  "main": "./dist/react-graphql.es.js",
-  "types": "./dist/src/index.d.ts",
+  "module": "dist/react-graphql.es.js",
+  "main": "dist/react-graphql.es.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/react-graphql.es.js"

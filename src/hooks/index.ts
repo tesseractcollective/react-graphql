@@ -14,4 +14,5 @@ export * from './useQueryOne'
 export * from './useQueryOne.utils'
 export * from './useReactGraphql'
 export * from './useUrqlQuery'
+export * from './ui/usePaginatedList'
 // @endindex
