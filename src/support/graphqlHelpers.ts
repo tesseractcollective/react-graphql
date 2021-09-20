@@ -10,7 +10,7 @@ import {
   isScalarType,
   VariableDefinitionNode,
 } from 'graphql';
-import { HasuraDataConfig } from 'types';
+import { HasuraDataConfig } from '../types';
 
 export type GraphQLOutputTypeMap = { [key: string]: GraphQLOutputType };
 
