@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "private": false,
   "files": [
     "dist",

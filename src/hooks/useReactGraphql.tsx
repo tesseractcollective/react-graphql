@@ -28,6 +28,7 @@ export interface UseInfiniteQueryManyProps {
   listKey?: string;
   urqlContext?: Partial<OperationContext>;
   resultHelperOptions?: IUseOperationStateHelperOptions;
+  pause?: boolean;
 }
 export interface UseReactGraphqlApi {
   useInsert: <
