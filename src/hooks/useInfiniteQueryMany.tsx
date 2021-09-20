@@ -31,6 +31,7 @@ export interface IUseInfiniteQueryManyResults<TRecord> {
   refresh: () => void;
   loadNextPage: () => void;
   requeryKeepInfinite: () => void;
+  sharedConfig: HasuraDataConfig;
 }
 
 const defaultPageSize = 50;
@@ -238,6 +239,7 @@ export function useInfiniteQueryMany<TData extends any>(
     refresh,
     loadNextPage,
     requeryKeepInfinite,
+    sharedConfig
   };
 
   function computeConfig() {
