@@ -15,6 +15,7 @@ import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useO
 export interface IUseInfiniteQueryMany {
   where?: { [key: string]: any };
   orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
+  args?: { [key: string]: any };
   distinctOn?: string;
   pageSize?: number;
   sharedConfig: HasuraDataConfig;
@@ -47,6 +48,7 @@ export function useInfiniteQueryMany<TData extends any>(
     middleware,
     where,
     orderBy,
+    args,
     distinctOn,
     pageSize,
     listKey,
@@ -70,6 +72,7 @@ export function useInfiniteQueryMany<TData extends any>(
     limit,
     offset,
     distinctOn,
+    args
   });
   const [itemsMap, setItemsMap] = useState<Map<string, TData>>(new Map());
   const [shouldClearItems, setShouldClearItems] = useState(false);
@@ -82,13 +85,13 @@ export function useInfiniteQueryMany<TData extends any>(
 
   //Update internal variables from explicitly passed in
   useEffect(() => {
-    const checkVariables = { where, orderBy, limit, distinctOn };
+    const checkVariables = { where, orderBy, limit, distinctOn, args };
     if (!isEqual(externalVariables, checkVariables)) {
       setExterneralVariables(checkVariables);
       setOffset(0);
       setShouldClearItems(true);
     }
-  }, [where, orderBy, limit, distinctOn]);
+  }, [where, orderBy, limit, distinctOn, args]);
 
   //setup config
   const [queryCfg, setQueryCfg] = useState(computeConfig);

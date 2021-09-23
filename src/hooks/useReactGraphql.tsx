@@ -22,6 +22,7 @@ import { createQueryOne } from './useQueryOne.utils';
 export interface UseInfiniteQueryManyProps {
   where?: { [key: string]: any };
   orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
+  args?: { [key: string]: any };
   distinctOn?: string;
   pageSize?: number;
   middleware?: QueryMiddleware[];
