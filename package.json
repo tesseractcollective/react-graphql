@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.9.9",
+  "version": "0.9.10",
   "private": false,
   "files": [
     "dist",
@@ -54,10 +54,7 @@
     "moduleDirectories": [
       "node_modules",
       "src"
-    ],
-    "moduleNameMapper": {
-      "^react-native$": "react-native-web"
-    }
+    ]
   },
   "devDependencies": {
     "@babel/core": "^7.14.6",

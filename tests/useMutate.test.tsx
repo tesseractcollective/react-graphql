@@ -4,6 +4,7 @@ import { renderHook, act } from '@testing-library/react-hooks/dom';
 import HasuraConfig from './TestHasuraConfig';
 import { useReactGraphql } from '../src/hooks/useReactGraphql';
 import { wrapperWithResultValue } from './urqlTestUtils';
+import { GroupFieldsFragment, Mutation_RootInsert_Group_OneArgs } from './generated/graphql';
 
 const resultValue = { id: '123' };
 
@@ -25,12 +26,17 @@ describe('useInsert', () => {
   });
 
   it('inserts with updating item values', async () => {
-    const wrapper = wrapperWithResultValue(resultValue, 'mutation');
+    const wrapper = wrapperWithResultValue({ id: '456', groupId: '123', postId: '897' }, 'mutation');
 
     const { result } = renderHook(
       () => {
         const reactGraphql = useReactGraphql(HasuraConfig.groups);
-        return reactGraphql.useInsert({ initialItem: { id: '456' } });
+        return reactGraphql.useInsert<
+          { id: string; postId?: string; groupId?: string },
+          { id: string; postId?: string; groupId?: string }
+        >({
+          initialItem: { id: '456', postId: undefined, groupId: undefined },
+        });
       },
       { wrapper },
     );
@@ -41,9 +47,13 @@ describe('useInsert', () => {
     });
 
     await waitFor(() => result.current.executeMutation({ groupId: '123' }));
+    expect(result.current.item.id).toBe('456');
+    expect(result.current.item.postId).toBe('897');
+    expect(result.current.item.groupId).toBe('123');
+
     expect(result.current.resultItem.id).toBe('456');
-    expect(result.current.resultItem.postId).toBe('897');
     expect(result.current.resultItem.groupId).toBe('123');
+    expect(result.current.resultItem.postId).toBe('897');
   });
 
   it("throws an error if insert doesn't have required primary key", async () => {

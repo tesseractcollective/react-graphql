@@ -14,7 +14,7 @@ describe("useMutateMiddleware", () => {
       }
     };
 
-    const mutation = `mutation userPostReactionMutation($userId: Any!, $postId: Any!, $item: userPostReaction_insert_input!) {
+    const mutation = `mutation userPostReactionMutation($item: userPostReaction_insert_input!, $userId: Any!, $postId: Any!) {
   insert_userPostReaction_one(object: $item) {
     ...userPostReactionFields
   }
@@ -31,9 +31,16 @@ fragment userPostReactionFields on userPostReaction {
       state,
       HasuraConfig.userPostReactions
     );
-    expect(print(insertMiddleware.document)).toEqual(mutation);
-    expect(insertMiddleware.variables.object).toBeDefined();
-    expect((insertMiddleware.variables.object as any).reaction).toEqual(
+    const docStr = print(insertMiddleware.document);
+    expect(docStr.indexOf('mutation')).toEqual(0);
+    expect(docStr.indexOf('$item: userPostReaction_insert_input!')).toBeGreaterThan(0);
+    expect(docStr.indexOf('$userId: uuid!')).toBeGreaterThan(0);
+    expect(docStr.indexOf('$postId: uuid!')).toBeGreaterThan(0);
+    expect(docStr.indexOf('insert_userPostReaction_one')).toBeGreaterThan(0);
+    expect(docStr.indexOf('object: $item')).toBeGreaterThan(0);
+    console.log('🚀 insertMiddleware.variables', insertMiddleware.variables)
+    expect(insertMiddleware.variables.item).toBeDefined();    
+    expect((insertMiddleware.variables.item as any).reaction).toEqual(
       "LIKE"
     );
   });

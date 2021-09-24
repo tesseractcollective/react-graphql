@@ -122,10 +122,10 @@ export function useReactGraphql(config: HasuraDataConfig): UseReactGraphqlApi {
       resultHelperOptions?: IUseOperationStateHelperOptions;
     }) {
       return useMutate<TData, TVariables, TItem>({
+        ...props,
         sharedConfig: config,
         middleware: props?.middleware || [createInsertMutation],
         operationEventType: props?.firstOrLast ?? 'insert-first',
-        ...props,
       });
     },
 
@@ -136,10 +136,11 @@ export function useReactGraphql(config: HasuraDataConfig): UseReactGraphqlApi {
       resultHelperOptions?: IUseOperationStateHelperOptions;
     }) {
       return useMutate<TData, TVariables, any>({
+        ...props,
         sharedConfig: config,
         middleware: props.middleware || [createDeleteMutation],
         operationEventType: 'delete',
-        ...props,
+        initialVariables: props.variables
       });
     },
 

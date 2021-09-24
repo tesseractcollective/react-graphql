@@ -26,7 +26,8 @@
     "inlineSources": true,
     "jsx": "react",
     "typeRoots": [
-      "types"
+      "types",
+      "node_modules/@types"
     ],
     "baseUrl": "./src",
     "paths": {
