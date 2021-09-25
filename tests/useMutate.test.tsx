@@ -4,7 +4,8 @@ import { renderHook, act } from '@testing-library/react-hooks/dom';
 import HasuraConfig from './TestHasuraConfig';
 import { useReactGraphql } from '../src/hooks/useReactGraphql';
 import { wrapperWithResultValue } from './urqlTestUtils';
-import { GroupFieldsFragment, Mutation_RootInsert_Group_OneArgs } from './generated/graphql';
+import { print } from 'graphql';
+import { JsonObject } from 'type-fest';
 
 const resultValue = { id: '123' };
 
@@ -22,7 +23,7 @@ describe('useInsert', () => {
     expect(result.current.resultItem).toBeUndefined();
 
     await waitFor(() => result.current.executeMutation());
-    expect(result.current.resultItem.id).toBe(resultValue.id);
+    expect(result.current.resultItem?.id).toBe(resultValue.id);
   });
 
   it('inserts with updating item values', async () => {
@@ -51,9 +52,9 @@ describe('useInsert', () => {
     expect(result.current.item.postId).toBe('897');
     expect(result.current.item.groupId).toBe('123');
 
-    expect(result.current.resultItem.id).toBe('456');
-    expect(result.current.resultItem.groupId).toBe('123');
-    expect(result.current.resultItem.postId).toBe('897');
+    expect(result.current.resultItem?.id).toBe('456');
+    expect(result.current.resultItem?.groupId).toBe('123');
+    expect(result.current.resultItem?.postId).toBe('897');
   });
 
   it("throws an error if insert doesn't have required primary key", async () => {
@@ -114,7 +115,7 @@ describe('useUpdate', () => {
     expect(result.current.mutationConfig.variables.id).toBe('666');
 
     await waitFor(() => result.current.executeMutation());
-    expect(result.current.resultItem.id).toBe('666');
+    expect(result.current.resultItem?.id).toBe('666');
   });
 });
 
@@ -131,8 +132,35 @@ describe('useDelete', () => {
     );
     expect(result.current.resultItem).toBeUndefined();
     expect(result.current.mutationConfig.variables.id).toBe('666');
+    expect(result.current.variables.id).toBe('666');
 
     await waitFor(() => result.current.executeMutation());
-    expect(result.current.resultItem.id).toBe('666');
+    expect(result.current.resultItem?.id).toBe('666');
+  });
+
+  it('correctly changes item and variables when calling executeMutation', async () => {
+    const wrapper = wrapperWithResultValue(resultValue, 'mutation');
+
+    const { result } = renderHook(
+      () => {
+        const reactGraphql = useReactGraphql(HasuraConfig.posts);
+        return reactGraphql.useInsert<
+        { userId: string, groupId: string, postId?: string },
+        { userId: string, testVariable?: string, item: any }
+        >({ 
+          initialVariables: { userId: 'test' },
+          initialItem: { userId: 'test', groupId: '123', postId: undefined }
+        });
+      },
+      { wrapper },
+    );
+    expect(result.current.mutationConfig.variables.userId).toEqual('test');
+
+    await waitFor(() => result.current.executeMutation({ postId: '456' }, { testVariable: 'testVariable' }));
+    expect(result.current.mutationConfig.variables.userId).toEqual('test');
+    expect((result.current.mutationConfig.variables.item as JsonObject)?.['postId']).toEqual('456');
+
+    await waitFor(() => result.current.executeMutation({ postId: '456' }, { testVariable: 'testVariable' }));
+    expect(result.current.mutationConfig.variables.testVariable).toEqual('testVariable');
   });
 });

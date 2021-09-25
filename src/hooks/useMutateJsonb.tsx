@@ -107,7 +107,7 @@ export function useMutateJsonb<TResultData extends JsonObject, TVariables extend
     })();
   }, [needsExecuteMutation, executeContext, executeMutation, mutationCfg]);
 
-  useMonitorResult('mutation', mutationResult, mutationCfg);
+  useMonitorResult('mutation', mutationResult);
 
   //Handling variables
   const setVariable = useCallback((name: string, value: any) => {

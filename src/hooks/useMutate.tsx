@@ -116,7 +116,7 @@ export function useMutate<TResultData extends JsonObject, TVariables extends Jso
     })();
   }, [needsExecuteMutation, executeContext, executeMutation, mutationCfg]);
 
-  useMonitorResult('mutation', mutationResult, mutationCfg);
+  useMonitorResult('mutation', mutationResult);
 
   //Handling variables
   const setVariable = useCallback((name: string, value: any) => {
@@ -138,8 +138,8 @@ export function useMutate<TResultData extends JsonObject, TVariables extends Jso
     _variables?: Partial<TVariables>,
     context?: Partial<OperationContext>,
   ) => {
-    let newVariables;
-    let newItem;
+    let newVariables = variables;
+    let newItem = item;
     if (_variables) {
       newVariables = {
         ...variables,
@@ -159,7 +159,7 @@ export function useMutate<TResultData extends JsonObject, TVariables extends Jso
       // you need to do both because setVariables triggers the
       // useEffect to compute the new config on the next render
       // cycle
-      setMutationCfg(computeConfig(newVariables || {}, newItem || {}));
+      setMutationCfg(computeConfig(newVariables, newItem));
     }
     if (context) {
       setExecuteContext(context);
