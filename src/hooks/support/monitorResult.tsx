@@ -25,6 +25,7 @@ export function useMonitorResult(
           null,
           2
         ),
+        "\r\n",
         "------------------------",
         "\r\n",
         JSON.stringify(
@@ -58,6 +59,7 @@ export function useMonitorResult(
               null,
               2
             ),
+            "\r\n",
             "------------------------",
             "\r\n",
             JSON.stringify(
