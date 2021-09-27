@@ -111,7 +111,7 @@ export function useInfiniteQueryMany<TData extends any>(
     }
   }, [needsReQuery]);
 
-  useMonitorResult('query', queryState, queryCfg);
+  useMonitorResult('query', queryState);
 
   //Parse response
   useEffect(() => {

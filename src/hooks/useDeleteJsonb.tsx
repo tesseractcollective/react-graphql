@@ -109,7 +109,7 @@ export function useDeleteJsonb<T extends JsonObject>(props: IUseMutateJsonbProps
     })();
   }, [needsExecuteMutation, executeContext, executeMutation, mutationCfg]);
 
-  useMonitorResult('mutation', mutationResult, mutationCfg);
+  useMonitorResult('mutation', mutationResult);
 
   //Handling variables
   const setVariable = useCallback((name: string, value: any) => {

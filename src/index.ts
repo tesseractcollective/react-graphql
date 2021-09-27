@@ -38,15 +38,6 @@ export { stateFromQueryMiddleware } from './support/middlewareHelpers';
 
 export { registerStyles, buildStyles, bs } from './support/styling/buildStyles';
 
-export type {
-  PaginatedTableExpanderConfig,
-  PaginatedTableNavConfig,
-  PaginatedTableModalConfig,
-  PaginatedTableInvokeConfig,
-  PaginatedTableSelectConfig,
-  PaginatedTableActions,
-  Order_By,
-} from './types/PaginatedTableTypes';
 export type { HasuraConfigType, HasuraDataConfig } from './types/hasuraConfig/index';
 export type { UseMutatorProps, Mutator, MutatorState, MutationConfig } from './types/hasuraHooks/index';
 export type { QueryMiddleware, QueryPreMiddlewareState, QueryPostMiddlewareState } from './types/hookMiddleware/index';
