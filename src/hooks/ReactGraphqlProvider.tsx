@@ -1,7 +1,6 @@
 import React, { FunctionComponent } from 'react';
 import { StyleSheet } from 'react-native';
 import { Client, Provider as UrqlProvider } from 'urql';
-//@ts-ignore
 
 /** 
   @param client an Urql Client to prevent duplicate copies of urql being used.  
