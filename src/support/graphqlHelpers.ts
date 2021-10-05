@@ -134,7 +134,7 @@ export function getFragmentFields(
           }
 
           if (isScalarType(fieldType)) {
-            let relationship;
+            let relationship = null;
             if (relationshipLookup) {
               const rel = relationshipLookup[tableName+ '.' + fieldName];
               if (rel) {
@@ -151,7 +151,7 @@ export function getFragmentFields(
               name: fieldName,
               typeName: fieldType.name,
               isNonNull,
-              relationship,
+              relationship: relationship ?? undefined,
             };
           } else if (isObjectType(fieldType)) {
             let relationship;
