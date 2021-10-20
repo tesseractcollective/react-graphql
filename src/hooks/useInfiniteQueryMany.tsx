@@ -81,7 +81,7 @@ export function useInfiniteQueryMany<TData extends any>(
   });
   const [itemsMap, setItemsMap] = useState<Map<string, TData>>(new Map());
   const [queryStateStored, setQueryStateStored] = useState<UseQueryState>({
-    fetching: false,
+    fetching: true,
     stale: false,
   });
   const [shouldClearItems, setShouldClearItems] = useState(false);

@@ -25,7 +25,7 @@ import {
 import { IUseOperationStateHelperOptions } from "./useOperationStateHelper";
 import { QueryState, useQueryOne } from "./useQueryOne";
 import { createQueryOne } from "./useQueryOne.utils";
-import { log } from "support/log";
+import { log } from "../support/log";
 
 export interface UseInfiniteQueryManyProps {
   where?: { [key: string]: any };

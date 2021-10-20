@@ -56,7 +56,7 @@ export function useQueryOne<
 
   const [item, setItem] = useState<TData | null>();
   const [queryStateStored, setQueryStateStored] = useState<UseQueryState>({
-    fetching: false,
+    fetching: true,
     stale: false,
   });
   const [key, setKey] = useState<string>();
