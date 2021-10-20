@@ -1,14 +1,23 @@
-import { useState, useEffect } from 'react';
-import { HasuraDataConfig } from '../types/hasuraConfig';
-import { QueryMiddleware } from '../types/hookMiddleware';
-import { OperationContext, useQuery, UseQueryState } from 'urql';
-import { stateFromQueryMiddleware } from '../support/middlewareHelpers';
-import { keyExtractor } from '../support/HasuraConfigUtils';
-import { useAtom } from 'jotai';
-import { IMutationEvent, mutationEventAtom } from './support/mutationEventAtom';
-import { JsonObject } from 'type-fest';
-import _ from 'lodash';
-import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useOperationStateHelper';
+import { useState, useEffect } from "react";
+import { HasuraDataConfig } from "../types/hasuraConfig";
+import { QueryMiddleware } from "../types/hookMiddleware";
+import {
+  OperationContext,
+  useQuery,
+  UseQueryResponse,
+  UseQueryState,
+} from "urql";
+import { stateFromQueryMiddleware } from "../support/middlewareHelpers";
+import { keyExtractor } from "../support/HasuraConfigUtils";
+import { useAtom } from "jotai";
+import { IMutationEvent, mutationEventAtom } from "./support/mutationEventAtom";
+import { JsonObject } from "type-fest";
+import _ from "lodash";
+import {
+  IUseOperationStateHelperOptions,
+  useOperationStateHelper,
+} from "./useOperationStateHelper";
+import { log } from "../support/log";
 
 interface IUseQueryOne<TVariables> {
   sharedConfig: HasuraDataConfig;
@@ -25,17 +34,31 @@ export interface QueryState {
   error?: Error;
   queryState?: UseQueryState;
   stale: boolean;
-  refresh: ()=> void;
+  refresh: () => void;
   setVariables: React.Dispatch<React.SetStateAction<JsonObject>>;
   variables: JsonObject;
 }
 
-const defaultUrqlContext: Partial<OperationContext> = { requestPolicy: 'cache-and-network' };
+const defaultUrqlContext: Partial<OperationContext> = {
+  requestPolicy: "cache-and-network",
+};
 
-export function useQueryOne<TData extends JsonObject, TVariables extends JsonObject>(props: IUseQueryOne<TVariables>): QueryState {
-  const { sharedConfig, middleware, variables, urqlContext = defaultUrqlContext } = props;
+export function useQueryOne<
+  TData extends JsonObject,
+  TVariables extends JsonObject
+>(props: IUseQueryOne<TVariables>): QueryState {
+  const {
+    sharedConfig,
+    middleware,
+    variables,
+    urqlContext = defaultUrqlContext,
+  } = props;
 
   const [item, setItem] = useState<TData | null>();
+  const [queryStateStored, setQueryStateStored] = useState<UseQueryState>({
+    fetching: false,
+    stale: false,
+  });
   const [key, setKey] = useState<string>();
   const [objectVariables, setObjectVariables] = useState<JsonObject>(variables);
 
@@ -44,35 +67,44 @@ export function useQueryOne<TData extends JsonObject, TVariables extends JsonObj
   //Guards
   if (!sharedConfig || !middleware?.length) {
     throw new Error(`Hasura config and at least one middleware required.
-    You are missing: ${!sharedConfig ? 'HasuraConfig' : ''} ${!!middleware?.length ? ' Middleware' : ''}`);
+    You are missing: ${!sharedConfig ? "HasuraConfig" : ""} ${
+      !!middleware?.length ? " Middleware" : ""
+    }`);
   }
 
   const [queryCfg, setQueryCfg] = useState(computeConfig);
-  const [resp, reExecuteQuery] = useQuery<TData>({
+  const [queryState, reExecuteQuery] = useQuery<TData>({
     query: queryCfg?.document,
     variables: queryCfg.variables,
-    context: urqlContext
+    context: urqlContext,
   });
-  console.log('🚀 ~ file: useQueryOne.tsx ~ line 39 ~ resp', resp);
+  log.debug("🚀 ~ file: useQueryOne.tsx ~ line 39 ~ resp", queryState);
 
   useEffect(() => {
     updateItemKey();
   }, [item, objectVariables]);
 
   useEffect(() => {
-    if (mutationEvent.type === 'init') {
+    if (mutationEvent.type === "init") {
       return;
     }
 
     logMutationEvent();
 
-    if (mutationEvent.listKey === sharedConfig.typename && (mutationEvent.key === key || !key)) {
-      if (mutationEvent.type === 'delete') {
+    if (
+      mutationEvent.listKey === sharedConfig.typename &&
+      (mutationEvent.key === key || !key)
+    ) {
+      if (mutationEvent.type === "delete") {
         setItem(null);
       } else {
         setItem(mutationEvent.payload as TData);
       }
-    } else if (mutationEvent.listKey && sharedConfig.typename && mutationEvent.listKey !== sharedConfig.typename) {
+    } else if (
+      mutationEvent.listKey &&
+      sharedConfig.typename &&
+      mutationEvent.listKey !== sharedConfig.typename
+    ) {
       logMismatchedMutationEvent();
     }
   }, [mutationEvent]);
@@ -84,58 +116,62 @@ export function useQueryOne<TData extends JsonObject, TVariables extends JsonObj
   useEffect(() => {
     const newState = computeConfig();
     if (!_.isEqual(newState, queryCfg)) {
-      console.log('useQueryOne -> useEffect -> computeConfig -> newState', newState);
+      log.debug(
+        "useQueryOne -> useEffect -> computeConfig -> newState",
+        newState
+      );
       setQueryCfg(newState);
     }
   }, [objectVariables]);
 
   //Parse response
   useEffect(() => {
-    if (resp.data) {
-      console.log('⛱️ resp.data', resp.data);
-      setItem(resp.data[queryCfg.operationName] as any);
+    if (queryState.data) {
+      log.debug("⛱️ resp.data", queryState.data);
+      setItem(queryState.data[queryCfg.operationName] as any);
     }
-  }, [resp.data]);
+    setQueryStateStored(queryState);
+  }, [queryState]);
 
-  useOperationStateHelper(resp, props.resultHelperOptions || {});
+  useOperationStateHelper(queryState, props.resultHelperOptions || {});
 
   return {
     item,
     localError: undefined,
-    fetching: resp.fetching,
-    error: resp.error,
-    stale: resp.stale,
+    fetching: queryStateStored.fetching,
+    error: queryStateStored.error,
+    stale: queryStateStored.stale,
     refresh: reExecuteQuery,
     setVariables: setObjectVariables,
     variables: objectVariables,
   };
 
   function logMismatchedMutationEvent() {
-    console.log(
+    log.info(
       `❗ <- mismatched model types <- mutationEvent recieved <- useQueryOne
                ${mutationEvent.listKey} !== ${sharedConfig.typename}
                Recieved a mutationEvent with a key of ${mutationEvent.listKey}
                This instance of the useQueryOne hook was given a config for ${sharedConfig.typename}
-        `,
+        `
     );
   }
 
   function logMutationEvent() {
-    console.log(
-      'mutationEvent recieved <- Before check <- useQueryOne',
+    log.info(
+      "mutationEvent recieved <- Before check <- useQueryOne",
       JSON.stringify(
         {
           c1: mutationEvent.listKey == sharedConfig.typename,
-          'me:listKey': mutationEvent.listKey,
+          "me:listKey": mutationEvent.listKey,
           typename: sharedConfig.typename,
           c2: mutationEvent.key === key || !key,
-          'me:key': mutationEvent.key,
-          key: key ?? 'NO KEY',
+          "me:key": mutationEvent.key,
+          key: key ?? "NO KEY",
           mutationEvent,
         },
         null,
-        2,
-      ),
+        2
+      )
     );
   }
 
@@ -143,35 +179,41 @@ export function useQueryOne<TData extends JsonObject, TVariables extends JsonObj
     if (!sharedConfig || (!item && !objectVariables)) {
       return;
     }
-    let newKey = item ? keyExtractor(sharedConfig, item) : keyExtractor(sharedConfig, objectVariables);
+    let newKey = item
+      ? keyExtractor(sharedConfig, item)
+      : keyExtractor(sharedConfig, objectVariables);
     if (newKey) {
       if (newKey !== key) {
         setKey(newKey);
       }
     } else if (item?.typename !== sharedConfig.typename) {
-      console.log(
+      log.error(
         `❗ useQueryOne -> item -> keyExtractor failed',
                   //  ${item?.typename} !== ${sharedConfig.typename}
                    Recieved a item with a key of ${item?.listKey}
                    This instance of the useQueryOne hook was given a config for ${sharedConfig.typename}
-            `,
+            `
       );
     } else {
-      console.log(
+      log.error(
         `❗ useQueryOne -> item -> keyExtractor failed for unknown reasons'`,
         JSON.stringify(
           {
             item,
-            'sharedConfig.typename': sharedConfig.typename,
+            "sharedConfig.typename": sharedConfig.typename,
           },
           null,
-          2,
-        ),
+          2
+        )
       );
     }
   }
 
   function computeConfig() {
-    return stateFromQueryMiddleware({ variables: objectVariables }, middleware, sharedConfig);
+    return stateFromQueryMiddleware(
+      { variables: objectVariables },
+      middleware,
+      sharedConfig
+    );
   }
 }

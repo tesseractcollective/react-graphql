@@ -1,6 +1,7 @@
 import { print } from "graphql";
 import { useEffect } from "react";
 import { JsonArray } from "type-fest";
+import { log } from "../../support/log";
 
 export function useMonitorResult(
   resultType: "mutation" | "query",
@@ -8,7 +9,7 @@ export function useMonitorResult(
 ) {
   useEffect(() => {
     if (result.error) {
-      console.log(
+      log.debug(
         `❗ ERR: ${resultType} RESULT`,
         "\r\n",
         "------------------------",
@@ -43,7 +44,7 @@ export function useMonitorResult(
         //only single response category so use single layer items
         const queryItems: JsonArray = result.data[key];
         if (Array.isArray(queryItems) && queryItems.length === 0) {
-          console.log(
+          log.debug(
             `❗ WARN: ${resultType} EMPTY RESULTS`,
             "\r\n",
             "------------------------",
