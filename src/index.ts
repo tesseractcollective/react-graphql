@@ -1,7 +1,7 @@
 export { ReactGraphqlProvider } from './hooks/ReactGraphqlProvider';
 export type { IReactGraphqlProviderProps } from './hooks/ReactGraphqlProvider';
 export { useInfiniteQueryMany } from './hooks/useInfiniteQueryMany';
-export type { IUseInfiniteQueryMany } from './hooks/useInfiniteQueryMany';
+export type { IUseInfiniteQueryMany, IUseInfiniteQueryManyResults } from './hooks/useInfiniteQueryMany';
 export { createInfiniteQueryMany } from './hooks/useInfiniteQueryMany.utils';
 export { useMutate } from './hooks/useMutate';
 export type { MutateState } from './hooks/useMutate';

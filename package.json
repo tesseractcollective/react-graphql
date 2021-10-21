@@ -1,6 +1,6 @@
 {
   "name": "@tesseractcollective/react-graphql",
-  "version": "0.9.13",
+  "version": "0.9.14",
   "private": false,
   "files": [
     "dist",
@@ -111,6 +111,7 @@
     "urql": "^2.0.4"
   },
   "dependencies": {
+    "@tesseractcollective/react-graphql": "workspace:0.9.14",
     "case": "^1.6.3",
     "jotai": "^1.1.2",
     "lodash": "^4.17.21",
