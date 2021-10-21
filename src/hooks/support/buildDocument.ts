@@ -1,18 +1,19 @@
-import gql from 'graphql-tag';
-import { JsonObject } from 'type-fest';
+import gql from "graphql-tag";
+import { JsonObject } from "type-fest";
+import { log } from "../../support/log";
 
 export function buildDocument(
   queryStr: string,
   operationName: string,
   variables: JsonObject,
   origin: string,
-  type: 'query' | 'mutation',
+  type: "query" | "mutation"
 ) {
   let document;
   try {
     document = gql(queryStr);
-  } catch (err) {
-    console.log(
+  } catch (err: any) {
+    log.error(
       `---!!! Could not parse ${type.toUpperCase()} string ( ${origin} ) !!!---
       message: ${err.message}
 
@@ -20,11 +21,11 @@ export function buildDocument(
 
       operationName: ${operationName}
 
-      variables: ${JSON.stringify(variables,null, 2)}
+      variables: ${JSON.stringify(variables, null, 2)}
 
       ---!!! Could not parse ${type.toUpperCase()} string !!!---
     `,
-      err,
+      err
     );
     throw err;
   }

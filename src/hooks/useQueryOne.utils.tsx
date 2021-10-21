@@ -1,34 +1,45 @@
-import React from 'react';
-import { JsonObject } from 'type-fest';
+import React from "react";
+import { JsonObject } from "type-fest";
 
-import { getFieldFragmentInfo } from '../support/HasuraConfigUtils';
-import { QueryPostMiddlewareState, QueryPreMiddlewareState } from '../types/hookMiddleware';
-import { HasuraDataConfig } from '../types/hasuraConfig';
-import { buildFragment } from './support/buildFragment';
-import { buildDocument } from './support/buildDocument';
-import { getFieldTypeMap } from '../support';
+import { getFieldFragmentInfo } from "../support/HasuraConfigUtils";
+import {
+  QueryPostMiddlewareState,
+  QueryPreMiddlewareState,
+} from "../types/hookMiddleware";
+import { HasuraDataConfig } from "../types/hasuraConfig";
+import { buildFragment } from "./support/buildFragment";
+import { buildDocument } from "./support/buildDocument";
+import { getFieldTypeMap } from "../support";
+import { log } from "../support/log";
 
-function createVariableDefinitionsString(variables: JsonObject, config: HasuraDataConfig): string {
+function createVariableDefinitionsString(
+  variables: JsonObject,
+  config: HasuraDataConfig
+): string {
   if (!config.fieldFragment || !config.schema) {
-    return '';
+    return "";
   }
   const fieldTypeMap = getFieldTypeMap(config.fieldFragment, config.schema);
   return Object.keys(variables)
     .map((key) => {
-      const type = fieldTypeMap[key]?.toString() || 'Any!';
+      const type = fieldTypeMap[key]?.toString() || "Any!";
       return `$${key}: ${type}`;
     })
-    .join(', ');
+    .join(", ");
 }
 
 export function createQueryOne(
   state: QueryPreMiddlewareState,
-  config: HasuraDataConfig,
+  config: HasuraDataConfig
 ): QueryPostMiddlewareState {
   const name = config.typename;
-  const operationName = config.overrides?.operationNames?.query_by_pk ?? `${name}_by_pk`;
+  const operationName =
+    config.overrides?.operationNames?.query_by_pk ?? `${name}_by_pk`;
 
-  const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.query_by_pk);
+  const { fragment, fragmentName } = getFieldFragmentInfo(
+    config,
+    config.overrides?.fieldFragments?.query_by_pk
+  );
 
   const variables = state.variables;
 
@@ -43,10 +54,13 @@ export function createQueryOne(
       return variables[key] ? `${key}: $${key}` : null;
     })
     .filter((x) => !!x)
-    .join(', ');
+    .join(", ");
 
-  const operationStr = operationStrBase ? `(${operationStrBase})` : '';
-  const variableDefinitionsString = createVariableDefinitionsString(variables, config);
+  const operationStr = operationStrBase ? `(${operationStrBase})` : "";
+  const variableDefinitionsString = createVariableDefinitionsString(
+    variables,
+    config
+  );
 
   let frag = buildFragment(fragment, operationStr, variables);
 
@@ -57,9 +71,19 @@ export function createQueryOne(
   }
   ${frag}`;
 
-  console.log('🚀 ~ file: useQueryOne.utils.tsx ~ line 1 ~ queryString', queryString, variables);
+  log.debug(
+    "🚀 ~ file: useQueryOne.utils.tsx ~ line 1 ~ queryString",
+    queryString,
+    variables
+  );
 
-  const document = buildDocument(queryString, operationStr, variables, 'createQueryOne', 'query');
+  const document = buildDocument(
+    queryString,
+    operationStr,
+    variables,
+    "createQueryOne",
+    "query"
+  );
 
   return { document, variables, operationName };
 }

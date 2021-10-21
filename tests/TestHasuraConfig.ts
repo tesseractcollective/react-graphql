@@ -1,4 +1,5 @@
-import { buildClientSchema } from 'graphql';
+import { buildClientSchema } from "graphql";
+import { log } from "../src/support/log";
 
 import IntrospectionQuery, {
   GroupFieldsFragmentDoc,
@@ -6,46 +7,49 @@ import IntrospectionQuery, {
   UserGroupFieldsFragmentDoc,
   UserPostReactionFieldsFragmentDoc,
   PostCommentFieldsFragmentDoc,
-  MotorcycleReferenceFieldsFragmentDoc
-} from './generated/graphql';
-import { HasuraConfigType } from '../src/types/hasuraConfig';
-import { buildHasuraConfig } from '../src/support/HasuraConfigUtils';
-import schema from './generated/graphql.schema.json';
+  MotorcycleReferenceFieldsFragmentDoc,
+} from "./generated/graphql";
+import { HasuraConfigType } from "../src/types/hasuraConfig";
+import { buildHasuraConfig } from "../src/support/HasuraConfigUtils";
+import schema from "./generated/graphql.schema.json";
 
 const HasuraConfig: HasuraConfigType = buildHasuraConfig(schema, {
   groups: {
-    typename: 'group',
-    primaryKey: ['id'],
+    typename: "group",
+    primaryKey: ["id"],
     fieldFragment: GroupFieldsFragmentDoc,
   },
   userGroups: {
-    typename: 'userGroup',
-    primaryKey: ['userId', 'groupId'],
+    typename: "userGroup",
+    primaryKey: ["userId", "groupId"],
     fieldFragment: UserGroupFieldsFragmentDoc,
     primaryKeyRequiredOnCreate: true,
   },
   posts: {
-    typename: 'post',
-    primaryKey: ['id'],
+    typename: "post",
+    primaryKey: ["id"],
     fieldFragment: PostFieldsFragmentDoc,
   },
   userPostReactions: {
-    typename: 'userPostReaction',
-    primaryKey: ['userId', 'postId'],
+    typename: "userPostReaction",
+    primaryKey: ["userId", "postId"],
     fieldFragment: UserPostReactionFieldsFragmentDoc,
     primaryKeyRequiredOnCreate: true,
   },
   postComments: {
-    typename: 'postComment',
-    primaryKey: ['id'],
+    typename: "postComment",
+    primaryKey: ["id"],
     fieldFragment: PostCommentFieldsFragmentDoc,
   },
   motorcycleReference: {
-    typename: 'motorcycleReference',
-    primaryKey: ['year', 'modelId', 'makeId'],
-    fieldFragment: MotorcycleReferenceFieldsFragmentDoc
-  }
+    typename: "motorcycleReference",
+    primaryKey: ["year", "modelId", "makeId"],
+    fieldFragment: MotorcycleReferenceFieldsFragmentDoc,
+  },
 });
 
-console.log('🚀 ~ file: TestHasuraConfig.ts ~ line 51 ~ HasuraConfig', HasuraConfig)
+log.debug(
+  "🚀 ~ file: TestHasuraConfig.ts ~ line 51 ~ HasuraConfig",
+  HasuraConfig
+);
 export default HasuraConfig;
