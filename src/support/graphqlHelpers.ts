@@ -5,12 +5,14 @@ import {
   GraphQLOutputType,
   GraphQLSchema,
   isListType,
+  isEnumType,
   isNonNullType,
   isObjectType,
   isScalarType,
   VariableDefinitionNode,
-} from "graphql";
-import { HasuraDataConfig } from "../types";
+  GraphQLEnumValue
+} from 'graphql';
+import { HasuraDataConfig } from '../types';
 
 export type GraphQLOutputTypeMap = { [key: string]: GraphQLOutputType };
 
@@ -78,6 +80,7 @@ export interface IFieldOutputType {
   isList?: boolean;
   data?: any;
   relationship?: { table: string; field: string };
+  enumValues?: GraphQLEnumValue[];
 }
 
 export function getFieldMap(
@@ -153,7 +156,12 @@ export function getFragmentFields(
             fieldType = fieldType.ofType;
           }
 
-          if (isScalarType(fieldType)) {
+          
+          if (isScalarType(fieldType) || isEnumType(fieldType)) {
+            let enumValues;
+            if(isEnumType(fieldType)){
+              enumValues = fieldType.getValues()
+            }
             let relationship;
             if (relationshipLookup) {
               const rel = relationshipLookup[tableName + "." + fieldName];
@@ -171,7 +179,8 @@ export function getFragmentFields(
               name: fieldName,
               typeName: fieldType.name,
               isNonNull,
-              relationship,
+              relationship: relationship,
+              enumValues
             };
           } else if (isObjectType(fieldType)) {
             let relationship;
@@ -216,6 +225,9 @@ export function getFragmentFields(
               isNonNull,
               relationship,
             };
+          }
+          else {
+            console.log('No matching type handled by getFragmentFields', fieldType)
           }
         }
       }
