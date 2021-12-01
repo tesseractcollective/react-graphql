@@ -25,6 +25,7 @@ interface IUseQueryOne<TVariables> {
   variables: Partial<TVariables>;
   resultHelperOptions?: IUseOperationStateHelperOptions;
   urqlContext?: Partial<OperationContext>;
+  pause?: boolean;
 }
 
 export interface QueryState {
@@ -52,6 +53,7 @@ export function useQueryOne<
     middleware,
     variables,
     urqlContext = defaultUrqlContext,
+    pause
   } = props;
 
   const [item, setItem] = useState<TData | null>();
@@ -77,6 +79,7 @@ export function useQueryOne<
     query: queryCfg?.document,
     variables: queryCfg.variables,
     context: urqlContext,
+    pause
   });
   log.debug("🚀 ~ file: useQueryOne.tsx ~ line 39 ~ resp", queryState);
 

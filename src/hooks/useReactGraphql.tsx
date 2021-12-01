@@ -39,6 +39,14 @@ export interface UseInfiniteQueryManyProps {
   resultHelperOptions?: IUseOperationStateHelperOptions;
   pause?: boolean;
 }
+export interface UseQueryOneProps {
+  variables: JsonObject;
+  middleware?: QueryMiddleware[];
+  resultHelperOptions?: IUseOperationStateHelperOptions;
+  urqlContext?: Partial<OperationContext>;
+  pause?: boolean;
+}
+
 export interface UseReactGraphqlApi {
   useInsert: <
     TData extends JsonObject = any,
@@ -115,12 +123,7 @@ export interface UseReactGraphqlApi {
   useQueryOne: <
     TData extends JsonObject,
     TVariables extends JsonObject
-  >(props: {
-    variables: JsonObject;
-    middleware?: QueryMiddleware[];
-    resultHelperOptions?: IUseOperationStateHelperOptions;
-    urqlContext?: Partial<OperationContext>;
-  }) => QueryState;
+  >(props: UseQueryOneProps) => QueryState;
 }
 
 export function useReactGraphql(
@@ -256,6 +259,7 @@ export function useReactGraphql(
       middleware?: QueryMiddleware[];
       resultHelperOptions?: IUseOperationStateHelperOptions;
       urqlContext?: Partial<OperationContext>;
+      pause?: boolean;
     }) {
       return useQueryOne<TData, TVariables>({
         sharedConfig: config,
