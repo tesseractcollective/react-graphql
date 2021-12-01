@@ -11,7 +11,7 @@ export { useQueryOne } from './hooks/useQueryOne';
 export { createQueryOne } from './hooks/useQueryOne.utils';
 export { useReactGraphql } from './hooks/useReactGraphql';
 export type { UseReactGraphqlApi } from './hooks/useReactGraphql';
-export type { UseInfiniteQueryManyProps } from './hooks/useReactGraphql';
+export type { UseInfiniteQueryManyProps, UseQueryOneProps } from './hooks/useReactGraphql';
 export { useUrqlQuery } from './hooks/useUrqlQuery';
 export { useMutateExisting } from './hooks/useMutateExisting';
 export type { UseMutationExistingState } from './hooks/useMutateExisting';
