@@ -1,6 +1,6 @@
 # React GraphQL
 
-This library provides hooks and components to easily interact with opinionated graphql APIs. It includes patters do create paginated lists, admin interface data grids, and edit views.
+This library provides hooks and components to easily interact with opinionated graphql APIs. It includes patterns do create paginated lists, admin interface data grids, and edit views.
 
 Supported GraphQL APIs:
 - Hasura
