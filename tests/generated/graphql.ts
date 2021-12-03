@@ -16490,3 +16490,13 @@ export const PostCommentFieldsFragmentDoc = gql`
   }
 }
     `;
+
+export const MotorcycleReferenceFieldsFragmentDoc = gql`
+    fragment motorcycleReferenceFields on motorcycleReference {
+ year
+ makeName
+ modelName
+ modelId
+ makeId
+}
+    `;

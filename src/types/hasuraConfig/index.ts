@@ -1,5 +1,5 @@
 import { DocumentNode, GraphQLOutputType, GraphQLSchema } from 'graphql';
-import { IFieldOutputType } from 'support';
+import { IFieldOutputType } from '../../support';
 
 export interface HasuraConfigType {
   [key: string]: HasuraDataConfig;
@@ -12,9 +12,17 @@ export interface HasuraDataConfig {
   schema?: GraphQLSchema;
   primaryKeyRequiredOnCreate?: boolean;
   instanceId?: string;
+  relationshipMeta?: {
+    labelField?:string;
+    defaultWhere?: any;
+  }
+  excludeAggregate?: any;
   fields?: { 
     fieldSimpleMap: { [key: string]: IFieldOutputType } 
     fieldTypeMap: { [key: string]: GraphQLOutputType}
+  };
+  jsonb?: {
+    columnName: string;
   };
   overrides?: {
     operationNames?: {

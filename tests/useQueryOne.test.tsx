@@ -1,11 +1,62 @@
-import { renderHook, act } from '@testing-library/react-hooks';
+import { waitFor } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react-hooks/dom';
+import { print } from 'graphql';
+import { createQueryOne } from '../src/hooks/useQueryOne.utils';
+import { useReactGraphql } from '../src/hooks/useReactGraphql';
+import HasuraConfig from './TestHasuraConfig';
+import { wrapperWithResultValue } from './urqlTestUtils';
 
-it('App loads with initial state of 0', () => {
-  // const { result } = renderHook(() => useQueryByPK());
+const resultValue = { id: '123' };
 
-  // act(() => {
-  //   result.current.increment();
-  // });
+describe('useQueryOne', () => {
+  it('can do a basic query', async () => {
+    const wrapper = wrapperWithResultValue(resultValue, 'query');
 
-  // expect(result.current.count).toBe(1);
+    const { result } = renderHook(
+      () => {
+        const reactGraphql = useReactGraphql(HasuraConfig.groups);
+        return reactGraphql.useQueryOne({
+          variables: { id: 'abc' },
+        });
+      },
+      { wrapper },
+    );
+
+    expect(result.current.item.id).toEqual('abc');
+  });
+
+  it('will throw error if primary key is not in variables', async () => {
+    const wrapper = wrapperWithResultValue(resultValue, 'query');
+
+    const { result } = renderHook(
+      () => {
+        const reactGraphql = useReactGraphql(HasuraConfig.groups);
+        return reactGraphql.useQueryOne({
+          variables: { somethingElse: 'abc' },
+        });
+      },
+      { wrapper },
+    );
+
+    
+    let resultError;
+    try {
+      result.current;
+    } catch (error) {
+      resultError = error;
+    }
+    
+    expect(resultError).toBeDefined();
+  });
+
+  it('will support arbitrary variables', async () => {
+    const variables = { id: 'abc', userId: '1234' };
+
+    const queryOneConfig = createQueryOne({ variables }, HasuraConfig.posts);
+
+    const query = print(queryOneConfig.document);
+    expect(query.includes("$userId: uuid")).toEqual(true);
+    expect(query.includes("id: $id")).toEqual(true);
+    expect(queryOneConfig.variables.userId).toEqual('1234');
+  });
 });

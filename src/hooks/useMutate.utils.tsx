@@ -1,12 +1,12 @@
-import { getFieldTypeMap } from 'support';
+import { getFieldTypeMap } from '../support/graphqlHelpers';
 import { JsonObject } from 'type-fest';
 import { getFieldFragmentInfo } from '../support/HasuraConfigUtils';
 import { HasuraDataConfig } from '../types/hasuraConfig';
-import { QueryPostMiddlewareState, QueryPreMiddlewareState } from '../types/hookMiddleware';
+import { OperationTypes, QueryPostMiddlewareState, QueryPreMiddlewareState } from '../types/hookMiddleware';
 import { buildFragment } from './support/buildFragment';
 import { buildDocument } from './support/buildDocument';
 
-function createPkArgsString(config: HasuraDataConfig): string {
+export function createPkArgsString(config: HasuraDataConfig): string {
   return config.primaryKey
     .map((key) => {
       return `${key}:$${key}`;
@@ -36,10 +36,22 @@ function createVariables(
   operationName: string,
   includePks: boolean = false,
 ): JsonObject {
-  const variables: JsonObject = {};
+  const variables: JsonObject = {
+    ...state.variables,
+  };
 
+  updateVariablesFromItemIfRequested(config, state, includePks, variables);
+
+  return variables;
+}
+
+export function findMissingPrimaryKeys(
+  config: HasuraDataConfig,
+  state: QueryPreMiddlewareState,
+  includePks: boolean
+): string[] | null {
   const missingPrimaryKeyNames: string[] = [];
-  config.primaryKey.forEach((key) => {
+  config.primaryKey.map((key) => {
     const item: any = state.variables.item;
     const valueFromItem = item && item[key];
     const valueFromVariables = state.variables && state.variables[key];
@@ -48,32 +60,27 @@ function createVariables(
       missingPrimaryKeyNames.push(key);
     }
 
-    if (valueFromItem) {
+    if (valueFromItem && includePks) {
+      state.variables[key] = valueFromItem;
+    }
+  });
+  return missingPrimaryKeyNames.length ? missingPrimaryKeyNames : null;
+}
+
+function updateVariablesFromItemIfRequested(
+  config: HasuraDataConfig,
+  state: QueryPreMiddlewareState,
+  includePks: boolean,
+  variables: JsonObject,
+) {
+  config.primaryKey.forEach((key) => {
+    const item: any = state.variables.item;
+    const valueFromItem = item && item[key];
+
+    if (valueFromItem && includePks) {
       variables[key] = valueFromItem;
     }
   });
-
-  if (missingPrimaryKeyNames.length) {
-    throw new Error(`When using useDelete you need to ensure you pass in variables that match the primary keys needed for this type.
-    The operation for this was: ${operationName}.
-    We detected the following primary keys from config.primaryKey: ${config.primaryKey}
-    The following were not found in the variables but were needed: ${missingPrimaryKeyNames.join(', ')}
-    This was for the config: ${config.typename}
-    The current middleware state was: ${JSON.stringify(state, null, 2)}
-    `);
-  }
-
-  Object.keys(state.variables).forEach((key) => {
-    const variable = state.variables[key];
-    const itemAlreadyExists = !!variable;
-    if (key === 'item' && itemAlreadyExists) {
-      variables.item = variable;
-    } else {
-      variables[key] = variable;
-    }
-  });
-
-  return variables;
 }
 
 export function createDeleteMutation(
@@ -86,25 +93,22 @@ export function createDeleteMutation(
   const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.delete_by_pk);
 
   const variables = createVariables(state, config, operationName, true);
-  const variablesForDeleting = {...variables};
+  const variablesForDeleting = { ...variables };
   delete variablesForDeleting.item;
   const variableDefinitionsString = createVariableDefinitionsString(variablesForDeleting, 'Any!', config);
   const pkArgs = createPkArgsString(config);
 
   const variablesStr = variableDefinitionsString ? `(${variableDefinitionsString})` : '';
 
-  let frag = buildFragment(fragment, operationName, variablesForDeleting);
-
   const mutationStr = `mutation ${name}DeleteMutation${variablesStr} {
       ${operationName}(${pkArgs}) {
-        ...${fragmentName}
+        ${config.primaryKey.join('\r\n')}
       }
-    }
-    ${frag}`;
+    }`;
 
   let document = buildDocument(mutationStr, operationName, variablesForDeleting, 'createDeleteMutation', 'mutation');
 
-  return { document, operationName, variables };
+  return { document, operationName, variables: variablesForDeleting };
 }
 
 export function createInsertMutation(
@@ -166,4 +170,98 @@ export function createUpdateMutation(
   let document = buildDocument(mutationStr, operationName, variables, 'createUploadMutation', 'mutation');
 
   return { document, operationName, variables };
+}
+
+// '_delete_at_path' | '_delete_elem' | '_delete_key'
+
+//Add to start, add to end, edit (replace all), delete by path, delete by index
+
+const localOperationToHasuraMap = {
+  'insert-first': '_prepend',
+  'insert-last': '_append',
+  update: '_set',
+  delete: '_delete_elem',
+  delete_jsonb_key: '_delete_key',
+};
+
+export function createUpdateJsonbMutation(
+  state: QueryPreMiddlewareState,
+  config: HasuraDataConfig,
+): QueryPostMiddlewareState {
+  if (!state.meta) {
+    throw new Error('Using jsonbMutations requires middleware that passes in state.meta');
+  }
+
+  const { jsonbColumnName, operationEventType } = state.meta;
+
+  // jsonbOperation: OperationTypes = 'insert-first',
+  // jsonbColumnName: string
+  const name = config.typename;
+  const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.update_core);
+
+  const operationName = config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;
+
+  const item = state.variables.item;
+  const itemIsString = typeof item === 'string';
+  const itemIsNumber = typeof item === 'number';
+
+  let objectType = `jsonb`;
+
+  const variables = createVariables(state, config, operationName, true);
+  const variableDefinitionsString = createVariableDefinitionsString(variables, objectType, config);
+  const pkArgs = createPkArgsString(config);
+
+  const variablesStr = variableDefinitionsString ? `(${variableDefinitionsString})` : '';
+
+  let frag = buildFragment(fragment, operationName, variables);
+
+  const jsonbOperationName = localOperationToHasuraMap[operationEventType || 'insert-first'];
+
+  const mutationStr = `mutation ${name}Mutation${variablesStr} {
+    ${operationName}(pk_columns: {${pkArgs}} ${jsonbOperationName}:{ ${jsonbColumnName} : $item } ) {
+      ...${fragmentName}
+    }
+  }
+  ${frag}`;
+
+  let document = buildDocument(mutationStr, operationName, variables, 'createUploadMutation', 'mutation');
+
+  return { document, operationName, variables, meta: state.meta };
+}
+
+export function createDeleteJsonbMutation(
+  state: QueryPreMiddlewareState,
+  config: HasuraDataConfig,
+): QueryPostMiddlewareState {
+  if (!state.meta) {
+    throw new Error('Using jsonbMutations requires middleware that passes in state.meta');
+  }
+
+  const { jsonbColumnName, operationEventType } = state.meta;
+
+  const name = config.typename;
+  const { fragment, fragmentName } = getFieldFragmentInfo(config, config.overrides?.fieldFragments?.update_core);
+
+  const operationName = config.overrides?.operationNames?.update_by_pk ?? `update_${name}_by_pk`;
+
+  let objectType = 'String';
+
+  const variables = createVariables(state, config, operationName, true);
+  const variableDefinitionsString = createVariableDefinitionsString(variables, objectType, config);
+  const pkArgs = createPkArgsString(config);
+
+  const variablesStr = variableDefinitionsString ? `(${variableDefinitionsString})` : '';
+
+  let frag = buildFragment(fragment, operationName, variables);
+
+  const mutationStr = `mutation ${name}Mutation${variablesStr} {
+    ${operationName}(pk_columns: {${pkArgs}} _delete_key:{ ${jsonbColumnName} : $item } ) {
+      ...${fragmentName}
+    }
+  }
+  ${frag}`;
+
+  let document = buildDocument(mutationStr, operationName, variables, 'createUploadMutation', 'mutation');
+
+  return { document, operationName, variables, meta: state.meta };
 }

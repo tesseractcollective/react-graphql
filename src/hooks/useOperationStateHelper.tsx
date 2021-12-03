@@ -2,11 +2,12 @@ import React, {useState, useEffect, ReactElement} from 'react';
 import {Text} from 'react-native';
 import {UseQueryState, CombinedError, UseMutationState} from 'urql';
 
-interface IUseOperationStateHelperOptions {
+export interface IUseOperationStateHelperOptions {
   successToastMessage?: string;
   successString?: string;
   successRender?: (data: any) => ReactElement;
   onSuccess?: (data: any) => void;
+  //TODO: confirmBeforeMutation?: { title: string, description: string, okButtonText: string = 'Ok', cancelButtonText?: string, showCloseIcon: boolean }
   errorToastMessage?: string;
   errorString?: string;
   errorRender?: (error: CombinedError) => ReactElement;

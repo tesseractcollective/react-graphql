@@ -1,86 +1,238 @@
 import { JsonObject } from 'type-fest';
+import { OperationContext, RequestPolicy } from 'urql';
 import { HasuraDataConfig } from '../types/hasuraConfig';
 import { QueryMiddleware } from '../types/hookMiddleware';
-import { useInfiniteQueryMany } from './useInfiniteQueryMany';
+import { IUseInfiniteQueryMany, IUseInfiniteQueryManyResults, useInfiniteQueryMany } from './useInfiniteQueryMany';
 import { createInfiniteQueryMany } from './useInfiniteQueryMany.utils';
-import { useMutate } from './useMutate';
+import { MutateState, useMutate } from './useMutate';
+import { DeleteJsonBMutateState, useDeleteJsonb } from './useDeleteJsonb';
+import { useMutateJsonb } from './useMutateJsonb';
 import {
+  createDeleteJsonbMutation,
   createDeleteMutation,
   createInsertMutation,
-  createUpdateMutation
+  createUpdateJsonbMutation,
+  createUpdateMutation,
 } from './useMutate.utils';
-import { useQueryOne } from './useQueryOne';
+import { useMutateExisting, UseMutationExistingState } from './useMutateExisting';
+import { IUseOperationStateHelperOptions } from './useOperationStateHelper';
+import { QueryState, useQueryOne } from './useQueryOne';
 import { createQueryOne } from './useQueryOne.utils';
 
-export function useReactGraphql(config: HasuraDataConfig) {
+export interface UseInfiniteQueryManyProps {
+  where?: { [key: string]: any };
+  orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
+  distinctOn?: string;
+  pageSize?: number;
+  middleware?: QueryMiddleware[];
+  listKey?: string;
+  urqlContext?: Partial<OperationContext>;
+  resultHelperOptions?: IUseOperationStateHelperOptions;
+  pause?: boolean
+}
+export interface UseReactGraphqlApi {
+  useInsert: <
+    TData extends JsonObject = any,
+    TVariables extends JsonObject = any,
+    TItem extends JsonObject = any,
+  >(props?: {
+    initialVariables?: Partial<TVariables>;
+    initialItem?: Partial<TItem>;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    firstOrLast?: 'insert-first' | 'insert-last';
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+  }) => MutateState<TData, TVariables, TItem>;
+  useDelete: <TData extends JsonObject = any, TVariables extends JsonObject = any>(props: {
+    variables: TVariables;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+  }) => MutateState<TData, TVariables, any>;
+  useUpdate: <
+    TData extends JsonObject = any,
+    TVariables extends JsonObject = any,
+    TItem extends JsonObject = any,
+  >(props?: {
+    initialItem?: Partial<TItem>;
+    initialVariables?: Partial<TVariables>;
+    middleware?: QueryMiddleware[];
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+  }) => MutateState<TData, TVariables, TItem>;
+  useUpdateExisting: (props?: {
+    initialVariables: JsonObject;
+    queryMiddleware?: QueryMiddleware[];
+    mutationMiddleware?: QueryMiddleware[];
+    listKey?: string;
+    mutationResultHelperOptions?: IUseOperationStateHelperOptions;
+  }) => UseMutationExistingState;
+  useInsertJsonb: (props?: {
+    initialVariables?: JsonObject;
+    initialItem?: JsonObject;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    firstOrLast?: 'insert-first' | 'insert-last';
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    columnName?: string;
+  }) => MutateState;
+  useRemoveKeyFromJsonbObject: (props: {
+    key?: string;
+    variables: JsonObject;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    columnName?: string;
+  }) => DeleteJsonBMutateState;
+  useRemoveItemFromJsonbArray: (props: {
+    variables: JsonObject;
+    middleware?: QueryMiddleware[];
+    listKey?: string;
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    columnName?: string;
+  }) => MutateState;
+  useUpdateJsonb: (props?: {
+    initialItem?: JsonObject;
+    initialVariables?: JsonObject;
+    middleware?: QueryMiddleware[];
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    columnName?: string;
+  }) => MutateState;
+  useInfiniteQueryMany: <T>(props?: UseInfiniteQueryManyProps) => IUseInfiniteQueryManyResults<T>;
+  useQueryOne: <TData extends JsonObject, TVariables extends JsonObject>(props: {
+    variables: JsonObject;
+    middleware?: QueryMiddleware[];
+    resultHelperOptions?: IUseOperationStateHelperOptions;
+    urqlContext?: Partial<OperationContext>;
+  }) => QueryState;
+}
+
+export function useReactGraphql(config: HasuraDataConfig): UseReactGraphqlApi {
   return {
-    useInsert: (props?: {
-      initialVariables?: JsonObject;
-      initialItem?: JsonObject;
+    useInsert: function <
+      TData extends JsonObject = any,
+      TVariables extends JsonObject = any,
+      TItem extends JsonObject = any,
+    >(props?: {
+      initialVariables?: Partial<TVariables>;
+      initialItem?: Partial<TItem>;
       middleware?: QueryMiddleware[];
       listKey?: string;
       firstOrLast?: 'insert-first' | 'insert-last';
-    }) =>
-      useMutate({
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+    }) {
+      return useMutate<TData, TVariables, TItem>({
         sharedConfig: config,
         middleware: props?.middleware || [createInsertMutation],
-        initialItem: props?.initialItem,
-        initialVariables: props?.initialVariables,
         operationEventType: props?.firstOrLast ?? 'insert-first',
-        listKey: props?.listKey,
-      }),
+        ...props,
+      });
+    },
 
-    useDelete: (props: {
-      variables: JsonObject;
+    useDelete: function <TData extends JsonObject = any, TVariables extends JsonObject = any>(props: {
+      variables: TVariables;
       middleware?: QueryMiddleware[];
       listKey?: string;
-    }) =>
-      useMutate({
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+    }) {
+      return useMutate<TData, TVariables, any>({
         sharedConfig: config,
         middleware: props.middleware || [createDeleteMutation],
+        operationEventType: 'delete',
+        ...props,
+      });
+    },
+
+    useUpdate: function <
+      TData extends JsonObject = any,
+      TVariables extends JsonObject = any,
+      TItem extends JsonObject = any,
+    >(props?: {
+      initialItem?: Partial<TItem>;
+      initialVariables?: Partial<TVariables>;
+      middleware?: QueryMiddleware[];
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+    }) {
+      return useMutate<TData, TVariables, TItem>({
+        sharedConfig: config,
+        middleware: props?.middleware || [createUpdateMutation],
+        operationEventType: 'update',
+        ...props,
+      });
+    },
+
+    useUpdateExisting: (props?) =>
+      useMutateExisting({
+        sharedConfig: config,
+        mutationMiddleware: props?.mutationMiddleware || [createUpdateMutation],
+        queryMiddleware: props?.queryMiddleware || [createQueryOne],
+        queryVariables: props?.initialVariables || {},
+        mutationResultHelperOptions: props?.mutationResultHelperOptions,
+      }),
+
+    useInsertJsonb: (props?) =>
+      useMutateJsonb({
+        sharedConfig: config,
+        middleware: props?.middleware || [createUpdateJsonbMutation],
+        initialItem: props?.initialItem,
+        initialVariables: props?.initialVariables,
+        operationEventType: props?.firstOrLast ?? 'insert-last',
+        listKey: props?.listKey,
+        resultHelperOptions: props?.resultHelperOptions,
+        columnName: props?.columnName,
+      }),
+
+    useRemoveKeyFromJsonbObject: (props) =>
+      useDeleteJsonb({
+        sharedConfig: config,
+        middleware: props.middleware || [createDeleteJsonbMutation],
+        initialVariables: props.variables,
+        key: props.key,
+        operationEventType: 'delete_jsonb_key',
+        listKey: props.listKey,
+        resultHelperOptions: props?.resultHelperOptions,
+        columnName: props?.columnName,
+      }),
+
+    useRemoveItemFromJsonbArray: (props) =>
+      useMutateJsonb({
+        sharedConfig: config,
+        middleware: props.middleware || [createUpdateJsonbMutation],
         initialVariables: props.variables,
         operationEventType: 'delete',
         listKey: props.listKey,
+        resultHelperOptions: props?.resultHelperOptions,
+        columnName: props?.columnName,
       }),
 
-    useUpdate: (props?: {
-      initialItem?: JsonObject;
-      initialVariables?: JsonObject;
-      middleware?: QueryMiddleware[];
-      listKey?: string;
-    }) =>
-      useMutate({
+    useUpdateJsonb: (props?) =>
+      useMutateJsonb({
         sharedConfig: config,
-        middleware: props?.middleware || [createUpdateMutation],
+        middleware: props?.middleware || [createUpdateJsonbMutation],
         initialItem: props?.initialItem,
         initialVariables: props?.initialVariables,
         operationEventType: 'update',
-        listKey: props?.listKey,
+        resultHelperOptions: props?.resultHelperOptions,
+        columnName: props?.columnName,
       }),
 
-    useInfiniteQueryMany: function<TData>(props?: {
-      where?: {[key: string]: any};
-      orderBy?: {[key: string]: any} | Array<{[key: string]: any}>;
-      pageSize?: number;
-      middleware?: QueryMiddleware[];
-      listKey?: string;
-    }) {
+    useInfiniteQueryMany: function <TData>(props?: UseInfiniteQueryManyProps) {
       return useInfiniteQueryMany<TData>({
-        where: props?.where,
-        orderBy: props?.orderBy,
+        ...props,
         sharedConfig: config,
         middleware: props?.middleware || [createInfiniteQueryMany],
-        listKey: props?.listKey,
-      })
+      });
     },
-    useQueryOne: (props: {
-      variables: JsonObject;
+    useQueryOne: function <TData extends JsonObject, TVariables extends JsonObject>(props: {
+      variables: Partial<TVariables>;
       middleware?: QueryMiddleware[];
-    }) =>
-      useQueryOne({
+      resultHelperOptions?: IUseOperationStateHelperOptions;
+      urqlContext?: Partial<OperationContext>;
+    }) {
+      return useQueryOne<TData, TVariables>({
         sharedConfig: config,
         middleware: props?.middleware || [createQueryOne],
-        variables: props.variables,
-      }),
+        ...props,
+      });
+    },
   };
 }

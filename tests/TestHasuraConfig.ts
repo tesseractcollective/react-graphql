@@ -6,9 +6,10 @@ import IntrospectionQuery, {
   UserGroupFieldsFragmentDoc,
   UserPostReactionFieldsFragmentDoc,
   PostCommentFieldsFragmentDoc,
+  MotorcycleReferenceFieldsFragmentDoc
 } from './generated/graphql';
 import { HasuraConfigType } from '../src/types/hasuraConfig';
-import { buildHasuraConfig } from '../src/support/hasuraConfigUtils';
+import { buildHasuraConfig } from '../src/support/HasuraConfigUtils';
 import schema from './generated/graphql.schema.json';
 
 const HasuraConfig: HasuraConfigType = buildHasuraConfig(schema, {
@@ -39,6 +40,12 @@ const HasuraConfig: HasuraConfigType = buildHasuraConfig(schema, {
     primaryKey: ['id'],
     fieldFragment: PostCommentFieldsFragmentDoc,
   },
+  motorcycleReference: {
+    typename: 'motorcycleReference',
+    primaryKey: ['year', 'modelId', 'makeId'],
+    fieldFragment: MotorcycleReferenceFieldsFragmentDoc
+  }
 });
 
+console.log('🚀 ~ file: TestHasuraConfig.ts ~ line 51 ~ HasuraConfig', HasuraConfig)
 export default HasuraConfig;

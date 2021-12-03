@@ -1,8 +1,0 @@
-src
-public
-node_modules
-.vscode
-tsconfig*.json
-dist/__mocks
-dist/tests
-dist/components/**/*.*

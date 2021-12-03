@@ -1,30 +1,57 @@
-import { isEqual } from "lodash";
-import { useCallback, useEffect, useState, useMemo } from "react";
-import { stateFromQueryMiddleware } from "../support/middlewareHelpers";
-import { HasuraDataConfig } from "../types/hasuraConfig";
-import { QueryMiddleware } from "../types/hookMiddleware";
-import { findDefaultPks } from "./support/findDefaultPks";
-import { useUrqlQuery } from "./useUrqlQuery";
-import { useMonitorResult } from "./support/monitorResult";
-import { useAtom } from "jotai";
-import { mutationEventAtom, IMutationEvent } from "./support/mutationEventAtom";
-import { JsonArray, JsonObject } from "type-fest";
+import { isEqual } from 'lodash';
+import { useCallback, useEffect, useState, useMemo } from 'react';
+import { stateFromQueryMiddleware } from '../support/middlewareHelpers';
+import { HasuraDataConfig } from '../types/hasuraConfig';
+import { QueryMiddleware } from '../types/hookMiddleware';
+import { findDefaultPks } from './support/findDefaultPks';
+import { useUrqlQuery } from './useUrqlQuery';
+import { useMonitorResult } from './support/monitorResult';
+import { useAtom } from 'jotai';
+import { mutationEventAtom, IMutationEvent } from './support/mutationEventAtom';
+import { JsonArray, JsonObject } from 'type-fest';
+import { OperationContext, RequestPolicy, UseQueryState } from 'urql';
+import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useOperationStateHelper';
 
 export interface IUseInfiniteQueryMany {
   where?: { [key: string]: any };
   orderBy?: { [key: string]: any } | Array<{ [key: string]: any }>;
+  distinctOn?: string;
   pageSize?: number;
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
   listKey?: string;
+  urqlContext?: Partial<OperationContext>;
+  resultHelperOptions?: IUseOperationStateHelperOptions;
+  pause?: boolean;
+}
+
+export interface IUseInfiniteQueryManyResults<TRecord> {
+  queryState: UseQueryState<any, object>;
+  items: TRecord[];
+  localError: string;
+  refresh: () => void;
+  loadNextPage: () => void;
+  requeryKeepInfinite: () => void;
+  totalItems?: number;
 }
 
 const defaultPageSize = 50;
+const defaultUrqlContext: Partial<OperationContext> = { requestPolicy: 'cache-and-network' };
 
 export function useInfiniteQueryMany<TData extends any>(
-  props: IUseInfiniteQueryMany
-) {
-  const { sharedConfig, middleware, where, orderBy, pageSize, listKey } = props;
+  props: IUseInfiniteQueryMany,
+): IUseInfiniteQueryManyResults<TData> {
+  const {
+    sharedConfig,
+    middleware,
+    where,
+    orderBy,
+    distinctOn,
+    pageSize,
+    listKey,
+    urqlContext = defaultUrqlContext,
+    pause
+  } = props;
 
   const limit = pageSize ?? defaultPageSize;
 
@@ -33,7 +60,7 @@ export function useInfiniteQueryMany<TData extends any>(
     localError: string;
     queryError?: string;
     detectedPks: Map<string, string[]>;
-  }>({ firstQueryCompleted: false, localError: "", detectedPks: new Map() });
+  }>({ firstQueryCompleted: false, localError: '', detectedPks: new Map() });
 
   const [offset, setOffset] = useState(0);
   const [externalVariables, setExterneralVariables] = useState<any>({
@@ -41,6 +68,7 @@ export function useInfiniteQueryMany<TData extends any>(
     orderBy,
     limit,
     offset,
+    distinctOn,
   });
   const [itemsMap, setItemsMap] = useState<Map<string, TData>>(new Map());
   const [shouldClearItems, setShouldClearItems] = useState(false);
@@ -48,18 +76,18 @@ export function useInfiniteQueryMany<TData extends any>(
 
   //Guards
   if (!sharedConfig || !middleware?.length) {
-    throw new Error("sharedConfig and at least one middleware required");
+    throw new Error('sharedConfig and at least one middleware required');
   }
 
   //Update internal variables from explicitly passed in
   useEffect(() => {
-    const checkVariables = { where, orderBy, limit };
+    const checkVariables = { where, orderBy, limit, distinctOn };
     if (!isEqual(externalVariables, checkVariables)) {
       setExterneralVariables(checkVariables);
       setOffset(0);
       setShouldClearItems(true);
     }
-  }, [where, orderBy, limit]);
+  }, [where, orderBy, limit, distinctOn]);
 
   //setup config
   const [queryCfg, setQueryCfg] = useState(computeConfig);
@@ -70,7 +98,7 @@ export function useInfiniteQueryMany<TData extends any>(
   }, [externalVariables, offset]);
 
   // Setup the initial query Config so it's for sure ready before we get to urql
-  const [queryState, reExecuteQuery] = useUrqlQuery<TData>(queryCfg);
+  const [queryState, reExecuteQuery] = useUrqlQuery<TData>(queryCfg, undefined, urqlContext, pause);  
 
   useEffect(() => {
     if (needsReQuery) {
@@ -79,13 +107,13 @@ export function useInfiniteQueryMany<TData extends any>(
     }
   }, [needsReQuery]);
 
-  useMonitorResult("query", queryState, queryCfg);
+  useMonitorResult('query', queryState, queryCfg);
 
   //Parse response
   useEffect(() => {
     if (queryState.data) {
       const data: { [key: string]: JsonArray } = queryState.data;
-      const keys = Object.keys(data);
+      const keys = Object.keys(data).filter(key=> !key.endsWith('_aggregate'));
       if (keys.length === 1) {
         const key = keys[0];
         //only single response category so use single layer items
@@ -102,19 +130,14 @@ export function useInfiniteQueryMany<TData extends any>(
             newDetectedPks.set(key, sharedConfig.primaryKey);
           } else {
             //Move to utility function and check for registered regex
-            newDetectedPks = findDefaultPks(
-              queryItems,
-              newDetectedPks,
-              detectedPks,
-              key
-            );
+            newDetectedPks = findDefaultPks(queryItems, newDetectedPks, detectedPks, key);
           }
           pks = newDetectedPks?.get(key);
         }
 
         let localError;
         if (!pks && resultHasItems) {
-          localError = "Could not autodetect PK, please register pk patterns";
+          localError = 'Could not autodetect PK, please register pk patterns';
           setMeta({
             detectedPks: newDetectedPks ?? meta.detectedPks,
             firstQueryCompleted: true,
@@ -131,18 +154,19 @@ export function useInfiniteQueryMany<TData extends any>(
         resultHasItems &&
           pks &&
           queryItems.forEach((item: any) => {
-            const itemKey = pks!.map((pk) => item[pk]).join(":");
+            const itemKey = pks!.map((pk) => item[pk]).join(':');
             newItemsMap.set(itemKey, item);
           });
         setItemsMap(newItemsMap);
-        console.log(
-          "🚀 ~ file: useInfiniteQueryMany.tsx ~ line 138 ~ useEffect ~ newItemsMap",
-          newItemsMap
-        );
+        // console.log(
+        //   '🚀 ~ file: useInfiniteQueryMany.tsx ~ line 138 ~ useEffect ~ newItemsMap',
+        //   newItemsMap?.size + ' items found',
+        //   newItemsMap?.size && newItemsMap.get(newItemsMap.keys().next().value),
+        // );
         setMeta({
           detectedPks: newDetectedPks ?? meta.detectedPks,
           firstQueryCompleted: true,
-          localError: "",
+          localError: '',
         });
       } else if (keys.length > 1) {
         // TODO: We queried more than one top level table so we have to nest inside the map accordingly
@@ -150,7 +174,7 @@ export function useInfiniteQueryMany<TData extends any>(
         setMeta({
           detectedPks: meta.detectedPks,
           firstQueryCompleted: true,
-          localError: "OOPSIE POOPSIE",
+          localError: 'OOPSIE POOPSIE',
         });
       }
     }
@@ -160,46 +184,39 @@ export function useInfiniteQueryMany<TData extends any>(
   const [mutationEvent] = useAtom<IMutationEvent>(mutationEventAtom);
 
   useEffect(() => {
+    
     const _listKey = listKey ?? sharedConfig.typename;
     const isMatchingListKey = _listKey === mutationEvent.listKey;
 
     if (!isMatchingListKey) {
       return;
     }
-    console.log(
-      "mutationEvent recieved <- useInfiniteQueryMany",
-      mutationEvent,
-      listKey
-    );
 
-    if (mutationEvent?.type === "insert-first") {
+    if (mutationEvent?.type === 'insert-first') {
       const newMap = new Map();
       newMap.set(mutationEvent.key, mutationEvent.payload as TData);
       itemsMap.forEach((val, key) => newMap.set(key, val));
       setItemsMap(newMap);
-    } else if (mutationEvent?.type === "insert-last") {
+    } else if (mutationEvent?.type === 'insert-last') {
       itemsMap.set(mutationEvent.key, mutationEvent.payload as TData);
-    } else if (
-      mutationEvent?.type === "update" &&
-      itemsMap.has(mutationEvent.key)
-    ) {
+      setItemsMap(itemsMap);
+    } else if (mutationEvent?.type === 'update' && itemsMap.has(mutationEvent.key)) {
       itemsMap.set(mutationEvent.key, mutationEvent.payload as TData);
-    } else if (
-      mutationEvent?.type === "delete" &&
-      itemsMap.has(mutationEvent.key)
-    ) {
+      setItemsMap(itemsMap);
+    } else if (mutationEvent?.type === 'delete' && itemsMap.has(mutationEvent.key)) {
       itemsMap.delete(mutationEvent.key);
+      setItemsMap(itemsMap);
     }
   }, [mutationEvent]);
 
   //Update user items from map
-  const items:TData[] = useMemo(() => {
+  const items: TData[] = useMemo(() => {
     return Array.from(itemsMap.values());
   }, [itemsMap]);
 
   const loadNextPage = () => {
     if (!queryState.fetching) {
-      if (items?.length && items?.length % limit === 0) {
+      if (items.length && items.length % limit === 0) {
         setOffset(offset + limit);
       }
     }
@@ -215,6 +232,8 @@ export function useInfiniteQueryMany<TData extends any>(
     setNeedsReQuery(true);
   };
 
+  useOperationStateHelper(queryState, props.resultHelperOptions || {});
+
   return {
     queryState,
     items,
@@ -222,6 +241,7 @@ export function useInfiniteQueryMany<TData extends any>(
     refresh,
     loadNextPage,
     requeryKeepInfinite,
+    totalItems: queryState?.data?.[sharedConfig.typename + '_aggregate']?.aggregate?.count
   };
 
   function computeConfig() {

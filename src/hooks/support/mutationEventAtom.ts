@@ -12,8 +12,9 @@ interface IMutationInsertEvent {
 }
 interface IMutationDeleteEvent {
   listKey?: string;
-  type: 'delete';
+  type: 'delete' | 'delete_jsonb_key';
   key: string;
+  payload?: IMutationEventPayload;
 }
 interface IMutationUpdateEvent {
   listKey?: string;

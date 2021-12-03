@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "dist/src",
+    "outDir": "dist/",
     "target": "ES5",
     "lib": [
       "dom",
@@ -8,23 +8,24 @@
       "esnext",
       "ES2020"
     ],
-    "allowJs": true,
+    "allowJs": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "noFallthroughCasesInSwitch": true,
-    "module": "commonjs",
+    "module": "ES2020",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "declaration": true,
+    "emitDeclarationOnly": true,
     "declarationMap": true,
+    "sourceMap": true,
+    "inlineSources": true,
     "typeRoots": [
-      "types/**/*.d.ts",
-      "types/**/*.ts",
-      "node_modules/@types"
+      "types"
     ],
     "baseUrl": "./src",
     "paths": {
@@ -40,16 +41,18 @@
       "types": [
         "types"
       ]
-    },
-    "sourceMap": true,
-    "inlineSources": true
+    }
   },
   "include": [
-    "src",
-    "src/**/*.{ts|tsx|js|jsx}",
-    "tests/**/*.{ts|tsx|js|jsx}"    
+    "src/components/shared/*.{ts|tsx|js|jsx}",
+    "src/hooks/*.{ts|tsx|js|jsx}",
+    "src/support/*.{ts|tsx|js|jsx}",
+    "src/types/*.{ts|tsx|js|jsx}",
+    "src/index.ts"
   ],
   "exclude": [
     "node_modules",
+    "scripts",
+    "src/stories"
   ]
 }

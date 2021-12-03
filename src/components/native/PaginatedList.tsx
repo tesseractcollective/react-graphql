@@ -1,10 +1,10 @@
 import React, { ReactElement, useState } from 'react';
-import { FlatList, ListRenderItem, RefreshControl, ScrollViewProps, Text } from 'react-native';
+import { FlatList, ListRenderItem, RefreshControl, Text, FlatListProps } from 'react-native';
 // import {useIsFocused} from '@react-navigation/core';
-import { useReactGraphql } from '../hooks/useReactGraphql';
-import { keyExtractor } from '../support/HasuraConfigUtils';
-import { HasuraDataConfig } from '../types/hasuraConfig';
-import { QueryMiddleware } from '../types/hookMiddleware';
+import { useReactGraphql } from '../../hooks/useReactGraphql';
+import { keyExtractor } from '../../support/HasuraConfigUtils';
+import { HasuraDataConfig } from '../../types/hasuraConfig';
+import { QueryMiddleware } from '../../types/hookMiddleware';
 
 const defaultPageSize = 50;
 
@@ -22,7 +22,7 @@ export interface PaginationListProps<T> {
   listKey?: string;
 }
 
-export default function <T extends { [key: string]: any }>(props: PaginationListProps<T> & ScrollViewProps) {
+export function PaginatedList<T extends { [key: string]: any }>(props: PaginationListProps<T> & FlatListProps<T>) {
   const {
     config,
     renderItem,
@@ -33,6 +33,7 @@ export default function <T extends { [key: string]: any }>(props: PaginationList
     pullToRefresh = true,
     middleware,
     listKey,
+    onEndReachedThreshold,
     ...rest
   } = props;
 
@@ -71,7 +72,6 @@ export default function <T extends { [key: string]: any }>(props: PaginationList
         <Text>{error.message}</Text>
       ) : (
         <FlatList
-          {...rest}
           refreshControl={
             pullToRefresh ? (
               <RefreshControl refreshing={fetching && !isManualRefresh} onRefresh={handleRefresh} />
@@ -80,8 +80,9 @@ export default function <T extends { [key: string]: any }>(props: PaginationList
           data={items as any[]}
           renderItem={renderItem}
           keyExtractor={(item: T) => keyExtractor(config, item)}
-          onEndReachedThreshold={1}
+          onEndReachedThreshold={onEndReachedThreshold || .9}
           onEndReached={loadNextPage}
+          {...rest}
         />
       )}
     </>

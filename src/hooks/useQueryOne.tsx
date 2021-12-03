@@ -1,43 +1,59 @@
-import {useState, useEffect} from 'react';
-import {HasuraDataConfig} from '../types/hasuraConfig';
-import {QueryMiddleware} from '../types/hookMiddleware';
-import {OperationContext, useQuery} from 'urql';
-import {stateFromQueryMiddleware} from '../support/middlewareHelpers';
-import {keyExtractor} from '../support/HasuraConfigUtils';
-import {useAtom} from 'jotai';
-import {IMutationEvent, mutationEventAtom} from './support/mutationEventAtom';
+import { useState, useEffect } from 'react';
+import { HasuraDataConfig } from '../types/hasuraConfig';
+import { QueryMiddleware } from '../types/hookMiddleware';
+import { OperationContext, useQuery, UseQueryState } from 'urql';
+import { stateFromQueryMiddleware } from '../support/middlewareHelpers';
+import { keyExtractor } from '../support/HasuraConfigUtils';
+import { useAtom } from 'jotai';
+import { IMutationEvent, mutationEventAtom } from './support/mutationEventAtom';
 import { JsonObject } from 'type-fest';
+import _ from 'lodash';
+import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useOperationStateHelper';
 
-interface IUseQueryOne {
+interface IUseQueryOne<TVariables> {
   sharedConfig: HasuraDataConfig;
   middleware: QueryMiddleware[];
+  variables: Partial<TVariables>;
+  resultHelperOptions?: IUseOperationStateHelperOptions;
+  urqlContext?: Partial<OperationContext>;
+}
+
+export interface QueryState {
+  item?: any;
+  localError: undefined;
+  fetching: boolean;
+  error?: Error;
+  queryState?: UseQueryState;
+  stale: boolean;
+  refresh: ()=> void;
+  setVariables: React.Dispatch<React.SetStateAction<JsonObject>>;
   variables: JsonObject;
 }
 
-export function useQueryOne<
-  TData extends JsonObject,
-  TVariables extends JsonObject
->(props: IUseQueryOne) {
-  const {sharedConfig, middleware, variables} = props;
+const defaultUrqlContext: Partial<OperationContext> = { requestPolicy: 'cache-and-network' };
+
+export function useQueryOne<TData extends JsonObject, TVariables extends JsonObject>(props: IUseQueryOne<TVariables>): QueryState {
+  const { sharedConfig, middleware, variables, urqlContext = defaultUrqlContext } = props;
 
   const [item, setItem] = useState<TData | null>();
   const [key, setKey] = useState<string>();
-  const [objectVariables, setObjectVariables] = useState<JsonObject>(
-    variables,
-  );
+  const [objectVariables, setObjectVariables] = useState<JsonObject>(variables);
 
   const [mutationEvent] = useAtom<IMutationEvent>(mutationEventAtom);
 
   //Guards
   if (!sharedConfig || !middleware?.length) {
-    throw new Error('sharedConfig and at least one middleware required');
+    throw new Error(`Hasura config and at least one middleware required.
+    You are missing: ${!sharedConfig ? 'HasuraConfig' : ''} ${!!middleware?.length ? ' Middleware' : ''}`);
   }
 
   const [queryCfg, setQueryCfg] = useState(computeConfig);
   const [resp, reExecuteQuery] = useQuery<TData>({
     query: queryCfg?.document,
     variables: queryCfg.variables,
+    context: urqlContext
   });
+  console.log('🚀 ~ file: useQueryOne.tsx ~ line 39 ~ resp', resp);
 
   useEffect(() => {
     updateItemKey();
@@ -50,20 +66,13 @@ export function useQueryOne<
 
     logMutationEvent();
 
-    if (
-      mutationEvent.listKey === sharedConfig.typename &&
-      (mutationEvent.key === key || !key)
-    ) {
+    if (mutationEvent.listKey === sharedConfig.typename && (mutationEvent.key === key || !key)) {
       if (mutationEvent.type === 'delete') {
         setItem(null);
       } else {
         setItem(mutationEvent.payload as TData);
       }
-    } else if (
-      mutationEvent.listKey &&
-      sharedConfig.typename &&
-      mutationEvent.listKey !== sharedConfig.typename
-    ) {
+    } else if (mutationEvent.listKey && sharedConfig.typename && mutationEvent.listKey !== sharedConfig.typename) {
       logMismatchedMutationEvent();
     }
   }, [mutationEvent]);
@@ -74,11 +83,10 @@ export function useQueryOne<
 
   useEffect(() => {
     const newState = computeConfig();
-    console.log(
-      'useQueryOne -> useEffect -> computeConfig -> newState',
-      newState,
-    );
-    setQueryCfg(newState);
+    if (!_.isEqual(newState, queryCfg)) {
+      console.log('useQueryOne -> useEffect -> computeConfig -> newState', newState);
+      setQueryCfg(newState);
+    }
   }, [objectVariables]);
 
   //Parse response
@@ -88,6 +96,8 @@ export function useQueryOne<
       setItem(resp.data[queryCfg.operationName] as any);
     }
   }, [resp.data]);
+
+  useOperationStateHelper(resp, props.resultHelperOptions || {});
 
   return {
     item,
@@ -133,9 +143,7 @@ export function useQueryOne<
     if (!sharedConfig || (!item && !objectVariables)) {
       return;
     }
-    let newKey = item
-      ? keyExtractor(sharedConfig, item)
-      : keyExtractor(sharedConfig, objectVariables);
+    let newKey = item ? keyExtractor(sharedConfig, item) : keyExtractor(sharedConfig, objectVariables);
     if (newKey) {
       if (newKey !== key) {
         setKey(newKey);
@@ -164,10 +172,6 @@ export function useQueryOne<
   }
 
   function computeConfig() {
-    return stateFromQueryMiddleware(
-      {variables: objectVariables},
-      middleware,
-      sharedConfig,
-    );
+    return stateFromQueryMiddleware({ variables: objectVariables }, middleware, sharedConfig);
   }
 }
