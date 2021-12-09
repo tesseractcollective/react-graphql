@@ -27,6 +27,7 @@ export interface IUseInfiniteQueryMany {
   urqlContext?: Partial<OperationContext>;
   resultHelperOptions?: IUseOperationStateHelperOptions;
   pause?: boolean;
+  isInfinite?: boolean
 }
 
 export interface IUseInfiniteQueryManyResults<TRecord> {
@@ -59,6 +60,7 @@ export function useInfiniteQueryMany<TData extends any>(
     listKey,
     urqlContext = defaultUrqlContext,
     pause,
+    isInfinite = true
   } = props;
 
   const limit = pageSize ?? defaultPageSize;
@@ -171,7 +173,7 @@ export function useInfiniteQueryMany<TData extends any>(
         }
 
         let newItemsMap = new Map(itemsMap);
-        if (shouldClearItems) {
+        if (shouldClearItems || !isInfinite) {
           newItemsMap = new Map();
           setShouldClearItems(false);
         }

@@ -38,6 +38,7 @@ export interface UseInfiniteQueryManyProps {
   urqlContext?: Partial<OperationContext>;
   resultHelperOptions?: IUseOperationStateHelperOptions;
   pause?: boolean;
+  isInfinite?: boolean
 }
 export interface UseQueryOneProps {
   variables: JsonObject;
