@@ -1,15 +1,12 @@
 import React, {useState, useEffect, ReactElement} from 'react';
-import {Text} from 'react-native';
 import {UseQueryState, CombinedError, UseMutationState} from 'urql';
 
 export interface IUseOperationStateHelperOptions {
   successToastMessage?: string;
-  successString?: string;
   successRender?: (data: any) => ReactElement;
   onSuccess?: (data: any) => void;
   //TODO: confirmBeforeMutation?: { title: string, description: string, okButtonText: string = 'Ok', cancelButtonText?: string, showCloseIcon: boolean }
   errorToastMessage?: string;
-  errorString?: string;
   errorRender?: (error: CombinedError) => ReactElement;
   onError?: (error: CombinedError) => void;
   Toast?: any
@@ -46,9 +43,6 @@ export function useOperationStateHelper(
             position: 'bottom',
           });
         }
-        if (options.errorString) {
-          setError(<Text>errorString</Text>);
-        }
         if (options.errorRender) {
           setError(options.errorRender(queryState.error));
         }
@@ -62,9 +56,6 @@ export function useOperationStateHelper(
             type: 'success',
             position: 'bottom',
           });
-        }
-        if (options.successString) {
-          setSuccess(<Text>successString</Text>);
         }
         if (options.successRender) {
           setSuccess(options.successRender(queryState.data));

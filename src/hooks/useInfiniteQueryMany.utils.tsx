@@ -36,6 +36,7 @@ export function createInfiniteQueryMany(
     typeof variables['limit'] === 'number' ? `limit: $limit` : null,
     typeof variables['offset'] === 'number' ? `offset: $offset` : null,
     variables['distinctOn'] ? `distinct_on: ${variables['distinctOn']}` : null,
+    variables['args'] ? `args: $args` : null,
   ]
     .filter((x) => !!x)
     .join(', ');
@@ -44,7 +45,7 @@ export function createInfiniteQueryMany(
 
   const aggregateOperationStrBase = [
     variables['where'] ? `where: $where` : null,
-    variables['distinctOn'] ? `distinct_on: ${variables['distinctOn']}` : null,
+    variables['distinctOn'] ? `distinct_on: ${variables['distinctOn']}` : null
   ]
     .filter((x) => !!x)
     .join(', ');

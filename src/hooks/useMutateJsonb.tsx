@@ -1,16 +1,24 @@
-import { useEffect, useState, useCallback } from 'react';
-import { HasuraDataConfig } from '../types/hasuraConfig';
-import { OperationTypes, QueryMiddleware, QueryPostMiddlewareState } from '../types/hookMiddleware';
-import { OperationContext, useMutation, UseMutationState } from 'urql';
-import { stateFromQueryMiddleware } from '../support/middlewareHelpers';
-import { useMonitorResult } from './support/monitorResult';
-import { mutationEventAtom } from './support/mutationEventAtom';
-import { useAtom } from 'jotai';
-import { keyExtractor } from '../support/HasuraConfigUtils';
-import { print } from 'graphql';
-import { JsonObject } from 'type-fest';
-import { IUseOperationStateHelperOptions, useOperationStateHelper } from './useOperationStateHelper';
-import { IUseMutateProps, MutateState } from './useMutate';
+import { useEffect, useState, useCallback } from "react";
+import { HasuraDataConfig } from "../types/hasuraConfig";
+import {
+  OperationTypes,
+  QueryMiddleware,
+  QueryPostMiddlewareState,
+} from "../types/hookMiddleware";
+import { OperationContext, useMutation, UseMutationState } from "urql";
+import { stateFromQueryMiddleware } from "../support/middlewareHelpers";
+import { useMonitorResult } from "./support/monitorResult";
+import { mutationEventAtom } from "./support/mutationEventAtom";
+import { useAtom } from "jotai";
+import { keyExtractor } from "../support/HasuraConfigUtils";
+import { print } from "graphql";
+import { JsonObject } from "type-fest";
+import {
+  IUseOperationStateHelperOptions,
+  useOperationStateHelper,
+} from "./useOperationStateHelper";
+import { IUseMutateProps, MutateState } from "./useMutate";
+import { log } from "../support/log";
 
 interface IUseMutateJsonbProps {
   columnName?: string;
@@ -20,30 +28,47 @@ interface IUseMutateJsonbProps {
   initialVariables?: JsonObject;
   operationEventType: OperationTypes;
   listKey?: string;
-  resultHelperOptions?: IUseOperationStateHelperOptions
+  resultHelperOptions?: IUseOperationStateHelperOptions;
 }
 
-export function useMutateJsonb<TResultData extends JsonObject, TVariables extends JsonObject, TItem extends JsonObject>(props: IUseMutateJsonbProps): MutateState<JsonObject, JsonObject> {
-  const { sharedConfig, middleware, initialVariables, initialItem, listKey, operationEventType, columnName } = props;
+export function useMutateJsonb<
+  TResultData extends JsonObject,
+  TVariables extends JsonObject,
+  TItem extends JsonObject
+>(props: IUseMutateJsonbProps): MutateState<JsonObject, JsonObject> {
+  const {
+    sharedConfig,
+    middleware,
+    initialVariables,
+    initialItem,
+    listKey,
+    operationEventType,
+    columnName,
+  } = props;
   //MutationConfig is what we internally refer to the middlewareState as
 
-  const [variables, setVariables] = useState<JsonObject>(initialVariables || {});
+  const [variables, setVariables] = useState<JsonObject>(
+    initialVariables || {}
+  );
   const [item, setItem] = useState<JsonObject>(initialItem || {});
   const [needsExecuteMutation, setNeedsExecuteMutation] = useState<boolean>();
-  const [executeContext, setExecuteContext] = useState<Partial<OperationContext> | null>();
+  const [executeContext, setExecuteContext] =
+    useState<Partial<OperationContext> | null>();
   const [_, setMutationEvent] = useAtom(mutationEventAtom);
 
   const _columnName = columnName || sharedConfig.jsonb?.columnName;
 
   //Guards
   if (!sharedConfig) {
-    throw new Error('config if required, recieved: ' + sharedConfig);
+    throw new Error("config if required, recieved: " + sharedConfig);
   }
   if (!middleware?.length) {
-    throw new Error('At least one middleware required');
+    throw new Error("At least one middleware required");
   }
   if (!_columnName) {
-    throw new Error('Column name required as paramter, or on config.jsonb.columnName for useMutateJsonb');
+    throw new Error(
+      "Column name required as paramter, or on config.jsonb.columnName for useMutateJsonb"
+    );
   }
   const computeConfig = (variables: JsonObject, item?: JsonObject) => {
     const variablesWithItem = {
@@ -60,11 +85,13 @@ export function useMutateJsonb<TResultData extends JsonObject, TVariables extend
         },
       },
       middleware,
-      sharedConfig,
+      sharedConfig
     );
   };
 
-  const [mutationCfg, setMutationCfg] = useState(computeConfig(variables, item));
+  const [mutationCfg, setMutationCfg] = useState(
+    computeConfig(variables, item)
+  );
   useEffect(() => {
     const newState = computeConfig(variables, item);
     setMutationCfg(newState);
@@ -79,9 +106,9 @@ export function useMutateJsonb<TResultData extends JsonObject, TVariables extend
       if (needsExecuteMutation && !executeContext) {
         setNeedsExecuteMutation(false);
 
-        console.log('💪 executingMutation');
-        console.log(print(mutationCfg.document));
-        console.log(JSON.stringify({ variables: mutationCfg.variables }));
+        log.debug("💪 executingMutation");
+        log.debug(print(mutationCfg.document));
+        log.debug(JSON.stringify({ variables: mutationCfg.variables }));
 
         //_append, _prepend, set -> These all expect an object with the shape of: { columnName: CHANGES }
         //for _append and _prepend this should be an object that is added to the existing array
@@ -92,7 +119,7 @@ export function useMutateJsonb<TResultData extends JsonObject, TVariables extend
 
         if (successItem) {
           const key = keyExtractor(sharedConfig, successItem);
-          console.log('setMutationEvent');
+          log.debug("setMutationEvent");
 
           setMutationEvent(() => ({
             listKey: listKey ?? sharedConfig.typename,
@@ -107,7 +134,7 @@ export function useMutateJsonb<TResultData extends JsonObject, TVariables extend
     })();
   }, [needsExecuteMutation, executeContext, executeMutation, mutationCfg]);
 
-  useMonitorResult('mutation', mutationResult, mutationCfg);
+  useMonitorResult("mutation", mutationResult);
 
   //Handling variables
   const setVariable = useCallback((name: string, value: any) => {
@@ -127,14 +154,14 @@ export function useMutateJsonb<TResultData extends JsonObject, TVariables extend
   const wrappedExecuteMutation = (
     _itemValues?: JsonObject,
     _variables?: JsonObject,
-    context?: Partial<OperationContext>,
+    context?: Partial<OperationContext>
   ) => {
     if (_variables || _itemValues) {
       const newVariables = {
         ...variables,
         ..._variables,
       };
-      const itm = typeof item === 'object' ? item : {};
+      const itm = typeof item === "object" ? item : {};
       const newItem = {
         ...itm,
         ..._itemValues,

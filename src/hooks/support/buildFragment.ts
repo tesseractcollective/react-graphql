@@ -1,13 +1,17 @@
-import { DocumentNode, print } from 'graphql';
-import { JsonObject } from 'type-fest';
+import { DocumentNode, print } from "graphql";
+import { JsonObject } from "type-fest";
+import { log } from "../../support/log";
 
-export function buildFragment(fragment: DocumentNode, operationName: string, variables: JsonObject) {
+export function buildFragment(
+  fragment: DocumentNode,
+  operationName: string,
+  variables: JsonObject
+) {
   let frag;
   try {
     frag = print(fragment);
-  }
-  catch (err) {
-    console.log(
+  } catch (err: any) {
+    log.error(
       `---!!! Could not parse FRAGMENT string ( useInfiniteQueryMany )  !!!---
     message: ${err.message}
 
@@ -19,7 +23,8 @@ export function buildFragment(fragment: DocumentNode, operationName: string, var
 
     ---!!! Could not parse query string !!!---
   `,
-      err);
+      err
+    );
     throw err;
   }
   return frag;

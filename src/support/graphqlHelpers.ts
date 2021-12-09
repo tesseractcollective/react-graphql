@@ -1,4 +1,4 @@
-import { JsonArray, JsonObject } from 'type-fest';
+import { JsonArray, JsonObject } from "type-fest";
 import {
   DocumentNode,
   GraphQLFieldMap,
@@ -18,26 +18,33 @@ export type GraphQLOutputTypeMap = { [key: string]: GraphQLOutputType };
 
 export function isMutation(document: DocumentNode) {
   const node = document.definitions[0];
-  return node?.kind === 'OperationDefinition' && node.operation === 'mutation';
+  return node?.kind === "OperationDefinition" && node.operation === "mutation";
 }
 
 export function isQuery(document: DocumentNode) {
   const node = document.definitions[0];
-  return node?.kind === 'OperationDefinition' && node.operation === 'query';
+  return node?.kind === "OperationDefinition" && node.operation === "query";
 }
 
 export function isFragment(document: DocumentNode) {
   const node = document.definitions[0];
-  return node?.kind === 'FragmentDefinition';
+  return node?.kind === "FragmentDefinition";
 }
 
-export function getVariableDefinition(document: DocumentNode, name: string): VariableDefinitionNode | undefined {
-  return getVariableDefinitions(document)?.find((d) => d.variable.name.value === name);
+export function getVariableDefinition(
+  document: DocumentNode,
+  name: string
+): VariableDefinitionNode | undefined {
+  return getVariableDefinitions(document)?.find(
+    (d) => d.variable.name.value === name
+  );
 }
 
-export function getVariableDefinitions(document: DocumentNode): ReadonlyArray<VariableDefinitionNode> | undefined {
+export function getVariableDefinitions(
+  document: DocumentNode
+): ReadonlyArray<VariableDefinitionNode> | undefined {
   for (const definition of document.definitions) {
-    if (definition.kind === 'OperationDefinition') {
+    if (definition.kind === "OperationDefinition") {
       return definition.variableDefinitions;
     }
   }
@@ -46,16 +53,18 @@ export function getVariableDefinitions(document: DocumentNode): ReadonlyArray<Va
 
 export function getFragmentName(document: DocumentNode): string | undefined {
   for (const definition of document.definitions) {
-    if (definition.kind === 'FragmentDefinition') {
+    if (definition.kind === "FragmentDefinition") {
       return definition.name.value;
     }
   }
   return undefined;
 }
 
-export function getFragmentTypeName(document: DocumentNode): string | undefined {
+export function getFragmentTypeName(
+  document: DocumentNode
+): string | undefined {
   for (const definition of document.definitions) {
-    if (definition.kind === 'FragmentDefinition') {
+    if (definition.kind === "FragmentDefinition") {
       return definition.typeCondition.name.value;
     }
   }
@@ -74,7 +83,10 @@ export interface IFieldOutputType {
   enumValues?: GraphQLEnumValue[];
 }
 
-export function getFieldMap(document: DocumentNode, schema: GraphQLSchema): GraphQLFieldMap<any, any> {
+export function getFieldMap(
+  document: DocumentNode,
+  schema: GraphQLSchema
+): GraphQLFieldMap<any, any> {
   const typeName = getFragmentTypeName(document);
   if (!typeName) {
     return {};
@@ -86,7 +98,9 @@ export function getFieldMap(document: DocumentNode, schema: GraphQLSchema): Grap
   return type.getFields();
 }
 
-function typeMapFromFieldMap(fieldMap: GraphQLFieldMap<any, any>): GraphQLOutputTypeMap {
+function typeMapFromFieldMap(
+  fieldMap: GraphQLFieldMap<any, any>
+): GraphQLOutputTypeMap {
   const typeMap: GraphQLOutputTypeMap = {};
   for (const key in fieldMap) {
     typeMap[key] = fieldMap[key].type;
@@ -94,7 +108,10 @@ function typeMapFromFieldMap(fieldMap: GraphQLFieldMap<any, any>): GraphQLOutput
   return typeMap;
 }
 
-export function getFieldTypeMap(document: DocumentNode, schema: GraphQLSchema): GraphQLOutputTypeMap {
+export function getFieldTypeMap(
+  document: DocumentNode,
+  schema: GraphQLSchema
+): GraphQLOutputTypeMap {
   const fieldMap = getFieldMap(document, schema);
   return typeMapFromFieldMap(fieldMap);
 }
@@ -102,8 +119,11 @@ export function getFieldTypeMap(document: DocumentNode, schema: GraphQLSchema): 
 export function getFragmentFields(
   document: DocumentNode,
   schema: GraphQLSchema,
-  relationshipLookup: Record<string,string> | null,
-): { fieldTypeMap: { [key: string]: GraphQLOutputType }; fieldSimpleMap: { [key: string]: any } } {
+  relationshipLookup: Record<string, string> | null
+): {
+  fieldTypeMap: { [key: string]: GraphQLOutputType };
+  fieldSimpleMap: { [key: string]: any };
+} {
   const fieldTypeMap: { [key: string]: GraphQLOutputType } = {};
 
   const fieldSimpleMap: { [key: string]: IFieldOutputType } = {};
@@ -115,14 +135,14 @@ export function getFragmentFields(
     };
   }
 
-  const allFields = getFieldMap(document, schema);    
+  const allFields = getFieldMap(document, schema);
 
   for (const definition of document.definitions) {
-    if (definition.kind === 'FragmentDefinition') {
+    if (definition.kind === "FragmentDefinition") {
       const fields = definition.selectionSet.selections;
       const tableName = definition.typeCondition.name.value;
       for (const field of fields) {
-        if (field.kind === 'Field') {
+        if (field.kind === "Field") {
           const fieldName = field.name.value;
           const graphQlField = allFields[fieldName];
           fieldTypeMap[fieldName] = graphQlField.type;
@@ -142,11 +162,11 @@ export function getFragmentFields(
             if(isEnumType(fieldType)){
               enumValues = fieldType.getValues()
             }
-            let relationship = null;
+            let relationship;
             if (relationshipLookup) {
-              const rel = relationshipLookup[tableName+ '.' + fieldName];
+              const rel = relationshipLookup[tableName + "." + fieldName];
               if (rel) {
-                const relArr = rel.split(':');
+                const relArr = rel.split(":");
                 relationship = {
                   table: relArr[0],
                   field: relArr[1],
@@ -159,15 +179,15 @@ export function getFragmentFields(
               name: fieldName,
               typeName: fieldType.name,
               isNonNull,
-              relationship: relationship ?? undefined,
+              relationship: relationship,
               enumValues
             };
           } else if (isObjectType(fieldType)) {
             let relationship;
             if (relationshipLookup) {
-              const rel = relationshipLookup[tableName+ '.' + fieldName];
+              const rel = relationshipLookup[tableName + "." + fieldName];
               if (rel) {
-                const relArr = rel.split(':');
+                const relArr = rel.split(":");
                 relationship = {
                   table: relArr[0],
                   field: relArr[1],
@@ -187,9 +207,9 @@ export function getFragmentFields(
             const innerType = fieldType.ofType;
             let relationship;
             if (relationshipLookup) {
-              const rel = relationshipLookup[tableName + '.' + fieldName];
+              const rel = relationshipLookup[tableName + "." + fieldName];
               if (rel) {
-                const relArr = rel.split(':');
+                const relArr = rel.split(":");
                 relationship = {
                   table: relArr[0],
                   field: relArr[1],
@@ -216,30 +236,42 @@ export function getFragmentFields(
   return { fieldTypeMap, fieldSimpleMap };
 }
 
-export function buildRelationshipMapFromMetadata(metaData: JsonArray, config: HasuraDataConfig[]): Record<string, string> {
+export function buildRelationshipMapFromMetadata(
+  metaData: JsonArray,
+  config: HasuraDataConfig[]
+): Record<string, string> {
   const metaDataMap: Record<string, string> = {};
   const missingTableNames = new Set<string>();
 
   metaData.forEach((metaDataTable: any) => {
     const tableName = metaDataTable?.table?.name;
     metaDataTable?.object_relationships?.forEach((relationship: any) => {
-      const sourceFieldNameAsArrOrStr = relationship.using?.foreign_key_constraint_on;
+      const sourceFieldNameAsArrOrStr =
+        relationship.using?.foreign_key_constraint_on;
       const sourceFieldName: string = Array.isArray(sourceFieldNameAsArrOrStr)
-        ? sourceFieldNameAsArrOrStr.join('.')
+        ? sourceFieldNameAsArrOrStr.join(".")
         : sourceFieldNameAsArrOrStr;
-      const sourceFieldNameFromManual = relationship.using?.manual_configuration;
+      const sourceFieldNameFromManual =
+        relationship.using?.manual_configuration;
 
-      const sourceColumns = sourceFieldName ?? Object.keys(sourceFieldNameFromManual?.column_mapping).join('.');
+      const sourceColumns =
+        sourceFieldName ??
+        Object.keys(sourceFieldNameFromManual?.column_mapping).join(".");
 
-      const targetTable = sourceFieldNameFromManual?.remote_table?.name ?? relationship.name;
+      const targetTable =
+        sourceFieldNameFromManual?.remote_table?.name ?? relationship.name;
       const targetField = sourceFieldNameFromManual?.column_mapping
         ? Object.keys(sourceFieldNameFromManual?.column_mapping)
             .map((x) => sourceFieldNameFromManual?.column_mapping[x])
-            .join('.')
-        : config.filter((cfg) => cfg.typename === tableName)?.[0]?.primaryKey.join('.');
+            .join(".")
+        : config
+            .filter((cfg) => cfg.typename === tableName)?.[0]
+            ?.primaryKey.join(".");
 
       if (targetField) {
-        metaDataMap[`${tableName}.${sourceColumns}`] = `${targetTable}:${targetField}`;
+        metaDataMap[
+          `${tableName}.${sourceColumns}`
+        ] = `${targetTable}:${targetField}`;
       } else {
         missingTableNames.add(tableName);
         metaDataMap[`${tableName}.${sourceColumns}`] = `${targetTable}:id`;
@@ -247,33 +279,46 @@ export function buildRelationshipMapFromMetadata(metaData: JsonArray, config: Ha
     });
 
     metaDataTable?.array_relationships?.forEach((relationship: any) => {
-      const sourceFieldName = relationship.using?.foreign_key_constraint_on?.column;
-      const sourceFieldNameFromManual = relationship.using?.manual_configuration;
+      const sourceFieldName =
+        relationship.using?.foreign_key_constraint_on?.column;
+      const sourceFieldNameFromManual =
+        relationship.using?.manual_configuration;
 
-      const sourceColumns = sourceFieldName ?? Object.keys(sourceFieldNameFromManual?.column_mapping).join('.');
+      const sourceColumns =
+        sourceFieldName ??
+        Object.keys(sourceFieldNameFromManual?.column_mapping).join(".");
 
       const targetTable =
-        sourceFieldNameFromManual?.remote_table?.name ?? relationship.using?.foreign_key_constraint_on?.table?.name;
+        sourceFieldNameFromManual?.remote_table?.name ??
+        relationship.using?.foreign_key_constraint_on?.table?.name;
       const targetField = sourceFieldNameFromManual?.column_mapping
         ? Object.keys(sourceFieldNameFromManual?.column_mapping)
             .map((x) => sourceFieldNameFromManual?.column_mapping?.[x])
-            .join('.')
+            .join(".")
         : config
             .filter((cfg) => {
               return cfg.typename === tableName;
             })?.[0]
-            ?.primaryKey.join('.');
+            ?.primaryKey.join(".");
 
       if (targetField) {
-        metaDataMap[`${tableName}.${sourceColumns}`] = `${targetTable}:${targetField}`;
+        metaDataMap[
+          `${tableName}.${sourceColumns}`
+        ] = `${targetTable}:${targetField}`;
       } else {
         missingTableNames.add(`tableName`);
         metaDataMap[`${tableName}.${sourceColumns}`] = `${targetTable}:id`;
       }
     });
   });
-  if(missingTableNames.size > 0){
-    console.warn(`Config Missing Tablenames for relationships: ${Array.from(missingTableNames).join(', ')}. Used default id.  Add entries to your hasuraConfig with a typeName equal to these column names to specify other primary keys`);
+  if (missingTableNames.size > 0) {
+    console.warn(
+      `Config Missing Tablenames for relationships: ${Array.from(
+        missingTableNames
+      ).join(
+        ", "
+      )}. Used default id.  Add entries to your hasuraConfig with a typeName equal to these column names to specify other primary keys`
+    );
   }
 
   return metaDataMap;
@@ -306,9 +351,9 @@ export function hasVariableDefinition(document: DocumentNode, name: string) {
 
 export function getResultFieldName(document: DocumentNode): string | undefined {
   const operation = document.definitions[0];
-  if (operation?.kind === 'OperationDefinition') {
+  if (operation?.kind === "OperationDefinition") {
     const field = operation.selectionSet.selections[0];
-    if (field?.kind === 'Field') {
+    if (field?.kind === "Field") {
       return field.name.value;
     }
   }

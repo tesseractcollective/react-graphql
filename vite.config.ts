@@ -14,8 +14,7 @@ export default defineConfig({
     sourcemap: 'inline',
     emptyOutDir: true,
     rollupOptions: {
-      external: [
-        'react-data-table-component',
+      external: [        
         'react',
         'react-dom',
         'urql',
@@ -25,7 +24,6 @@ export default defineConfig({
       output: {
         globals: {
           react: 'React',
-          'react-data-table-component': 'DataTable',
           'urql': 'urql',
           'react-loading': 'ReactLoading',
           'react-dom': 'ReactDom'

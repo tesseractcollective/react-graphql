@@ -1,15 +1,7 @@
-export { MutatorButton } from './components/shared/MutatorButton';
-export { MutatorTextInput } from './components/shared/MutatorTextInput';
-export { PaginatedTable } from './components/web/PaginatedTable';
-export type { IPaginatedTableProps } from './components/web/PaginatedTable';
-export { Input } from './components/shared/Input';
-export type { InputType } from './components/shared/Input';
-
 export { ReactGraphqlProvider } from './hooks/ReactGraphqlProvider';
 export type { IReactGraphqlProviderProps } from './hooks/ReactGraphqlProvider';
 export { useInfiniteQueryMany } from './hooks/useInfiniteQueryMany';
 export type { IUseInfiniteQueryMany, IUseInfiniteQueryManyResults } from './hooks/useInfiniteQueryMany';
-
 export { createInfiniteQueryMany } from './hooks/useInfiniteQueryMany.utils';
 export { useMutate } from './hooks/useMutate';
 export type { MutateState } from './hooks/useMutate';
@@ -19,11 +11,12 @@ export { useQueryOne } from './hooks/useQueryOne';
 export { createQueryOne } from './hooks/useQueryOne.utils';
 export { useReactGraphql } from './hooks/useReactGraphql';
 export type { UseReactGraphqlApi } from './hooks/useReactGraphql';
-export type { UseInfiniteQueryManyProps } from './hooks/useReactGraphql';
+export type { UseInfiniteQueryManyProps, UseQueryOneProps } from './hooks/useReactGraphql';
 export { useUrqlQuery } from './hooks/useUrqlQuery';
 export { useMutateExisting } from './hooks/useMutateExisting';
 export type { UseMutationExistingState } from './hooks/useMutateExisting';
 export { useCascadingSelect } from './hooks/useCascadingSelect';
+export { usePaginatedList } from './hooks/ui/usePaginatedList';
 // export * from './components'
 
 export {
@@ -45,15 +38,6 @@ export { stateFromQueryMiddleware } from './support/middlewareHelpers';
 
 export { registerStyles, buildStyles, bs } from './support/styling/buildStyles';
 
-export type {
-  PaginatedTableExpanderConfig,
-  PaginatedTableNavConfig,
-  PaginatedTableModalConfig,
-  PaginatedTableInvokeConfig,
-  PaginatedTableSelectConfig,
-  PaginatedTableActions,
-  Order_By
-} from './types/PaginatedTableTypes';
 export type { HasuraConfigType, HasuraDataConfig } from './types/hasuraConfig/index';
 export type { UseMutatorProps, Mutator, MutatorState, MutationConfig } from './types/hasuraHooks/index';
 export type { QueryMiddleware, QueryPreMiddlewareState, QueryPostMiddlewareState } from './types/hookMiddleware/index';
