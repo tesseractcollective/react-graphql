@@ -20,7 +20,6 @@
     "LICENSE",
     "README.md"
   ],
-  "main": "./src/index.ts",
   "repository": "github:tesseractcollective/react-graphql",
   "scripts": {
     "dev": "pnpm devmode",
