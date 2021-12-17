@@ -1,6 +1,19 @@
 {
   "name": "@tesseractcollective/react-graphql",
   "version": "0.9.17",
+  "description": "This library provides hooks and components to easily interact with opinionated graphql APIs. It includes patterns do create paginated lists, admin interface data grids, and edit views.",
+  "keywords": [
+    "hasura",
+    "react",
+    "graphql",
+    "react hooks",
+    "graphql client"
+  ],
+  "homepage": "https://github.com/tesseractcollective/react-graphql",
+  "bugs": {
+    "url": "https://github.com/tesseractcollective/react-graphql/issues"
+  },
+  "license": "MIT",
   "private": false,
   "files": [
     "dist",
@@ -8,10 +21,7 @@
     "README.md"
   ],
   "main": "./src/index.ts",
-  "repository": {
-    "type": "git",
-    "url": "github:tesseractcollective/react-graphql"
-  },
+  "repository": "github:tesseractcollective/react-graphql",
   "scripts": {
     "dev": "pnpm devmode",
     "build": "pnpm webmode && vite build && ttsc --project tsconfig-web.build.json",
