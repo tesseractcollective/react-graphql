@@ -16,7 +16,7 @@ Add these dependencies: `react-router-dom graphql graphql-tag jotai lodash react
 
 Update `src/index.web.ts` and/or `src/index.native.ts` to import and export the file and any types created for the new file.
 
-##### EDIT SUGGESTION:  index file inbetween the start of the src folder and your containing component folder 
+##### EDIT SUGGESTION:  index file inbetween the root of the "src" folder and its containing "component" folder 
 If there is an index file inbetween src and your component you need to update that as well. This isn't necessary but improves local typescript support.
 
 ### Adding component
