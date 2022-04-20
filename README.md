@@ -16,14 +16,14 @@ Add these dependencies: `react-router-dom graphql graphql-tag jotai lodash react
 
 Update `src/index.web.ts` and/or `src/index.native.ts` to import and export the file and any types created for the new file.
 
-##### index file inbetween the start of the src folder and your containing component folder 
+##### EDIT SUGGESTION:  index file inbetween the start of the src folder and your containing component folder 
 If there is an index file inbetween src and your component you need to update that as well. This isn't necessary but improves local typescript support.
 
 ### Adding component
 
 If the component can be built and maintained using only react-native-web components, put it in `src/components/shared` and do that!
 
-##### I am assuming the path implied is "src/components/web".  If so, might as well say that or the correct full path for clarity.
+##### EDIT SUGGESTION: I am assuming the path implied is "src/components/web".  If so, might as well say that or the correct full path for clarity.
 Otherwise, put the component in component in `src/components/native OR web` and only update the matching index file in src.
 
 
