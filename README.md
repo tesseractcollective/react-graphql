@@ -1,6 +1,6 @@
 # React GraphQL
 
-This library provides hooks and components to easily interact with opinionated graphql APIs. It includes patterns do create paginated lists, admin interface data grids, and edit views.
+This library provides hooks and components to easily interact with opinionated graphql APIs. It includes patterns to create paginated lists, admin interface data grids, and edit views.
 
 Supported GraphQL APIs:
 - Hasura
@@ -16,12 +16,14 @@ Add these dependencies: `react-router-dom graphql graphql-tag jotai lodash react
 
 Update `src/index.web.ts` and/or `src/index.native.ts` to import and export the file and any types created for the new file.
 
+##### index file inbetween the start of the src folder and your containing component folder 
 If there is an index file inbetween src and your component you need to update that as well. This isn't necessary but improves local typescript support.
 
 ### Adding component
 
 If the component can be built and maintained using only react-native-web components, put it in `src/components/shared` and do that!
 
+##### I am assuming the path implied is "src/components/web".  If so, might as well say that or the correct full path for clarity.
 Otherwise, put the component in component in `src/components/native OR web` and only update the matching index file in src.
 
 
@@ -41,7 +43,7 @@ pnpm pack:web
 * Copy path : Right click and select "copy path"
 * Install via file: In the target project run `pnpm add PASTE_PATH_TO_TGZ`
 
-This will override the existing version of react-graphl in that project with the one you built on disk.
+This will override the existing version of react-graphql in that project with the one you built on disk.
 
 Repeat as needed.
 

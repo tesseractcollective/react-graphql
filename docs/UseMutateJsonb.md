@@ -118,7 +118,7 @@ No, this is not a typo. If we're working an object then insert uses `_append` un
   
 ```
 
-## 6. Relepace the entire object
+## 6. Replace the entire object
 
 ```
   const jsonbState = claimApi.useUpdateJsonb({
