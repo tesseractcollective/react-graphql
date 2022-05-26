@@ -201,8 +201,11 @@ export function useInfiniteQueryMany<TData extends any>(
         });
       }
     }
-    setQueryStateStored(queryState);
-  }, [queryState]);
+  }, [queryState.data]);
+
+  useEffect(() => {
+    setQueryStateStored(queryState)
+  },[queryState])
 
   //Effect/react on mutation events
   const [mutationEvent] = useAtom<IMutationEvent>(mutationEventAtom);
